@@ -27,9 +27,9 @@ Simplest instalation (maybe not the most optimal)
 * clean ERROR.txt file (optional)
 * edit param.bash to fit your setup/need
    * mesh mask location with mesh mask name
-   * location of the toolbox
-   * where to store the data
-   * where are your CDFTOOLS version 4.0 
+   * location of the toolbox (optional if you install it on your home directory)
+   * where to store the data (optional if you stick to SPICE scratch directory)
+   * where are your CDFTOOLS version 4.0 (optional if you stick to already installed cdftools)
 
 * these module are required : 
 ```
