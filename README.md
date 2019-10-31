@@ -17,6 +17,7 @@
 * only work for eORCA025 at the moment (section and box hard coded by index not lat/lon):
    * need to find a better management of the box indexes (need CDFTOOLS modification or an other step to build the mask on the fily with lat/lon boxes)
    * need a better management of section (need CDFTOOLS modification)
+* only work on Met Office computer
 * plot should not be used for publication as it is (std and mean value of observation should be corrected if you want to do so)
 
 ## Installation
