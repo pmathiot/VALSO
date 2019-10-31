@@ -2,7 +2,6 @@
 
 ================================================
 ## Purpose
-================================================
 * This toolbox only assess the order 0 of the southern ocean circulation :
    * ACC
    * Weddell gyre
@@ -11,11 +10,10 @@
    * Intrusion of CDW in Amundsen sea
    * Intrusion of CDW on East Ross shelf
 
-- Compare simulated metrics with what is called a good-enough simulation (this range is estimated from expert judgements not observation dataset)
+* Compare simulated metrics with what is called a good-enough simulation (this range is estimated from expert judgements not observation dataset)
 
 ================================================
 ## Limitation
-================================================
 * only work for eORCA025 at the moment (section and box hard coded by index not lat/lon):
    * need to find a better management of the box indexes (need CDFTOOLS modification or an other step to build the mask on the fily with lat/lon boxes)
    * need a better management of section (need CDFTOOLS modification)
@@ -23,7 +21,6 @@
 
 ================================================
 ## Installation
-================================================
 Simplest instalation (maybe not the most optimal)
 * copy the VALIDATION_SO directory
 * clean what is inside SLURM directory (optional)
@@ -43,7 +40,6 @@ Simplest instalation (maybe not the most optimal)
 
 ================================================
 ## Usage
-================================================
 * define your style for each simulation (file style.db)
 * ./run_all.bash [CONFIG] [YEARB] [YEARE] [RUNID list] 
     example : ./run_all.bash eORCA025 1976 1977 u-ar685 u-bj000 u-bn477 u-az867 u-am916 u-ba470
@@ -58,7 +54,6 @@ you can now build the plot:
 
 ===============================================
 ## Output
-===============================================
 * figure [KEY].png
 
 Other output : 
