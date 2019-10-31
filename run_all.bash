@@ -66,7 +66,7 @@ for RUNID in `echo $RUNIDS`; do
      eval "printf '|' ; printf '%0.s=' {0..$icar} ; printf '\r' ; "
      sleep 1
    done
-   eval "printf ' |' ; printf '%0.s=' {0..100} ; printf '|\n' ;"
+   eval "printf '|' ; printf '%0.s=' {0..100} ; printf '|\n' ;"
    echo ''
    
    # wait it is done
