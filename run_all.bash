@@ -67,6 +67,7 @@ for RUNID in `echo $RUNIDS`; do
      sleep 1
    done
    eval "printf ' |' ; printf '%0.s=' {0..100} ; printf '|\n' ;"
+   echo ''
    
    # wait it is done
    wait
