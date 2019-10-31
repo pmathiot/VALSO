@@ -1,6 +1,6 @@
 #!/bin/bash -l
 #SBATCH --mem=500
-#SBATCH --time=100
+#SBATCH --time=20
 #SBATCH --ntasks=1
 
 CONFIG=$1

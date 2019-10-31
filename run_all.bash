@@ -13,16 +13,16 @@ RUNIDS=${@:4}
 if [ -f ERROR.txt ]; then rm ERROR.txt ; fi
 
 # loop over years
-njob=0
+echo ''
 for RUNID in `echo $RUNIDS`; do
 
    # set up jobout directory file
    JOBOUT_PATH=${EXEPATH}/SLURM/${CONFIG}/${RUNID}
    if [ ! -d ${JOBOUT_PATH} ]; then mkdir -p ${JOBOUT_PATH} ; fi
 
-   echo ''
-   echo $RUNID
-   echo ''
+   echo "$RUNID ..."
+
+   njob=0
    for YEAR in `eval echo {${YEARB}..${YEARE}}`; do
       # define tags
       TAG=${YEAR}1201-$((YEAR+1))1201
@@ -33,36 +33,45 @@ for RUNID in `echo $RUNIDS`; do
       mooUyid=$(sbatch --job-name=moo_${YEAR}_U --output=${JOBOUT_PATH}/moo_${YEAR}_U   ${SCRPATH}/get_data.bash $CONFIG $RUNID 1y $TAG   grid-U | awk '{print $4}')  # for mk_trp and mk_psi
       mooTyid=$(sbatch --job-name=moo_${YEAR}_T --output=${JOBOUT_PATH}/moo_${YEAR}_T   ${SCRPATH}/get_data.bash $CONFIG $RUNID 1y $TAG   grid-T | awk '{print $4}')  # for mk_bot.bash
       mooTmid=$(sbatch --job-name=moo_${YEAR}_T --output=${JOBOUT_PATH}/moo_${YEAR}_T09 ${SCRPATH}/get_data.bash $CONFIG $RUNID 1m $TAG09 grid-T | awk '{print $4}')  # for mk_mxl.bash
-
-      sbatch --wait --dependency=afterany:$mooVyid:$mooUyid --job-name=SO_trp_${TAG}_${RUNID} --output=${JOBOUT_PATH}/trp_${TAG}.out ${SCRPATH}/mk_trp.bash $CONFIG $RUNID $TAG   1y > /dev/null 2>&1 &
+       
+      # run cdftools
+      # scheduler option
+      sbatchschopt='--wait ' #--qos=long '  
+      # runid option
+      sbatchrunopt="--dependency=afterany:$mooVyid:$mooUyid --job-name=SO_trp_${TAG}_${RUNID} --output=${JOBOUT_PATH}/trp_${TAG}.out"
+      sbatch ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_trp.bash $CONFIG $RUNID $TAG   1y > /dev/null 2>&1 &
       njob=$((njob+1))
 
-      sbatch --wait --dependency=afterany:$mooVyid:$mooUyid --job-name=SO_psi_${TAG}_${RUNID} --output=${JOBOUT_PATH}/psi_${TAG}.out ${SCRPATH}/mk_psi.bash $CONFIG $RUNID $TAG   1y > /dev/null 2>&1 &
+      sbatchrunopt="--dependency=afterany:$mooVyid:$mooUyid --job-name=SO_psi_${TAG}_${RUNID} --output=${JOBOUT_PATH}/psi_${TAG}.out"
+      sbatch ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_psi.bash $CONFIG $RUNID $TAG   1y > /dev/null 2>&1 &
       njob=$((njob+1))
       
-      sbatch --wait --dependency=afterany:$mooTyid          --job-name=SO_mxl_${TAG}_${RUNID} --output=${JOBOUT_PATH}/mxl_${TAG}.out ${SCRPATH}/mk_mxl.bash $CONFIG $RUNID $TAG09 1m > /dev/null 2>&1 &
+      sbatchrunopt="--dependency=afterany:$mooTmid --job-name=SO_mxl_${TAG}_${RUNID} --output=${JOBOUT_PATH}/mxl_${TAG}.out"
+      sbatch  ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_mxl.bash $CONFIG $RUNID $TAG09 1m > /dev/null 2>&1 &
       njob=$((njob+1))
 
-      sbatch --wait --dependency=afterany:$mooTmid          --job-name=SO_bot_${TAG}_${RUNID} --output=${JOBOUT_PATH}/bot_${TAG}.out ${SCRPATH}/mk_bot.bash $CONFIG $RUNID $TAG   1y > /dev/null 2>&1 &
+      sbatchrunopt="--dependency=afterany:$mooTyid --job-name=SO_bot_${TAG}_${RUNID} --output=${JOBOUT_PATH}/bot_${TAG}.out"
+      sbatch  ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_bot.bash $CONFIG $RUNID $TAG   1y > /dev/null 2>&1 &
       njob=$((njob+1))
    done
-done
 
-# print task bar
-sleep 4
-echo''
-ijob=$njob
-eval "printf '|' ; printf '%0.s ' {0..100} ; printf '|\r' ;"
-while [[ $ijob -ne 0 ]] ; do
-  ijob=`squeue -u ${USER} | grep 'SO_' | wc -l` 
-  icar=$(( ( (njob - ijob) * 100 ) / njob ))
-  eval "printf '|' ; printf '%0.s=' {0..$icar} ; printf '\r' ; "
-  sleep 1
-done
-eval "printf ' |' ; printf '%0.s=' {0..100} ; printf '|\n' ;"
+   # print task bar
+   sleep 4
+   echo''
+   ijob=$njob
+   eval "printf '|' ; printf '%0.s ' {0..100} ; printf '|\r' ;"
+   while [[ $ijob -ne 0 ]] ; do
+     ijob=`squeue -u ${USER} | grep 'SO_' | wc -l` 
+     icar=$(( ( (njob - ijob) * 100 ) / njob ))
+     eval "printf '|' ; printf '%0.s=' {0..$icar} ; printf '\r' ; "
+     sleep 1
+   done
+   eval "printf ' |' ; printf '%0.s=' {0..100} ; printf '|\n' ;"
+   
+   # wait it is done
+   wait
 
-# wait it is done
-wait
+done # end runids
 
 # print out
 sleep 1
