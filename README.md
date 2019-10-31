@@ -22,7 +22,7 @@
 
 ## Installation
 Simplest instalation (maybe not the most optimal)
-* copy the VALIDATION_SO directory
+* copy the VALSO directory
 * clean what is inside SLURM directory (optional)
 * clean ERROR.txt file (optional)
 * edit param.bash to fit your setup/need
