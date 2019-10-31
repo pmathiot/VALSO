@@ -1,6 +1,5 @@
 # VALSO
 
-================================================
 ## Purpose
 * This toolbox only assess the order 0 of the southern ocean circulation :
    * ACC
@@ -12,14 +11,14 @@
 
 * Compare simulated metrics with what is called a good-enough simulation (this range is estimated from expert judgements not observation dataset)
 
-================================================
+![Alt text](FIGURES/example.png?raw=true "Example of the VALSO output")
+
 ## Limitation
 * only work for eORCA025 at the moment (section and box hard coded by index not lat/lon):
    * need to find a better management of the box indexes (need CDFTOOLS modification or an other step to build the mask on the fily with lat/lon boxes)
    * need a better management of section (need CDFTOOLS modification)
 * plot should not be used for publication as it is (std and mean value of observation should be corrected if you want to do so)
 
-================================================
 ## Installation
 Simplest instalation (maybe not the most optimal)
 * copy the VALIDATION_SO directory
@@ -38,7 +37,6 @@ Simplest instalation (maybe not the most optimal)
    netcdf/4.6.1/gnu/8.1.0
    scitools/production-os41-1
 
-================================================
 ## Usage
 * define your style for each simulation (file style.db)
 * ./run_all.bash [CONFIG] [YEARB] [YEARE] [RUNID list] 
@@ -52,7 +50,6 @@ you can now build the plot:
 * ./run_plot.bash [KEY] [RUNID list]
    example : ./run_plot.bash cpl_and_forced u-am916 u-az867 u-ba470 u-ar685 u-bj000 u-bn477
 
-===============================================
 ## Output
 * figure [KEY].png
 
