@@ -31,24 +31,30 @@ Simplest instalation (maybe not the most optimal)
    * where are your CDFTOOLS version 4.0 
 
 * these module are required : 
+```
    gcc/8.1.0 
    mpi/mpich/3.2.1/gnu/8.1.0 
    hdf5/1.8.20/gnu/8.1.0 
    netcdf/4.6.1/gnu/8.1.0
    scitools/production-os41-1
+```
 
 ## Usage
 * define your style for each simulation (file style.db)
-* ./run_all.bash [CONFIG] [YEARB] [YEARE] [RUNID list] 
-    example : ./run_all.bash eORCA025 1976 1977 u-ar685 u-bj000 u-bn477 u-az867 u-am916 u-ba470
+* `./run_all.bash [CONFIG] [YEARB] [YEARE] [RUNID list]` as example : 
+```
+./run_all.bash eORCA025 1976 1977 u-ar685 u-bj000 u-bn477 u-az867 u-am916 u-ba470
+```
 
 Once this is done and if no error or minor error 
 (ie for example we ask from 2000 to 2020 
 but some simulation only span between 2010 and 2020. In this case no data will be built for the period 2000 2009 but erro will show up)
 
 you can now build the plot:
-* ./run_plot.bash [KEY] [RUNID list]
-   example : ./run_plot.bash cpl_and_forced u-am916 u-az867 u-ba470 u-ar685 u-bj000 u-bn477
+* `./run_plot.bash [KEY] [RUNID list]` as example : 
+```
+./run_plot.bash cpl_and_forced u-am916 u-az867 u-ba470 u-ar685 u-bj000 u-bn477
+```
 
 ## Output
 * figure [KEY].png
