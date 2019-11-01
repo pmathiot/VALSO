@@ -142,11 +142,22 @@ def get_ybnd(run_lst, omin, omax):
         rmax = max(rmax, run.ts[run.name].max())
     return rmin, rmax
 
-def add_legend(lg, ax):
+def add_legend(lg, ax, ncol=3, lvis=True):
     x0, x1, y0, y1 = get_corner(ax)
     lax = plt.axes([0.0, 0.0, 1, 0.15])
     lline, llabel = lg.get_legend_handles_labels()
-    plt.legend(lline, llabel, loc='upper left', ncol = 3, fontsize=16, frameon=False)
+    leg=plt.legend(lline, llabel, loc='upper left', ncol = ncol, fontsize=16, frameon=False)
+    for item in leg.legendHandles:
+        item.set_visible(lvis)
+    lax.set_axis_off() 
+
+def add_text(lg, ax, clabel, ncol=3, lvis=True):
+    x0, x1, y0, y1 = get_corner(ax)
+    lax = plt.axes([0.0, 0.0, 1, 0.15])
+    lline, llabel = lg.get_legend_handles_labels()
+    leg=plt.legend(lline, clabel, loc='upper left', ncol = ncol, fontsize=16, frameon=False)
+    for item in leg.legendHandles:
+        item.set_visible(lvis)
     lax.set_axis_off() 
 # ========================== stat plot ============================
 def tidyup_ax(ax, xmin, xmax, ymin, ymax):
@@ -243,7 +254,7 @@ def main():
 
             run_lst[irun].load_time_series(cfile, cvar)
             ts_lst[irun] = run_lst[irun].ts
-            lg = ts_lst[irun].plot(ax=ax[ivar], legend=False, style=run_lst[irun].line,color=run_lst[irun].color,label=run_lst[irun].name,linewidth=2)
+            lg = ts_lst[irun].plot(ax=ax[ivar], legend=False, style=run_lst[irun].line,color=run_lst[irun].color,label=run_lst[irun].name, linewidth=2, rot=0)
 
         # set title
         if (args.title):
@@ -292,6 +303,23 @@ def main():
        pass
     else:
        plt.show()
+
+    # build specific legend figure
+    plt.figure(figsize=np.array([210*3, 210*3]) / 25.4)
+    ax = plt.subplot(1, 1, 1)
+    ax.axis('off')
+    add_legend(lg,ax,ncol=10)
+    plt.savefig('legend.png', format='png', dpi=150)
+
+    # build specific text figure
+    plt.figure(figsize=np.array([210*3, 210*3]) / 25.4)
+    ax = plt.subplot(1, 1, 1)
+    ax.axis('off')
+    clabel=['']*len(args.runid)
+    for irun, runid in enumerate(args.runid):
+        clabel[irun]=run_lst[irun].name+' = '+runid
+    add_text(lg,ax,clabel,ncol=10,lvis=False)
+    plt.savefig('runidname.png', format='png', dpi=150)
 
 if __name__=="__main__":
     main()
