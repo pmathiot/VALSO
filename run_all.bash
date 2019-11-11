@@ -29,10 +29,10 @@ for RUNID in `echo $RUNIDS`; do
       TAG09=${YEAR}0901-${YEAR}1001
 
       # get data 
-      mooVyid=$(sbatch --job-name=moo_${YEAR}_V --output=${JOBOUT_PATH}/moo_${YEAR}_V   ${SCRPATH}/get_data.bash $CONFIG $RUNID 1y $TAG   grid-V | awk '{print $4}')  # for mk_trp and mk_psi
-      mooUyid=$(sbatch --job-name=moo_${YEAR}_U --output=${JOBOUT_PATH}/moo_${YEAR}_U   ${SCRPATH}/get_data.bash $CONFIG $RUNID 1y $TAG   grid-U | awk '{print $4}')  # for mk_trp and mk_psi
-      mooTyid=$(sbatch --job-name=moo_${YEAR}_T --output=${JOBOUT_PATH}/moo_${YEAR}_T   ${SCRPATH}/get_data.bash $CONFIG $RUNID 1y $TAG   grid-T | awk '{print $4}')  # for mk_bot.bash
-      mooTmid=$(sbatch --job-name=moo_${YEAR}_T --output=${JOBOUT_PATH}/moo_${YEAR}_T09 ${SCRPATH}/get_data.bash $CONFIG $RUNID 1m $TAG09 grid-T | awk '{print $4}')  # for mk_mxl.bash
+      mooVyid=$(sbatch --job-name=moo_${YEAR}_V --output=${JOBOUT_PATH}/moo_${YEAR}_V   ${SCRPATH}/get_data.bash $RUNID 1y $TAG   grid-V | awk '{print $4}')  # for mk_trp and mk_psi
+      mooUyid=$(sbatch --job-name=moo_${YEAR}_U --output=${JOBOUT_PATH}/moo_${YEAR}_U   ${SCRPATH}/get_data.bash $RUNID 1y $TAG   grid-U | awk '{print $4}')  # for mk_trp and mk_psi
+      mooTyid=$(sbatch --job-name=moo_${YEAR}_T --output=${JOBOUT_PATH}/moo_${YEAR}_T   ${SCRPATH}/get_data.bash $RUNID 1y $TAG   grid-T | awk '{print $4}')  # for mk_bot.bash
+      mooTmid=$(sbatch --job-name=moo_${YEAR}_T --output=${JOBOUT_PATH}/moo_${YEAR}_T09 ${SCRPATH}/get_data.bash $RUNID 1m $TAG09 grid-T | awk '{print $4}')  # for mk_mxl.bash
        
       # run cdftools
       # scheduler option

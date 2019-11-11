@@ -20,8 +20,8 @@ cd $DATPATH/
 RUN_NAME=${RUNID#*-}
 
 # download data if needed
-${SCRPATH}/get_data.bash $RUNID $FREQ $TAG grid-V
-${SCRPATH}/get_data.bash $RUNID $FREQ $TAG grid-U
+#${SCRPATH}/get_data.bash $RUNID $FREQ $TAG grid-V
+#${SCRPATH}/get_data.bash $RUNID $FREQ $TAG grid-U
 
 # check presence of input file
 FILEU=nemo_${RUN_NAME}o_${FREQ}_${TAG}_grid-U.nc
