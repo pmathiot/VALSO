@@ -3,10 +3,11 @@
 #SBATCH --time=20
 #SBATCH --ntasks=1
 
-RUNID=$1
-FREQ=$2
-TAG=$3
-GRID=$4
+CONFIG=$1
+RUNID=$2
+FREQ=$3
+TAG=$4
+GRID=$5
 
 . param.bash
 . ${SCRPATH}/common.bash
