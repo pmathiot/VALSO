@@ -5,7 +5,8 @@ ulimit -s unlimited
 # where mask are stored (name of mesh mask in SCRIPT/common.bash)
 MSKPATH=${DATADIR}/MESH_MASK/
 # where cdftools are stored
-CDFPATH=/project/nemo/TOOLS/CDFTOOLS/CDFTOOLS_4.0_master/bin/
+#CDFPATH=/project/nemo/TOOLS/CDFTOOLS/CDFTOOLS_4.0_master/bin/
+CDFPATH=/home/h05/pmathiot/TOOLS/CDFTOOLS_4.0/bin
 # toolbox location
 EXEPATH=${HOME}/VALSO/
 # SCRIPT location

@@ -27,31 +27,77 @@ for RUNID in `echo $RUNIDS`; do
       # define tags
       TAG=${YEAR}1201-$((YEAR+1))1201
       TAG09=${YEAR}0901-${YEAR}1001
+      TAG02=${YEAR}0201-${YEAR}0301
 
       # get data 
-      mooVyid=$(sbatch --job-name=moo_${YEAR}_V --output=${JOBOUT_PATH}/moo_${YEAR}_V   ${SCRPATH}/get_data.bash $CONFIG $RUNID 1y $TAG   grid-V | awk '{print $4}')  # for mk_trp and mk_psi
-      mooUyid=$(sbatch --job-name=moo_${YEAR}_U --output=${JOBOUT_PATH}/moo_${YEAR}_U   ${SCRPATH}/get_data.bash $CONFIG $RUNID 1y $TAG   grid-U | awk '{print $4}')  # for mk_trp and mk_psi
-      mooTyid=$(sbatch --job-name=moo_${YEAR}_T --output=${JOBOUT_PATH}/moo_${YEAR}_T   ${SCRPATH}/get_data.bash $CONFIG $RUNID 1y $TAG   grid-T | awk '{print $4}')  # for mk_bot.bash
-      mooTmid=$(sbatch --job-name=moo_${YEAR}_T --output=${JOBOUT_PATH}/moo_${YEAR}_T09 ${SCRPATH}/get_data.bash $CONFIG $RUNID 1m $TAG09 grid-T | awk '{print $4}')  # for mk_mxl.bash
+      mooVyid=$(sbatch --job-name=moo_${YEAR}_V   --output=${JOBOUT_PATH}/moo_${YEAR}_V   ${SCRPATH}/get_data.bash $CONFIG $RUNID 1y $TAG   grid-V | awk '{print $4}')  # for mk_trp and mk_psi
+      mooUyid=$(sbatch --job-name=moo_${YEAR}_U   --output=${JOBOUT_PATH}/moo_${YEAR}_U   ${SCRPATH}/get_data.bash $CONFIG $RUNID 1y $TAG   grid-U | awk '{print $4}')  # for mk_trp and mk_psi
+      mooTyid=$(sbatch --job-name=moo_${YEAR}_T   --output=${JOBOUT_PATH}/moo_${YEAR}_T   ${SCRPATH}/get_data.bash $CONFIG $RUNID 1y $TAG   grid-T | awk '{print $4}')  # for mk_bot.bash
+      mooT09mid=$(sbatch --job-name=moo_${YEAR}_T --output=${JOBOUT_PATH}/moo_${YEAR}_T09 ${SCRPATH}/get_data.bash $CONFIG $RUNID 1m $TAG09 grid-T | awk '{print $4}')  # for mk_mxl.bash
+      mooT02mid=$(sbatch --job-name=moo_${YEAR}_T --output=${JOBOUT_PATH}/moo_${YEAR}_T02 ${SCRPATH}/get_data.bash $CONFIG $RUNID 1m $TAG02 grid-T | awk '{print $4}')  # for mk_mxl.bash
        
       # run cdftools
       # scheduler option
       sbatchschopt='--wait ' #--qos=long '  
       # runid option
+      # compute transport (ACC only currently)
+      # VALSO | VALGLO
       sbatchrunopt="--dependency=afterany:$mooVyid:$mooUyid --job-name=SO_trp_${TAG}_${RUNID} --output=${JOBOUT_PATH}/trp_${TAG}.out"
       sbatch ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_trp.bash $CONFIG $RUNID $TAG   1y > /dev/null 2>&1 &
       njob=$((njob+1))
 
+      # bsf
+      # VALSO
       sbatchrunopt="--dependency=afterany:$mooVyid:$mooUyid --job-name=SO_psi_${TAG}_${RUNID} --output=${JOBOUT_PATH}/psi_${TAG}.out"
       sbatch ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_psi.bash $CONFIG $RUNID $TAG   1y > /dev/null 2>&1 &
       njob=$((njob+1))
       
+      # mld
+      # VALSO
       sbatchrunopt="--dependency=afterany:$mooTmid --job-name=SO_mxl_${TAG}_${RUNID} --output=${JOBOUT_PATH}/mxl_${TAG}.out"
       sbatch  ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_mxl.bash $CONFIG $RUNID $TAG09 1m > /dev/null 2>&1 &
       njob=$((njob+1))
 
-      sbatchrunopt="--dependency=afterany:$mooTyid --job-name=SO_bot_${TAG}_${RUNID} --output=${JOBOUT_PATH}/bot_${TAG}.out"
-      sbatch  ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_bot.bash $CONFIG $RUNID $TAG   1y > /dev/null 2>&1 &
+      # botT/S
+      # VALSO
+      #sbatchrunopt="--dependency=afterany:$mooTyid --job-name=SO_bot_${TAG}_${RUNID} --output=${JOBOUT_PATH}/bot_${TAG}.out"
+      #sbatch  ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_bot.bash $CONFIG $RUNID $TAG   1y > /dev/null 2>&1 &
+      #njob=$((njob+1))
+
+      # moc
+      # VALGLO
+      sbatchrunopt="--dependency=afterany:$mooVyid:$mooUyid:$mooTyid --job-name=GLO_moc_${TAG}_${RUNID} --output=${JOBOUT_PATH}/moc_${TAG}.out"
+      sbatch ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_moc.bash $CONFIG $RUNID $TAG   1y > /dev/null 2>&1 &
+      njob=$((njob+1))
+
+      # mht
+      # VALGLO
+      sbatchrunopt="--dependency=afterany:$mooVyid:$mooVyid --job-name=GLO_mht_${TAG}_${RUNID} --output=${JOBOUT_PATH}/mht_${TAG}.out"
+      sbatch ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_mht.bash $CONFIG $RUNID $TAG   1y > /dev/null 2>&1 &
+      njob=$((njob+1))
+
+      # net downward heat flux
+      # VALGLO
+      sbatchrunopt="--dependency=afterany:$mooTyid --job-name=GLO_hfds_${TAG}_${RUNID} --output=${JOBOUT_PATH}/hfds_${TAG}.out"
+      sbatch  ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_hfds.bash $CONFIG $RUNID $TAG   1y > /dev/null 2>&1 &
+      njob=$((njob+1))
+
+      # sst (box ACC, NWC)
+      # VALGLO/VALSO
+      sbatchrunopt="--dependency=afterany:$mooTyid --job-name=GLO_sst_${TAG}_${RUNID} --output=${JOBOUT_PATH}/sst_${TAG}.out"
+      sbatch  ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_sst.bash $CONFIG $RUNID $TAG   1y > /dev/null 2>&1 &
+      njob=$((njob+1))
+
+      # sie
+      # VALGLO/VALSO
+      sbatchrunopt="--dependency=afterany:$mooT02mid --job-name=GLO_sie_${TAG}_${RUNID} --output=${JOBOUT_PATH}/sie_${TAG02}.out"
+      sbatch  ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_sie.bash $CONFIG $RUNID $TAG02  1m > /dev/null 2>&1 &
+      njob=$((njob+1))
+
+      # sie
+      # VALGLO/VALSO
+      sbatchrunopt="--dependency=afterany:$mooT09mid --job-name=GLO_sie_${TAG}_${RUNID} --output=${JOBOUT_PATH}/sie_${TAG09}.out"
+      sbatch  ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_sie.bash $CONFIG $RUNID $TAG09  1m > /dev/null 2>&1 &
       njob=$((njob+1))
    done
 

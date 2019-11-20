@@ -116,7 +116,7 @@ def load_argument():
     parser.add_argument("-sf"  , metavar='scale factor', help="scale factor"                             , type=float, nargs=1   , required=False, default=[1])
     parser.add_argument("-o"    , metavar='figure_name', help="output figure name without extension"                  , type=str, nargs=1   , required=False, default=['output'])
     # flag argument
-    parser.add_argument("-obs"  , metavar='obs mean and std file', help="obs mean and std file"          , type=str, nargs=1, required=False)
+    parser.add_argument("-obs"  , metavar='obs mean and std file', help="obs mean and std file"          , type=str, nargs='+', required=False)
     parser.add_argument("-mean" , help="will plot model mean base on input netcdf file"                               , required=False, action="store_true")
     parser.add_argument("-noshow" , help="do not display the figure (only save it)"                                   , required=False, action="store_true")
     return parser.parse_args()
@@ -229,7 +229,7 @@ def main():
         ax[ivar] = plt.subplot(nvar, 1, ivar+1)
         # load obs
         if args.obs:
-            obs_mean[ivar], obs_std[ivar] = load_obs(args.obs[0])
+            obs_mean[ivar], obs_std[ivar] = load_obs(args.obs[ivar])
             obs_min[ivar] = obs_mean[ivar]-obs_std[ivar]
             obs_max[ivar] = obs_mean[ivar]+obs_std[ivar]
  
@@ -261,8 +261,16 @@ def main():
             ax[ivar].set_title(args.title[ivar],fontsize=20)
  
         # rm xaxis label
+        ax[ivar].xaxis.set_major_locator(mdates.YearLocator())
+        ax[ivar].tick_params(axis='both', labelsize=16)
         if (ivar != nvar-1):
             ax[ivar].set_xticklabels([])
+        else:
+            ax[ivar].xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
+
+        for lt in ax[ivar].get_xticklabels():
+            lt.set_ha('center')
+#        ax[ivar].set_xticklabels(ha='center')
  
         rmin[ivar],rmax[ivar]=get_ybnd(run_lst,obs_min[ivar],obs_max[ivar])
         ax[ivar].set_ylim([rmin[ivar],rmax[ivar]])
