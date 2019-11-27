@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 if [ $# -eq 0 ] ; then echo 'need a [KEYWORD] (will be inserted inside the figure title and output name) and a list of id [RUNIDS RUNID ...] (definition of line style need to be done in RUNID.db)'; exit; fi
 
 module load scitools/production-os41-1
@@ -48,12 +50,12 @@ convert ${KEY}_fig06.png -crop 1240x1040+0+0 tmp06.png
 
 # ARC SIE
 echo 'plot 02 SIE time series'
-python2.7 SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f '*sie*0201*.nc' -var NExnsidc SExnsidc -sf 0.001 -title "SIE Arctic m02 [1e6 km2] : ${KEY}" "SIE Antarctic m02 [1e6 km2] : ${KEY}" -dir ${DATPATH} -o ${KEY}_fig07 -obs OBS/ARC_sie02_obs.txt OBS/ANT_sie02_obs.txt
+python2.7 SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -varf '*sie*0301*.nc' '*sie*0901*.nc' -var NExnsidc NExnsidc -sf 0.001 -title "SIE Arctic m03 [1e6 km2] : ${KEY}" "SIE Arctic m09 [1e6 km2] : ${KEY}" -dir ${DATPATH} -o ${KEY}_fig07 -obs OBS/ARC_sie03_obs.txt OBS/ARC_sie09_obs.txt
 if [[ $? -ne 0 ]]; then exit 42; fi
 convert ${KEY}_fig07.png -crop 1240x1040+0+0 tmp07.png
 
 echo 'plot 09 SIE time series'
-python2.7 SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f '*sie*0901*.nc' -var NExnsidc SExnsidc -sf 0.001 -title "SIE Arctic m09 [1e6 km2] : ${KEY}" "SIE Antarctic m09 [1e6 km2] : ${KEY}" -dir ${DATPATH} -o ${KEY}_fig08 -obs OBS/ARC_sie09_obs.txt OBS/ANT_sie09_obs.txt
+python2.7 SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -varf '*sie*0201*.nc' '*sie*0901*.nc' -var SExnsidc SExnsidc -sf 0.001 -title "SIE Antarctic m02 [1e6 km2] : ${KEY}" "SIE Antarctic m09 [1e6 km2] : ${KEY}" -dir ${DATPATH} -o ${KEY}_fig08 -obs OBS/ANT_sie02_obs.txt OBS/ANT_sie09_obs.txt
 if [[ $? -ne 0 ]]; then exit 42; fi
 convert ${KEY}_fig08.png -crop 1240x1040+0+0 tmp08.png
 

@@ -5,9 +5,11 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import sys
 import re
+import datetime as dt
 import argparse
 import pandas as pd
 import matplotlib.dates as mdates
+import matplotlib.ticker as ticker
 
 # def class runid
 class run(object):
@@ -28,45 +30,49 @@ class run(object):
         for kf,cf in enumerate(cfile):
             try:
                 ncid    = nc.Dataset(cf)
+
+                ncvtime = ncid.variables[ctime]
+                if 'units' in ncvtime.ncattrs():
+                    cunits = ncvtime.units
+                else:
+                    cunits = "seconds since 1900-01-01 00:00:00"
+    
+                # define calendar
+                if 'calendar' in ncvtime.ncattrs():
+                    ccalendar = ncvtime.calendar
+                else:
+                    ccalendar = "noleap"
+                time = nc.num2date(ncid.variables[ctime][:].squeeze(), cunits, ccalendar)
+        
+                # convert to proper datetime object
+                if isinstance(time,list):
+                    ntime = time.shape[0]
+                else:
+                    ntime = 1
+    
+                timeidx=[None]*ntime
+                for itime in range(0, ntime):
+                    if isinstance(time,list):
+                        timeidx[itime] = np.datetime64(time[itime],'D')
+                    else:
+                        timeidx[itime] = np.datetime64(time,'D')
+        
+                # build series
+                cnam=get_varname(cf,cvar)
+                df[kf] = pd.Series(ncid.variables[cnam][:].squeeze()*self.sf, index = timeidx, name = self.name)
+
             except Exception as e: 
                 print 'issue in trying to load file : '+cf
                 print e
                 sys.exit(42) 
 
-            ncvtime = ncid.variables[ctime]
-            if 'units' in ncvtime.ncattrs():
-                cunits = ncvtime.units
-            else:
-                cunits = "seconds since 1900-01-01 00:00:00"
-
-            # define calendar
-            if 'calendar' in ncvtime.ncattrs():
-                ccalendar = ncvtime.calendar
-            else:
-                ccalendar = "noleap"
-            time = nc.num2date(ncid.variables[ctime][:].squeeze(), cunits, ccalendar)
-    
-            # convert to proper datetime object
-            if isinstance(time,list):
-                ntime = time.shape[0]
-            else:
-                ntime = 1
-
-            timeidx=[None]*ntime
-            for itime in range(0, ntime):
-                if isinstance(time,list):
-                    timeidx[itime] = np.datetime64(time[itime],'D')
-                else:
-                    timeidx[itime] = np.datetime64(time,'D')
-    
-            # build series
-            cnam=get_varname(cf,cvar)
-            df[kf] = pd.Series(ncid.variables[cnam][:].squeeze()*self.sf, index = timeidx, name = self.name)
 
         # build dataframe
         self.ts   = pd.DataFrame(pd.concat(df)).sort_index()
         self.mean = self.ts[self.name].mean()
         self.std  = self.ts[self.name].std()
+        self.min  = self.ts[self.name].min()
+        self.max  = self.ts[self.name].max()
 
     def __str__(self):
         return 'runid = {}, name = {}, line = {}, color = {}'.format(self.runid, self.name, self.line, self.color)
@@ -108,9 +114,10 @@ def find_key(char, fid):
 def load_argument():
     # deals with argument
     parser = argparse.ArgumentParser()
-    parser.add_argument("-runid", metavar='runid list' , help="used to look information in runid.db"                  , type=str, nargs='+' , required=True)
+    parser.add_argument("-runid", metavar='runid list' , help="used to look information in runid.db"                  , type=str, nargs='+' , required=True )
     parser.add_argument("-f"    , metavar='file list'  , help="file list to plot (default is runid_var.nc)"           , type=str, nargs='+' , required=False)
-    parser.add_argument("-var"  , metavar='var list'   , help="variable to look for in the netcdf file ./runid_var.nc", type=str, nargs='+' , required=True)
+    parser.add_argument("-var"  , metavar='var list'   , help="variable to look for in the netcdf file ./runid_var.nc", type=str, nargs='+' , required=True )
+    parser.add_argument("-varf" , metavar='var list'   , help="variable to look for in the netcdf file ./runid_var.nc", type=str, nargs='+' , required=False)
     parser.add_argument("-title", metavar='title'      , help="subplot title (associated with var)"                   , type=str, nargs='+' , required=False)
     parser.add_argument("-dir"  , metavar='directory of input file' , help="directory of input file"                  , type=str, nargs=1   , required=False, default=['./'])
     parser.add_argument("-sf"  , metavar='scale factor', help="scale factor"                             , type=float, nargs=1   , required=False, default=[1])
@@ -225,6 +232,11 @@ def main():
     plt.figure(figsize=np.array([210, 210]) / 25.4)
  
 # need to deal with multivar
+    mintime=dt.date.max
+    maxtime=dt.date.min
+    ymin=-sys.float_info.max
+    ymax=sys.float_info.max
+
     for ivar, cvar in enumerate(args.var):
         ax[ivar] = plt.subplot(nvar, 1, ivar+1)
         # load obs
@@ -246,6 +258,16 @@ def main():
                 if len(cfile)==0:
                     print 'no file found with this pattern '+args.dir[0]+'/'+runid+'/'+fglob
                     sys.exit(42)
+            elif args.varf:
+               # in case only one file pattern given
+                if len(args.varf) == 1 :
+                    fglob = args.varf[0]
+                else :
+                    fglob = args.varf[ivar]
+                cfile = glob.glob(args.dir[0]+'/'+runid+'/'+fglob)
+                if len(cfile)==0:
+                    print 'no file found with this pattern '+args.dir[0]+'/'+runid+'/'+fglob
+                    sys.exit(42)
             else:
                 cfile = glob.glob(args.dir[0]+'/'+runid+'_'+cvar+'.nc')
                 if len(cfile)==0:
@@ -254,14 +276,32 @@ def main():
 
             run_lst[irun].load_time_series(cfile, cvar)
             ts_lst[irun] = run_lst[irun].ts
-            lg = ts_lst[irun].plot(ax=ax[ivar], legend=False, style=run_lst[irun].line,color=run_lst[irun].color,label=run_lst[irun].name, linewidth=2, rot=0)
+            lg = ts_lst[irun].plot(ax=ax[ivar], legend=False, style=run_lst[irun].line,color=run_lst[irun].color,label=run_lst[irun].name, x_compat=True, linewidth=2, rot=0)
+            #
+            # limit of time axis
+            mintime=min([mintime,ts_lst[irun].index[0].to_pydatetime().date()])
+            maxtime=max([maxtime,ts_lst[irun].index[-1].to_pydatetime().date()])
 
         # set title
         if (args.title):
             ax[ivar].set_title(args.title[ivar],fontsize=20)
- 
-        # rm xaxis label
-        ax[ivar].xaxis.set_major_locator(mdates.YearLocator())
+
+        # set x axis
+        nlabel=5
+        ndays=(maxtime-mintime).days
+        nyear=ndays/365
+        if nyear < 10:
+            nyt=1
+        elif 10<=nyear<50:
+            nyt=5
+        elif 50<=nyear<100:
+            nyt=10
+        else:
+            nyt=100
+        nmt=ts_lst[irun].index[-1].to_pydatetime().date().month
+        ndt=ts_lst[irun].index[-1].to_pydatetime().date().day
+         
+        ax[ivar].xaxis.set_major_locator(mdates.YearLocator(nyt,month=nmt,day=1))
         ax[ivar].tick_params(axis='both', labelsize=16)
         if (ivar != nvar-1):
             ax[ivar].set_xticklabels([])
@@ -270,9 +310,9 @@ def main():
 
         for lt in ax[ivar].get_xticklabels():
             lt.set_ha('center')
-#        ax[ivar].set_xticklabels(ha='center')
  
         rmin[ivar],rmax[ivar]=get_ybnd(run_lst,obs_min[ivar],obs_max[ivar])
+        print rmin[ivar], rmax[ivar]
         ax[ivar].set_ylim([rmin[ivar],rmax[ivar]])
         ax[ivar].grid()
  

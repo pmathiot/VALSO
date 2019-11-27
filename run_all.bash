@@ -28,6 +28,7 @@ for RUNID in `echo $RUNIDS`; do
       TAG=${YEAR}1201-$((YEAR+1))1201
       TAG09=${YEAR}0901-${YEAR}1001
       TAG02=${YEAR}0201-${YEAR}0301
+      TAG02=${YEAR}0301-${YEAR}0401
 
       # get data 
       mooVyid=$(sbatch --job-name=moo_${YEAR}_V   --output=${JOBOUT_PATH}/moo_${YEAR}_V   ${SCRPATH}/get_data.bash $CONFIG $RUNID 1y $TAG   grid-V | awk '{print $4}')  # for mk_trp and mk_psi
@@ -35,6 +36,7 @@ for RUNID in `echo $RUNIDS`; do
       mooTyid=$(sbatch --job-name=moo_${YEAR}_T   --output=${JOBOUT_PATH}/moo_${YEAR}_T   ${SCRPATH}/get_data.bash $CONFIG $RUNID 1y $TAG   grid-T | awk '{print $4}')  # for mk_bot.bash
       mooT09mid=$(sbatch --job-name=moo_${YEAR}_T --output=${JOBOUT_PATH}/moo_${YEAR}_T09 ${SCRPATH}/get_data.bash $CONFIG $RUNID 1m $TAG09 grid-T | awk '{print $4}')  # for mk_mxl.bash
       mooT02mid=$(sbatch --job-name=moo_${YEAR}_T --output=${JOBOUT_PATH}/moo_${YEAR}_T02 ${SCRPATH}/get_data.bash $CONFIG $RUNID 1m $TAG02 grid-T | awk '{print $4}')  # for mk_mxl.bash
+      mooT03mid=$(sbatch --job-name=moo_${YEAR}_T --output=${JOBOUT_PATH}/moo_${YEAR}_T03 ${SCRPATH}/get_data.bash $CONFIG $RUNID 1m $TAG03 grid-T | awk '{print $4}')  # for mk_mxl.bash
        
       # run cdftools
       # scheduler option
@@ -54,15 +56,15 @@ for RUNID in `echo $RUNIDS`; do
       
       # mld
       # VALSO
-      sbatchrunopt="--dependency=afterany:$mooTmid --job-name=SO_mxl_${TAG}_${RUNID} --output=${JOBOUT_PATH}/mxl_${TAG}.out"
+      sbatchrunopt="--dependency=afterany:$mooT09mid --job-name=SO_mxl_${TAG}_${RUNID} --output=${JOBOUT_PATH}/mxl_${TAG}.out"
       sbatch  ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_mxl.bash $CONFIG $RUNID $TAG09 1m > /dev/null 2>&1 &
       njob=$((njob+1))
 
       # botT/S
       # VALSO
-      #sbatchrunopt="--dependency=afterany:$mooTyid --job-name=SO_bot_${TAG}_${RUNID} --output=${JOBOUT_PATH}/bot_${TAG}.out"
-      #sbatch  ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_bot.bash $CONFIG $RUNID $TAG   1y > /dev/null 2>&1 &
-      #njob=$((njob+1))
+      sbatchrunopt="--dependency=afterany:$mooTyid --job-name=SO_bot_${TAG}_${RUNID} --output=${JOBOUT_PATH}/bot_${TAG}.out"
+      sbatch  ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_bot.bash $CONFIG $RUNID $TAG   1y > /dev/null 2>&1 &
+      njob=$((njob+1))
 
       # moc
       # VALGLO
@@ -92,6 +94,11 @@ for RUNID in `echo $RUNIDS`; do
       # VALGLO/VALSO
       sbatchrunopt="--dependency=afterany:$mooT02mid --job-name=GLO_sie_${TAG}_${RUNID} --output=${JOBOUT_PATH}/sie_${TAG02}.out"
       sbatch  ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_sie.bash $CONFIG $RUNID $TAG02  1m > /dev/null 2>&1 &
+      njob=$((njob+1))
+
+      # VALGLO/VALSO
+      sbatchrunopt="--dependency=afterany:$mooT03mid --job-name=GLO_sie_${TAG}_${RUNID} --output=${JOBOUT_PATH}/sie_${TAG03}.out"
+      sbatch  ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_sie.bash $CONFIG $RUNID $TAG03  1m > /dev/null 2>&1 &
       njob=$((njob+1))
 
       # sie

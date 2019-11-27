@@ -39,4 +39,4 @@ else
 fi
 
 # extract only 26.5
-ncks -d y,793,793 $FILEOUT nemo_${RUN_NAME}o_${FREQ}_${TAG}_mht_265.nc
+ncks -O -d y,793,793 $FILEOUT nemo_${RUN_NAME}o_${FREQ}_${TAG}_mht_265.nc
