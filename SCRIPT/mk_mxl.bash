@@ -29,7 +29,8 @@ if [ ! -f $FILE ] ; then echo "$FILE is missing; exit"; echo "E R R O R in : ./m
 
 # make mxl
 FILEOUT=WMXL_nemo_${RUN_NAME}o_${FREQ}_${TAG}_grid-${GRID}.nc
-if [ $CONFIG == 'eORCA025' ] ; then $CDFPATH/cdfmean -f $FILE -v '|somxzint1|sokaraml|' -p T -w 1025 1300 325 380 0 0 -minmax -o tmp_$FILEOUT ; fi
+ijbox=$($CDFPATH/cdffindij -c mesh.nc -p T -w -31.250   37.500  -66.500  -60.400 | tail -2 | head -1)
+$CDFPATH/cdfmean -f $FILE -v '|somxzint1|sokaraml|' -p T -w ${ijbox} 0 0 -minmax -o tmp_$FILEOUT
 
 # mv output file
 if [[ $? -eq 0 ]]; then 

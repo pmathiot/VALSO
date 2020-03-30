@@ -41,18 +41,22 @@ else
 fi
 
 # Amundsen avg (CDW)
-if [ $CONFIG == 'eORCA025' ] ; then $CDFPATH/cdfmean -f $FILEOUT -v '|thetao|votemper|' -p T -var -w 710 741 202 266 0 0 -minmax -o AMU_thetao_$FILEOUT ; fi
+ijbox=$($CDFPATH/cdffindij -c mesh.nc -p T -w -109.640 -102.230  -75.800  -71.660 | tail -2 | head -1)
+$CDFPATH/cdfmean -f $FILEOUT -v '|thetao|votemper|' -p T -var -w ${ijbox} 0 0 -minmax -o AMU_thetao_$FILEOUT 
 if [ $? -ne 0 ] ; then echo "error when running cdfmean (AMU)"; echo "E R R O R in : ./mk_bot.bash $@ (see SLURM/${CONFIG}/${RUNID}/bot_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; fi
 
 # WRoss avg (bottom water)
-if [ $CONFIG == 'eORCA025' ] ; then $CDFPATH/cdfmean -f $FILEOUT -v '|so|vosaline|'     -p T -var -w 347 404 150 233 0 0 -minmax -o WROSS_so_$FILEOUT     ; fi
+ijbox=$($CDFPATH/cdffindij -c mesh.nc -p T -w 157.100  173.333  -78.130  -74.040 | tail -2 | head -1)
+$CDFPATH/cdfmean -f $FILEOUT -v '|so|vosaline|'     -p T -var -w ${ijbox} 0 0 -minmax -o WROSS_so_$FILEOUT 
 if [ $? -ne 0 ] ; then echo "error when running cdfmean (WROS)"; echo "E R R O R in : ./mk_bot.bash $@ (see SLURM/${CONFIG}/${RUNID}/bot_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; fi
 
 # ERoss avg (CDW)
-if [ $CONFIG == 'eORCA025' ] ; then $CDFPATH/cdfmean -f $FILEOUT -v '|thetao|votemper|' -p T -var -w 448 519 152 180 0 0 -minmax -o EROSS_thetao_$FILEOUT ; fi
+ijbox=$($CDFPATH/cdffindij -c mesh.nc -p T -w -176.790 -157.820  -78.870  -77.520 | tail -2 | head -1)
+$CDFPATH/cdfmean -f $FILEOUT -v '|thetao|votemper|' -p T -var -w ${ijbox} 0 0 -minmax -o EROSS_thetao_$FILEOUT 
 if [ $? -ne 0 ] ; then echo "error when running cdfmean (EROSS)"; echo "E R R O R in : ./mk_bot.bash $@ (see SLURM/${CONFIG}/${RUNID}/bot_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; fi
 
 # Weddell Avg (bottom water)
-if [ $CONFIG == 'eORCA025' ] ; then $CDFPATH/cdfmean -f $FILEOUT -v '|so|vosaline|'     -p T -var -w 891 938 204 258 0 0 -minmax -o WED_so_$FILEOUT     ; fi
+ijbox=$($CDFPATH/cdffindij -c mesh.nc -p T -w -65.130  -53.020  -75.950  -72.340 | tail -2 | head -1)
+$CDFPATH/cdfmean -f $FILEOUT -v '|so|vosaline|'     -p T -var -w ${ijbox} 0 0 -minmax -o WED_so_$FILEOUT 
 if [ $? -ne 0 ] ; then echo "error when running cdfmean (WWED)"; echo "E R R O R in : ./mk_bot.bash $@ (see SLURM/${CONFIG}/${RUNID}/bot_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; fi
 #

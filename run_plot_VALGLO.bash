@@ -6,7 +6,7 @@ if [ $# -eq 0 ] ; then echo 'need a [KEYWORD] (will be inserted inside the figur
 
 module load scitools/production-os41-1
 
-DATPATH=${SCRATCH}/ACC/eORCA025
+DATPATH=${SCRATCH}/ACC
 
 KEY=${1}
 RUNIDS=${@:2}
