@@ -29,7 +29,7 @@ if [ ! -f $FILE ] ; then echo "$FILE is missing; exit"; echo "E R R O R in : ./m
 
 # make sie
 FILEOUT=ARC_sie_nemo_${RUN_NAME}o_${FREQ}_${TAG}.nc
-if [ $CONFIG == 'eORCA025' ] ; then $CDFPATH/cdficediags -i $FILE -o tmp_$FILEOUT ; fi
+$CDFPATH/cdficediags -i $FILE -o tmp_$FILEOUT 
 
 # mv output file
 if [[ $? -eq 0 ]]; then 

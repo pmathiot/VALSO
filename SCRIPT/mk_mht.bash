@@ -39,4 +39,19 @@ else
 fi
 
 # extract only 26.5
-ncks -O -d y,793,793 $FILEOUT nemo_${RUN_NAME}o_${FREQ}_${TAG}_mht_265.nc
+case $CONFIG in
+  eORCA1)
+    jj=227
+    ;;
+  eORCA025)
+    jj=793
+    ;;
+  eORCA12)
+    jj=2364
+    ;;
+  *)
+    echo "Unrecognised configuration."
+    echo "error when running cdfmht; exit"; echo "E R R O R in : ./mk_mht.bash $@ (see SLURM/${CONFIG}/${RUNID}/mht_${TAG}.out)" >> ${EXEPATH}/ERROR.txt; exit 1
+    ;;
+esac
+ncks -O -d y,$jj,$jj $FILEOUT nemo_${RUN_NAME}o_${FREQ}_${TAG}_mht_265.nc

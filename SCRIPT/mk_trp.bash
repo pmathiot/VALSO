@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --mem=1G
+#SBATCH --mem=10G
 #SBATCH --time=10
 #SBATCH --ntasks=1
 
@@ -30,7 +30,7 @@ if [ ! -f $FILEV ] ; then echo "$FILEV is missing; exit"; echo "E R R O R in : .
 if [ ! -f $FILEU ] ; then echo "$FILEU is missing; exit"; echo "E R R O R in : ./mk_trp.bash $@ (see SLURM/${CONFIG}/${RUNID}/trp_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1 ; fi
 
 # make trp
-$CDFPATH/cdftransport -u $FILEU -v $FILEV -noheat -vvl -pm  -sfx nemo_${RUN_NAME}o_${FREQ}_${TAG} < ${EXEPATH}/SECTIONS/section_${CONFIG}.dat
+$CDFPATH/cdftransport -u $FILEU -v $FILEV -lonlat -noheat -vvl -pm  -sfx nemo_${RUN_NAME}o_${FREQ}_${TAG} < ${EXEPATH}/SECTIONS/section_LONLAT.dat
 
 # mv output file
 if [[ $? -eq 0 ]]; then 

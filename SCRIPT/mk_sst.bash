@@ -29,7 +29,9 @@ if [ ! -f $FILE ] ; then echo "$FILE is missing; exit"; echo "E R R O R in : ./m
 
 # make sst
 FILEOUT=SO_sst_nemo_${RUN_NAME}o_${FREQ}_${TAG}_grid-${GRID}.nc
-if [ $CONFIG == 'eORCA025' ] ; then $CDFPATH/cdfmean -f $FILE -v '|thetao|votemper|' -surf -w 0 0 384 510 1 1 -p T -minmax -o tmp_$FILEOUT ; fi
+jlimits=$(cdffindij -w 0.000  1.000  -60.000  -40.000 -c mesh.nc -p T | tail -2 | head -1 | tr -s ' ' | cut -d' ' -f4-5)
+echo "jlimits : $jlimits"
+$CDFPATH/cdfmean -f $FILE -v '|thetao|votemper|' -surf -w 0 0 ${jlimits} 1 1 -p T -minmax -o tmp_$FILEOUT 
 
 # mv output file
 if [[ $? -eq 0 ]]; then 
@@ -39,7 +41,9 @@ else
 fi
 
 FILEOUT=NWC_sst_nemo_${RUN_NAME}o_${FREQ}_${TAG}_grid-${GRID}.nc
-if [ $CONFIG == 'eORCA025' ] ; then $CDFPATH/cdfmean -f $FILE -surf -v '|thetao|votemper|' -w 950 1020 870 940 1 1 -p T -minmax -o tmp_$FILEOUT ; fi
+ijbox=$(cdffindij -w -50.190 -32.873 41.846 54.413 -c mesh.nc -p T | tail -2 | head -1 )
+echo "ijbox : $ijbox"
+$CDFPATH/cdfmean -f $FILE -surf -v '|thetao|votemper|' -w ${ijbox} 1 1 -p T -minmax -o tmp_$FILEOUT 
 
 #mv output file
 if [[ $? -eq 0 ]]; then 

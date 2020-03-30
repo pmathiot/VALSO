@@ -29,7 +29,7 @@ if [ ! -f $FILE ] ; then echo "$FILE is missing; exit"; echo "E R R O R in : ./m
 
 # make mxl
 FILEOUT=GLO_hfds_nemo_${RUN_NAME}o_${FREQ}_${TAG}_grid-${GRID}.nc
-if [ $CONFIG == 'eORCA025' ] ; then $CDFPATH/cdfmean -f $FILE -v '|sohefldo|hfds|' -p T -minmax -o tmp_$FILEOUT ; fi
+$CDFPATH/cdfmean -f $FILE -v '|sohefldo|hfds|' -p T -minmax -o tmp_$FILEOUT 
 
 # mv output file
 if [[ $? -eq 0 ]]; then 
