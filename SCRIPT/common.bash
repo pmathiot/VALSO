@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # create repository
-DATPATH=${SCRATCH}/ACC/$CONFIG/$RUNID/           
 if [ ! -d $DATPATH ]; then mkdir -p $DATPATH ; fi
 
 # check mesh mask

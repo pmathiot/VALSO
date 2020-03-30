@@ -24,10 +24,10 @@ RUN_NAME=${RUNID#*-}
 #${SCRPATH}/get_data.bash $RUNID $FREQ $TAG grid-U
 
 # check presence of input file
-FILEU=nemo_${RUN_NAME}o_${FREQ}_${TAG}_grid-U.nc
-FILEV=nemo_${RUN_NAME}o_${FREQ}_${TAG}_grid-V.nc
-if [ ! -f $FILEV ] ; then echo "$FILEV is missing; exit"; echo "E R R O R in : ./mk_psi.bash $@ (see SLURM/${CONFIG}/${RUNID}/psi_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1 ; fi
-if [ ! -f $FILEU ] ; then echo "$FILEU is missing; exit"; echo "E R R O R in : ./mk_psi.bash $@ (see SLURM/${CONFIG}/${RUNID}/psi_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1 ; fi
+FILEU=`ls nemo_${RUN_NAME}o_${FREQ}_${TAG}-????????_grid-U.nc`
+FILEV=`ls nemo_${RUN_NAME}o_${FREQ}_${TAG}-????????_grid-V.nc`
+if [ ! -f $FILEV ] ; then echo "$FILEV is missing; exit"; echo "E R R O R in : ./mk_psi.bash $@ (see SLURM/${CONFIG}/${RUNID}/psi_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1 ; fi
+if [ ! -f $FILEU ] ; then echo "$FILEU is missing; exit"; echo "E R R O R in : ./mk_psi.bash $@ (see SLURM/${CONFIG}/${RUNID}/psi_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1 ; fi
 
 # make psi
 FILEOUT=nemo_${RUN_NAME}o_${FREQ}_${TAG}_psi.nc
@@ -37,13 +37,13 @@ $CDFPATH/cdfpsi -u $FILEU -v $FILEV -vvl -nc4 -ref 1 1 -o tmp_$FILEOUT
 if [[ $? -eq 0 ]]; then 
    mv tmp_$FILEOUT $FILEOUT
 else 
-   echo "error when running cdfpsi; exit"; echo "E R R O R in : ./mk_psi.bash $@ (see SLURM/${CONFIG}/${RUNID}/psi_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1
+   echo "error when running cdfpsi; exit"; echo "E R R O R in : ./mk_psi.bash $@ (see SLURM/${CONFIG}/${RUNID}/psi_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1
 fi
 
 # WG max
 if [ $CONFIG == 'eORCA025' ] ; then $CDFPATH/cdfmean -f $FILEOUT -v sobarstf -p T -w 1025 1300 325 380 0 0 -minmax -o WG_$FILEOUT ; fi
-if [ $? -ne 0 ] ; then echo "error when running cdfmean (WG)"; echo "E R R O R in : ./mk_psi.bash $@ (see SLURM/${CONFIG}/${RUNID}/psi_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; fi
+if [ $? -ne 0 ] ; then echo "error when running cdfmean (WG)"; echo "E R R O R in : ./mk_psi.bash $@ (see SLURM/${CONFIG}/${RUNID}/psi_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; fi
 
 # RG max
 if [ $CONFIG == 'eORCA025' ] ; then $CDFPATH/cdfmean -f $FILEOUT -v sobarstf -p T -w 476 607 254 370 0 0 -minmax -o RG_$FILEOUT ; fi
-if [ $? -ne 0 ] ; then echo "error when running cdfmean (RG)"; echo "E R R O R in : ./mk_psi.bash $@ (see SLURM/${CONFIG}/${RUNID}/psi_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; fi
+if [ $? -ne 0 ] ; then echo "error when running cdfmean (RG)"; echo "E R R O R in : ./mk_psi.bash $@ (see SLURM/${CONFIG}/${RUNID}/psi_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; fi

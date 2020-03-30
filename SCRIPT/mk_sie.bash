@@ -24,16 +24,16 @@ RUN_NAME=${RUNID#*-}
 #${SCRPATH}/get_data.bash $RUNID $FREQ $TAG grid-${GRID}
 
 # check presence of input file
-FILE=nemo_${RUN_NAME}o_${FREQ}_${TAG}_grid-T.nc
-if [ ! -f $FILE ] ; then echo "$FILE is missing; exit"; echo "E R R O R in : ./mk_sie.bash $@ (see SLURM/${CONFIG}/${RUNID}/sie_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1 ; fi
+FILE=`ls nemo_${RUN_NAME}o_${FREQ}_${TAG}-????????_grid-T.nc`
+if [ ! -f $FILE ] ; then echo "$FILE is missing; exit"; echo "E R R O R in : ./mk_sie.bash $@ (see SLURM/${CONFIG}/${RUNID}/sie_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1 ; fi
 
 # make sie
 FILEOUT=ARC_sie_nemo_${RUN_NAME}o_${FREQ}_${TAG}.nc
-if [ $CONFIG == 'eORCA025' ] ; then $CDFPATH/cdficediags -i $FILE -o tmp_$FILEOUT ; fi
+$CDFPATH/cdficediags -i $FILE -o tmp_$FILEOUT
 
 # mv output file
 if [[ $? -eq 0 ]]; then 
    mv tmp_$FILEOUT $FILEOUT
 else 
-   echo "error when running cdficediags; exit"; echo "E R R O R in : ./mk_sie.bash $@ (see SLURM/${CONFIG}/${RUNID}/sie_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1
+   echo "error when running cdficediags; exit"; echo "E R R O R in : ./mk_sie.bash $@ (see SLURM/${CONFIG}/${RUNID}/sie_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1
 fi

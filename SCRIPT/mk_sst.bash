@@ -24,8 +24,8 @@ RUN_NAME=${RUNID#*-}
 #${SCRPATH}/get_data.bash $RUNID $FREQ $TAG grid-${GRID}
 
 # check presence of input file
-FILE=nemo_${RUN_NAME}o_${FREQ}_${TAG}_grid-${GRID}.nc
-if [ ! -f $FILE ] ; then echo "$FILE is missing; exit"; echo "E R R O R in : ./mk_sst.bash $@ (see SLURM/${CONFIG}/${RUNID}/sst_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1 ; fi
+FILE=`ls nemo_${RUN_NAME}o_${FREQ}_${TAG}-????????_grid-${GRID}.nc`
+if [ ! -f $FILE ] ; then echo "$FILE is missing; exit"; echo "E R R O R in : ./mk_sst.bash $@ (see SLURM/${CONFIG}/${RUNID}/sst_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1 ; fi
 
 # make sst
 FILEOUT=SO_sst_nemo_${RUN_NAME}o_${FREQ}_${TAG}_grid-${GRID}.nc
@@ -35,7 +35,7 @@ if [ $CONFIG == 'eORCA025' ] ; then $CDFPATH/cdfmean -f $FILE -v '|thetao|votemp
 if [[ $? -eq 0 ]]; then 
    mv tmp_$FILEOUT $FILEOUT
 else 
-   echo "error when running cdfmean; exit"; echo "E R R O R in : ./mk_sst.bash $@ (see SLURM/${CONFIG}/${RUNID}/sst_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1
+   echo "error when running cdfmean; exit"; echo "E R R O R in : ./mk_sst.bash $@ (see SLURM/${CONFIG}/${RUNID}/sst_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1
 fi
 
 FILEOUT=NWC_sst_nemo_${RUN_NAME}o_${FREQ}_${TAG}_grid-${GRID}.nc
@@ -45,5 +45,5 @@ if [ $CONFIG == 'eORCA025' ] ; then $CDFPATH/cdfmean -f $FILE -surf -v '|thetao|
 if [[ $? -eq 0 ]]; then 
    mv tmp_$FILEOUT $FILEOUT
 else 
-   echo "error when running cdfmean; exit"; echo "E R R O R in : ./mk_sst.bash $@ (see SLURM/${CONFIG}/${RUNID}/sst_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1
+   echo "error when running cdfmean; exit"; echo "E R R O R in : ./mk_sst.bash $@ (see SLURM/${CONFIG}/${RUNID}/sst_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1
 fi

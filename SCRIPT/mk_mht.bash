@@ -23,8 +23,8 @@ RUN_NAME=${RUNID#*-}
 #${SCRPATH}/get_data.bash $RUNID $FREQ $TAG grid-V
 
 # check presence of input file
-FILEV=nemo_${RUN_NAME}o_${FREQ}_${TAG}_grid-V.nc
-if [ ! -f $FILEV ] ; then echo "$FILEV is missing; exit"; echo "E R R O R in : ./mk_mht.bash $@ (see SLURM/${CONFIG}/${RUNID}/mht_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1 ; fi
+FILEV=`ls nemo_${RUN_NAME}o_${FREQ}_${TAG}-????????_grid-V.nc`
+if [ ! -f $FILEV ] ; then echo "$FILEV is missing; exit"; echo "E R R O R in : ./mk_mht.bash $@ (see SLURM/${CONFIG}/${RUNID}/mht_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1 ; fi
 
 # make mht
 set -x
@@ -35,8 +35,8 @@ $CDFPATH/cdfmhst -vt $FILEV -vvl -o tmp_$FILEOUT
 if [[ $? -eq 0 ]]; then 
    mv tmp_$FILEOUT $FILEOUT
 else 
-   echo "error when running cdfmht; exit"; echo "E R R O R in : ./mk_mht.bash $@ (see SLURM/${CONFIG}/${RUNID}/mht_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1
+   echo "error when running cdfmht; exit"; echo "E R R O R in : ./mk_mht.bash $@ (see SLURM/${CONFIG}/${RUNID}/mht_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1
 fi
 
 # extract only 26.5
-ncks -O -d y,793,793 $FILEOUT nemo_${RUN_NAME}o_${FREQ}_${TAG}_mht_265.nc
+if [ $CONFIG == 'eORCA025' ]; then ncks -O -d y,793,793 $FILEOUT nemo_${RUN_NAME}o_${FREQ}_${TAG}_mht_265.nc ; fi
