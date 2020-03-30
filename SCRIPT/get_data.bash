@@ -27,7 +27,7 @@ fi
 
 if   [ $FREQ == '5d'  ]; then FILE_LST=`moo ls moose:/crum/$RUNID/${CRUM_FREQ}.nc.file/*_${FREQ}_${GRID}_${TAG}.nc`
 elif [ $FREQ == 'i1m' ]; then FILE_LST=`moo ls moose:/crum/$RUNID/${CRUM_FREQ}.nc.file/*_1m_${TAG}.nc`
-else FILE_LST=`moo ls moose:/crum/$RUNID/${CRUM_FREQ}.nc.file/*_${FREQ}_${TAG}_${GRID}.nc`;
+else FILE_LST=`moo ls moose:/crum/$RUNID/${CRUM_FREQ}.nc.file/*_${FREQ}_${TAG}*_${GRID}.nc`;
 fi
 
 for MFILE in `echo ${FILE_LST}`; do

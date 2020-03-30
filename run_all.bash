@@ -1,11 +1,43 @@
 #!/bin/bash
 
-if [ $# -eq 0 ]; then echo 'run_all.sh [CONFIG] [YEARB] [YEARE] [RUNID list]'; exit 42; fi
+#=============================================================================================================================
+#                         FUNCTIONS 
+#=============================================================================================================================
+retreive_data() {
+   # $1 = $CONFIG ; $2 = $RUNID ; $3 = $FREQ ; $4 = $TAG ; $5 = $GRID
+   sbatch --job-name=moo_${4}_${5} --output=${JOBOUT_PATH}/moo_${3}_${4}_${5} ${SCRPATH}/get_data.bash $1 $2 $3 $4 $5 | awk '{print $4}'
+}
+run_tool() {
+   # $1 = TOOL ; $2 = $CONFIG ; $3 = $TAG ; $4 = $RUNID ; $5 = $FREQ ; $6+ = ID
+   # global var njob
+   sbatchschopt='--wait ' #--qos=long '  
+   sbatchrunopt="--dependency=afterany:${@:6} --job-name=SO_${1}_${2}_${3}_${4} --output=${JOBOUT_PATH}/${1}_${5}_${3}.out"
+   sbatch ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/${1}.bash $2 $4 $3 $5 > /dev/null 2>&1 &
+   njob=$((njob+1))
+}
+progress_bar() {
+   sleep 4
+   echo''
+   ijob=$njob
+   eval "printf '|' ; printf '%0.s ' {0..100} ; printf '|\r' ;"
+   while [[ $ijob -ne 0 ]] ; do
+     ijob=`squeue -u ${USER} | grep 'SO_' | wc -l`
+     icar=$(( ( (njob - ijob) * 100 ) / njob ))
+     eval "printf '|' ; printf '%0.s=' {0..$icar} ; printf '\r' ; "
+     sleep 1
+   done
+   eval "printf '|' ; printf '%0.s=' {0..100} ; printf '|\n' ;"
+   echo ''
+}
+#=============================================================================================================================
+
+if [ $# -le 4 ]; then echo 'run_all.sh [CONFIG] [YEARB] [YEARE] [FREQ] [RUNID list]'; exit 42; fi
 
 CONFIG=$1
 YEARB=$2
 YEARE=$3
-RUNIDS=${@:4}
+FREQ=$4
+RUNIDS=${@:5}
 
 . param.bash
 
@@ -23,106 +55,56 @@ for RUNID in `echo $RUNIDS`; do
    echo "$RUNID ..."
 
    njob=0
-   for YEAR in `eval echo {${YEARB}..${YEARE}}`; do
-      # define tags
-      TAG=${YEAR}1201-$((YEAR+1))1201
-      TAG09=${YEAR}0901-${YEAR}1001
-      TAG02=${YEAR}0201-${YEAR}0301
-      TAG02=${YEAR}0301-${YEAR}0401
+   LSTY=`eval echo {${YEARB}..${YEARE}}`
+   if   [[ $FREQ == 1m ]]; then MONTHB=1  ; MONTHE=12 ; LSTM=`eval echo {$MONTHB..$MONTHE}` ;
+   elif [[ $FREQ == 1y ]]; then MONTHB=12 ; MONTHE=12 ; LSTM=`eval echo {$MONTHB..$MONTHE}` ;
+   else 
+        echo "E R R O R : $FREQ not supported; exit 42"
+        exit 42
+   fi
 
-      # get data 
-      mooVyid=$(sbatch --job-name=moo_${YEAR}_V   --output=${JOBOUT_PATH}/moo_${YEAR}_V   ${SCRPATH}/get_data.bash $CONFIG $RUNID 1y $TAG   grid-V | awk '{print $4}')  # for mk_trp and mk_psi
-      mooUyid=$(sbatch --job-name=moo_${YEAR}_U   --output=${JOBOUT_PATH}/moo_${YEAR}_U   ${SCRPATH}/get_data.bash $CONFIG $RUNID 1y $TAG   grid-U | awk '{print $4}')  # for mk_trp and mk_psi
-      mooTyid=$(sbatch --job-name=moo_${YEAR}_T   --output=${JOBOUT_PATH}/moo_${YEAR}_T   ${SCRPATH}/get_data.bash $CONFIG $RUNID 1y $TAG   grid-T | awk '{print $4}')  # for mk_bot.bash
-      mooT09mid=$(sbatch --job-name=moo_${YEAR}_T --output=${JOBOUT_PATH}/moo_${YEAR}_T09 ${SCRPATH}/get_data.bash $CONFIG $RUNID 1m $TAG09 grid-T | awk '{print $4}')  # for mk_mxl.bash
-      mooT02mid=$(sbatch --job-name=moo_${YEAR}_T --output=${JOBOUT_PATH}/moo_${YEAR}_T02 ${SCRPATH}/get_data.bash $CONFIG $RUNID 1m $TAG02 grid-T | awk '{print $4}')  # for mk_mxl.bash
-      mooT03mid=$(sbatch --job-name=moo_${YEAR}_T --output=${JOBOUT_PATH}/moo_${YEAR}_T03 ${SCRPATH}/get_data.bash $CONFIG $RUNID 1m $TAG03 grid-T | awk '{print $4}')  # for mk_mxl.bash
-       
+   for YEAR in `printf "%04d " $LSTY`; do
+
+      for MONTH in `printf "%02d " $LSTM`; do
+         # define tags
+         TAG=${YEAR}${MONTH}01
+
+         # get data (retreive_data function are defined in this script)
+         [[ $runACC == 1 || $runBSF == 1 || $runMOC == 1 || $runMHT == 1 ]] && mooVyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG grid-V)
+         [[ $runACC == 1 || $runBSF == 1 ]]                                 && mooUyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG grid-U)
+         [[ $runBOT == 1 || $runQHF == 1 || $runSST == 1 ]]                 && mooTyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG grid-T)
+          
+         # run cdftools
+         [[ $runACC == 1 ]] && run_tool mk_trp  $CONFIG $TAG $RUNID $FREQ $mooVyid:$mooUyid
+         [[ $runBSF == 1 ]] && run_tool mk_psi  $CONFIG $TAG $RUNID $FREQ $mooVyid:$mooUyid
+         [[ $runBOT == 1 ]] && run_tool mk_bot  $CONFIG $TAG $RUNID $FREQ $mooTyid
+         [[ $runMOC == 1 ]] && run_tool mk_moc  $CONFIG $TAG $RUNID $FREQ $mooUyid:$mooTyid
+         [[ $runMHT == 1 ]] && run_tool mk_mht  $CONFIG $TAG $RUNID $FREQ $mooVyid:$mooVyid
+         [[ $runQHF == 1 ]] && run_tool mk_hfds $CONFIG $TAG $RUNID $FREQ $mooTyid 
+         [[ $runSST == 1 ]] && run_tool mk_sst  $CONFIG $TAG $RUNID $FREQ $mooTyid
+      done
+
+      # define tag      
+      TAG09=${YEAR}0901
+      TAG02=${YEAR}0201
+      TAG03=${YEAR}0301
+
+      # get data (retreive_data function are defined in this script)
+      [[ $runSIE == 1 || $runMLD == 1 ]]                                 && mooT09mid=$(retreive_data $CONFIG $RUNID 1m $TAG09 grid-T)
+      [[ $runSIE == 1 ]]                                                 && mooT02mid=$(retreive_data $CONFIG $RUNID 1m $TAG02 grid-T)
+      [[ $runSIE == 1 ]]                                                 && mooT03mid=$(retreive_data $CONFIG $RUNID 1m $TAG03 grid-T)
+
       # run cdftools
-      # scheduler option
-      sbatchschopt='--wait ' #--qos=long '  
-      # runid option
-      # compute transport (ACC only currently)
-      # VALSO | VALGLO
-      sbatchrunopt="--dependency=afterany:$mooVyid:$mooUyid --job-name=SO_trp_${TAG}_${RUNID} --output=${JOBOUT_PATH}/trp_${TAG}.out"
-      sbatch ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_trp.bash $CONFIG $RUNID $TAG   1y > /dev/null 2>&1 &
-      njob=$((njob+1))
-
-      # bsf
-      # VALSO
-      sbatchrunopt="--dependency=afterany:$mooVyid:$mooUyid --job-name=SO_psi_${TAG}_${RUNID} --output=${JOBOUT_PATH}/psi_${TAG}.out"
-      sbatch ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_psi.bash $CONFIG $RUNID $TAG   1y > /dev/null 2>&1 &
-      njob=$((njob+1))
-      
-      # mld
-      # VALSO
-      sbatchrunopt="--dependency=afterany:$mooT09mid --job-name=SO_mxl_${TAG}_${RUNID} --output=${JOBOUT_PATH}/mxl_${TAG}.out"
-      sbatch  ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_mxl.bash $CONFIG $RUNID $TAG09 1m > /dev/null 2>&1 &
-      njob=$((njob+1))
-
-      # botT/S
-      # VALSO
-      sbatchrunopt="--dependency=afterany:$mooTyid --job-name=SO_bot_${TAG}_${RUNID} --output=${JOBOUT_PATH}/bot_${TAG}.out"
-      sbatch  ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_bot.bash $CONFIG $RUNID $TAG   1y > /dev/null 2>&1 &
-      njob=$((njob+1))
-
-      # moc
-      # VALGLO
-      sbatchrunopt="--dependency=afterany:$mooVyid:$mooUyid:$mooTyid --job-name=GLO_moc_${TAG}_${RUNID} --output=${JOBOUT_PATH}/moc_${TAG}.out"
-      sbatch ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_moc.bash $CONFIG $RUNID $TAG   1y > /dev/null 2>&1 &
-      njob=$((njob+1))
-
-      # mht
-      # VALGLO
-      sbatchrunopt="--dependency=afterany:$mooVyid:$mooVyid --job-name=GLO_mht_${TAG}_${RUNID} --output=${JOBOUT_PATH}/mht_${TAG}.out"
-      sbatch ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_mht.bash $CONFIG $RUNID $TAG   1y > /dev/null 2>&1 &
-      njob=$((njob+1))
-
-      # net downward heat flux
-      # VALGLO
-      sbatchrunopt="--dependency=afterany:$mooTyid --job-name=GLO_hfds_${TAG}_${RUNID} --output=${JOBOUT_PATH}/hfds_${TAG}.out"
-      sbatch  ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_hfds.bash $CONFIG $RUNID $TAG   1y > /dev/null 2>&1 &
-      njob=$((njob+1))
-
-      # sst (box ACC, NWC)
-      # VALGLO/VALSO
-      sbatchrunopt="--dependency=afterany:$mooTyid --job-name=GLO_sst_${TAG}_${RUNID} --output=${JOBOUT_PATH}/sst_${TAG}.out"
-      sbatch  ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_sst.bash $CONFIG $RUNID $TAG   1y > /dev/null 2>&1 &
-      njob=$((njob+1))
-
-      # sie
-      # VALGLO/VALSO
-      sbatchrunopt="--dependency=afterany:$mooT02mid --job-name=GLO_sie_${TAG}_${RUNID} --output=${JOBOUT_PATH}/sie_${TAG02}.out"
-      sbatch  ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_sie.bash $CONFIG $RUNID $TAG02  1m > /dev/null 2>&1 &
-      njob=$((njob+1))
-
-      # VALGLO/VALSO
-      sbatchrunopt="--dependency=afterany:$mooT03mid --job-name=GLO_sie_${TAG}_${RUNID} --output=${JOBOUT_PATH}/sie_${TAG03}.out"
-      sbatch  ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_sie.bash $CONFIG $RUNID $TAG03  1m > /dev/null 2>&1 &
-      njob=$((njob+1))
-
-      # sie
-      # VALGLO/VALSO
-      sbatchrunopt="--dependency=afterany:$mooT09mid --job-name=GLO_sie_${TAG}_${RUNID} --output=${JOBOUT_PATH}/sie_${TAG09}.out"
-      sbatch  ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/mk_sie.bash $CONFIG $RUNID $TAG09  1m > /dev/null 2>&1 &
-      njob=$((njob+1))
+      [[ $runMLD == 1 ]] && run_tool mk_mxl  $CONFIG $TAG09 $RUNID 1m    $mooT09mid
+      [[ $runSIE == 1 ]] && run_tool mk_sie  $CONFIG $TAG09 $RUNID 1m    $mooT09mid 
+      [[ $runSIE == 1 ]] && run_tool mk_sie  $CONFIG $TAG02 $RUNID 1m    $mooT02mid
+      [[ $runSIE == 1 ]] && run_tool mk_sie  $CONFIG $TAG03 $RUNID 1m    $mooT03mid
    done
 
    # print task bar
-   sleep 4
-   echo''
-   ijob=$njob
-   eval "printf '|' ; printf '%0.s ' {0..100} ; printf '|\r' ;"
-   while [[ $ijob -ne 0 ]] ; do
-     ijob=`squeue -u ${USER} | grep 'SO_' | wc -l` 
-     icar=$(( ( (njob - ijob) * 100 ) / njob ))
-     eval "printf '|' ; printf '%0.s=' {0..$icar} ; printf '\r' ; "
-     sleep 1
-   done
-   eval "printf '|' ; printf '%0.s=' {0..100} ; printf '|\n' ;"
-   echo ''
-   
-   # wait it is done
+   progress_bar  
+ 
+   # wait it is all done (probably useless because of the progress bar loop)
    wait
 
 done # end runids

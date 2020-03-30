@@ -298,10 +298,10 @@ def main():
             nyt=10
         else:
             nyt=100
-        nmt=ts_lst[irun].index[-1].to_pydatetime().date().month
-        ndt=ts_lst[irun].index[-1].to_pydatetime().date().day
+        nmt=ts_lst[irun].index[0].to_pydatetime().date().month
+        ndt=ts_lst[irun].index[0].to_pydatetime().date().day
          
-        ax[ivar].xaxis.set_major_locator(mdates.YearLocator(nyt,month=nmt,day=1))
+        ax[ivar].xaxis.set_major_locator(mdates.YearLocator(nyt,month=1,day=1))
         ax[ivar].tick_params(axis='both', labelsize=16)
         if (ivar != nvar-1):
             ax[ivar].set_xticklabels([])
@@ -312,12 +312,11 @@ def main():
             lt.set_ha('center')
  
         rmin[ivar],rmax[ivar]=get_ybnd(run_lst,obs_min[ivar],obs_max[ivar])
-        print rmin[ivar], rmax[ivar]
         ax[ivar].set_ylim([rmin[ivar],rmax[ivar]])
         ax[ivar].grid()
  
     # tidy up space
-    plt.subplots_adjust(left=0.07, right=0.8, bottom=0.2, top=0.92, wspace=0.15, hspace=0.15)
+    plt.subplots_adjust(left=0.1, right=0.8, bottom=0.2, top=0.92, wspace=0.15, hspace=0.15)
 
     # add legend
     add_legend(lg,ax[nvar-1])
