@@ -80,7 +80,7 @@ mv tmp10.png FIGURES/${KEY}_legend.png
 mv tmp11.png FIGURES/${KEY}_runidname.png
 
 # clean
-rm top_plot.png mid_plot.png bot_plot.png tmp??.png
+rm tmp??.png
 
 #display
 display -resize 30% $KEY.png
