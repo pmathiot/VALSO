@@ -59,21 +59,26 @@ python2.7 SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -varf '*sie*0201-*.n
 if [[ $? -ne 0 ]]; then exit 42; fi
 convert ${KEY}_fig08.png -crop 1240x1040+0+0 tmp08.png
 
+# trim figure
 convert FIGURES/box_VALGLO.png -trim -bordercolor White -border 40 tmp09.png
 convert FIGURES/box_VALGLO.png -trim -bordercolor White -border 40 tmp09.png
 convert legend.png             -trim -bordercolor White -border 20 tmp10.png
 convert runidname.png          -trim -bordercolor White -border 20 tmp11.png
 
-convert tmp01.png tmp02.png tmp03.png +append top_plot.png
-convert tmp04.png tmp05.png tmp09.png +append mid_plot.png
-convert tmp06.png tmp07.png tmp08.png +append bot_plot.png
-convert top_plot.png mid_plot.png bot_plot.png tmp10.png tmp11.png -append -trim -bordercolor White -border 40 $KEY.png
+# compose the image
+convert \( tmp01.png tmp02.png tmp03.png +append \) \
+        \( tmp04.png tmp05.png tmp09.png +append \) \
+        \( tmp06.png tmp07.png tmp08.png +append \) \
+           tmp10.png tmp11.png -append -trim -bordercolor White -border 40 $KEY.png
 
+# save plot
 mv ${KEY}_*.png FIGURES/.
 mv ${KEY}_*.txt FIGURES/.
 mv tmp10.png FIGURES/${KEY}_legend.png
 mv tmp11.png FIGURES/${KEY}_runidname.png
 
+# clean
 rm top_plot.png mid_plot.png bot_plot.png tmp??.png
 
+# display
 display -resize 30% $KEY.png
