@@ -1,5 +1,4 @@
 import numpy as np
-import numpy
 import glob
 import netCDF4 as nc
 import matplotlib.pyplot as plt
