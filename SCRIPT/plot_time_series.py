@@ -45,17 +45,17 @@ class run(object):
                 time = nc.num2date(ncid.variables[ctime][:].squeeze(), cunits, ccalendar)
         
                 # convert to proper datetime object
-                if isinstance(time,list):
+                if isinstance(time,(list,np.ndarray)):
                     ntime = time.shape[0]
                 else:
                     ntime = 1
     
                 timeidx=[None]*ntime
                 for itime in range(0, ntime):
-                    if isinstance(time,list):
-                        timeidx[itime] = np.datetime64(time[itime],'D')
+                    if isinstance(time,(list,np.ndarray)):
+                        timeidx[itime] = np.datetime64(time[itime],'us')
                     else:
-                        timeidx[itime] = np.datetime64(time,'D')
+                        timeidx[itime] = np.datetime64(time,'us')
         
                 # build series
                 cnam=get_varname(cf,cvar)

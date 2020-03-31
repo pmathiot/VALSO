@@ -15,38 +15,38 @@ SCRPATH=${HOME}/VALSO/SCRIPT/
 DATPATH=${SCRATCH}/ACC/$CONFIG/$RUNID/           
 
 # diagnostics bundle
-RUNVALSO=1
+RUNVALSO=0
 RUNVALGLO=0
-RUNALL=0
+RUNALL=1
 # custom
 runACC=0
 runMLD=0
 runBSF=1
 runBOT=0
-runAMOC=0
-runAMHT=0
+runMOC=0
+runMHT=0
 runSIE=0
 runSST=0
 runQHF=0
 #
-if [[ $RUNVALSO == 1 ]]; then
+if [[ $RUNALL == 1 || $RUNTEST == 1 ]]; then
+   runACC=1 #acc  ts
+   runMLD=1 #mld  ts
+   runBSF=1 #gyre ts
+   runBOT=1 #bottom TS ts
+   runMOC=1
+   runMHT=1
+   runSIE=1
+   runSST=1
+   runQHF=1
+elif [[ $RUNVALSO == 1 ]]; then
    runACC=1 #acc  ts
    runMLD=1 #mld  ts
    runBSF=1 #gyre ts
    runBOT=1 #bottom TS ts
 elif [[ $RUNVALGLO == 1 ]]; then
-   runAMOC=1
-   runAMHT=1
-   runSIE=1
-   runSST=1
-   runQHF=1
-elif [[ $RUNALL == 1 ]]; then
-   runACC=1 #acc  ts
-   runMLD=1 #mld  ts
-   runBSF=1 #gyre ts
-   runBOT=1 #bottom TS ts
-   runAMOC=1
-   runAMHT=1
+   runMOC=1
+   runMHT=1
    runSIE=1
    runSST=1
    runQHF=1
