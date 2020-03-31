@@ -25,11 +25,12 @@ RUN_NAME=${RUNID#*-}
 
 # check presence of input file
 FILE=`ls nemo_${RUN_NAME}o_${FREQ}_${TAG}-????????_grid-${GRID}.nc`
-if [ ! -f $FILE ] ; then echo "$FILE is missing; exit"; echo "E R R O R in : ./mk_sst.bash $@ (see SLURM/${CONFIG}/${RUNID}/sst_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1 ; fi
+if [ ! -f $FILE ] ; then echo "$FILE is missing; exit"; echo "E R R O R in : ./mk_sst.bash $@ (see SLURM/${CONFIG}/${RUNID}/mk_sst_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1 ; fi
 
 # make sst
-FILEOUT=SO_sst_nemo_${RUN_NAME}o_${FREQ}_${TAG}_grid-${GRID}.nc
-jlimits=$(cdffindij -w 0.000  1.000  -60.000  -40.000 -c mesh.nc -p T | tail -2 | head -1 | tr -s ' ' | cut -d' ' -f4-5)
+set -x
+FILEOUT=SO_sst_nemo_${RUN_NAME}o_${FREQ}_${TAG}-????????_grid-${GRID}.nc
+jlimits=$($CDFPATH/cdffindij -w 0.0 1.0 -60.000  -40.000 -c mesh.nc -p T | tail -2 | head -1 | tr -s ' ' | cut -d' ' -f4-5)
 echo "jlimits : $jlimits"
 $CDFPATH/cdfmean -f $FILE -v '|thetao|votemper|' -surf -w 0 0 ${jlimits} 1 1 -p T -minmax -o tmp_$FILEOUT 
 
@@ -37,11 +38,11 @@ $CDFPATH/cdfmean -f $FILE -v '|thetao|votemper|' -surf -w 0 0 ${jlimits} 1 1 -p 
 if [[ $? -eq 0 ]]; then 
    mv tmp_$FILEOUT $FILEOUT
 else 
-   echo "error when running cdfmean; exit"; echo "E R R O R in : ./mk_sst.bash $@ (see SLURM/${CONFIG}/${RUNID}/sst_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1
+   echo "error when running cdfmean; exit"; echo "E R R O R in : ./mk_sst.bash $@ (see SLURM/${CONFIG}/${RUNID}/mk_sst_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1
 fi
 
-FILEOUT=NWC_sst_nemo_${RUN_NAME}o_${FREQ}_${TAG}_grid-${GRID}.nc
-ijbox=$(cdffindij -w -50.190 -32.873 41.846 54.413 -c mesh.nc -p T | tail -2 | head -1 )
+FILEOUT=NWC_sst_nemo_${RUN_NAME}o_${FREQ}_${TAG}-????????_grid-${GRID}.nc
+ijbox=$($CDFPATH/cdffindij -w -50.190 -32.873 41.846 54.413 -c mesh.nc -p T | tail -2 | head -1 )
 echo "ijbox : $ijbox"
 $CDFPATH/cdfmean -f $FILE -surf -v '|thetao|votemper|' -w ${ijbox} 1 1 -p T -minmax -o tmp_$FILEOUT 
 
@@ -49,5 +50,5 @@ $CDFPATH/cdfmean -f $FILE -surf -v '|thetao|votemper|' -w ${ijbox} 1 1 -p T -min
 if [[ $? -eq 0 ]]; then 
    mv tmp_$FILEOUT $FILEOUT
 else 
-   echo "error when running cdfmean; exit"; echo "E R R O R in : ./mk_sst.bash $@ (see SLURM/${CONFIG}/${RUNID}/sst_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1
+   echo "error when running cdfmean; exit"; echo "E R R O R in : ./mk_sst.bash $@ (see SLURM/${CONFIG}/${RUNID}/mk_sst_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1
 fi
