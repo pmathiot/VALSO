@@ -28,7 +28,6 @@ class run(object):
         # define unit
         nf = len(cfile)
         df=[None]*nf
-        print cfile, ctime
         for kf,cf in enumerate(cfile):
             try:
                 ncid    = nc.Dataset(cf)
@@ -40,7 +39,6 @@ class run(object):
                     cunits = "seconds since 1900-01-01 00:00:00"
     
                 # define calendar
-                print 'def calendar'
                 if 'calendar' in ncvtime.ncattrs():
                     ccalendar = ncvtime.calendar
                 else:
