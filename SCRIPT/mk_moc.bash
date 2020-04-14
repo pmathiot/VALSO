@@ -24,10 +24,10 @@ RUN_NAME=${RUNID#*-}
 #${SCRPATH}/get_data.bash $RUNID $FREQ $TAG grid-U
 
 # check presence of input file
-FILEV=`ls nemo_${RUN_NAME}o_${FREQ}_${TAG}-????????_grid-V.nc`
-FILEU=`ls nemo_${RUN_NAME}o_${FREQ}_${TAG}-????????_grid-U.nc`
-FILET=`ls nemo_${RUN_NAME}o_${FREQ}_${TAG}-????????_grid-T.nc`
-FILES=`ls nemo_${RUN_NAME}o_${FREQ}_${TAG}-????????_grid-T.nc`
+FILEV=`ls *${RUN_NAME}o_${FREQ}_${TAG}*_grid[-_]V.nc`
+FILEU=`ls *${RUN_NAME}o_${FREQ}_${TAG}*_grid[-_]U.nc`
+FILET=`ls *${RUN_NAME}o_${FREQ}_${TAG}*_grid[-_]T.nc`
+FILES=`ls *${RUN_NAME}o_${FREQ}_${TAG}*_grid[-_]T.nc`
 if [ ! -f $FILEV ] ; then echo "$FILEV is missing; exit"; echo "E R R O R in : ./mk_moc.bash $@ (see SLURM/${CONFIG}/${RUNID}/mk_moc_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1 ; fi
 if [ ! -f $FILEU ] ; then echo "$FILEU is missing; exit"; echo "E R R O R in : ./mk_moc.bash $@ (see SLURM/${CONFIG}/${RUNID}/mk_moc_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1 ; fi
 if [ ! -f $FILET ] ; then echo "$FILET is missing; exit"; echo "E R R O R in : ./mk_moc.bash $@ (see SLURM/${CONFIG}/${RUNID}/mk_moc_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1 ; fi
