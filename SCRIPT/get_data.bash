@@ -1,6 +1,6 @@
 #!/bin/bash -l
 #SBATCH --mem=500
-#SBATCH --time=20
+#SBATCH --time=60
 #SBATCH --ntasks=1
 
 CONFIG=$1
@@ -24,6 +24,9 @@ elif [ $FREQ == '1y' ]; then CRUM_FREQ=ony;
 elif [ $FREQ == 'i1m' ]; then CRUM_FREQ=inm;
 else echo '$FREQ frequency is not supported'; exit 1
 fi
+
+# flexibility for old-style filenames:
+GRID=$(echo $GRID | sed 's/-/[-_]/g')
 
 if   [ $FREQ == '5d'  ]; then FILE_LST=`moo ls moose:/crum/$RUNID/${CRUM_FREQ}.nc.file/*_${FREQ}_${GRID}_${TAG}.nc`
 elif [ $FREQ == 'i1m' ]; then FILE_LST=`moo ls moose:/crum/$RUNID/${CRUM_FREQ}.nc.file/*_1m_${TAG}.nc`
