@@ -51,10 +51,15 @@ Once this is done and if no error or minor error
 (ie for example we ask from 2000 to 2020 
 but some simulation only span between 2010 and 2020. In this case no data will be built for the period 2000 2009 but erro will show up)
 
-you can now build the plot:
-* `./run_plot.bash [KEY] [RUNID list]` as example : 
+you can now build the plot for the Southern Ocean:
+* `./run_plot_VALSO.bash [KEY] [FREQ] [RUNID list]` as example : 
 ```
-./run_plot.bash cpl_and_forced u-am916 u-az867 u-ba470 u-ar685 u-bj000 u-bn477
+./run_plot_VALSO.bash cpl_and_forced 1y u-am916 u-az867 u-ba470 u-ar685 u-bj000 u-bn477
+```
+you can build the plot for global evaluation:
+* `./run_plot_VALGLO.bash [KEY] [RUNID list]` as example : 
+```
+./run_plot_VALGLO.bash cpl_and_forced u-am916 u-az867 u-ba470 u-ar685 u-bj000 u-bn477
 ```
 
 ## Output
