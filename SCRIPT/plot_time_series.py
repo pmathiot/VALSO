@@ -62,8 +62,8 @@ class run(object):
                 df[kf] = pd.Series(ncid.variables[cnam][:].squeeze()*self.sf, index = timeidx, name = self.name)
 
             except Exception as e: 
-                print 'issue in trying to load file : '+cf
-                print e
+                print ('issue in trying to load file : '+cf)
+                print (e)
                 sys.exit(42) 
 
 
@@ -79,13 +79,13 @@ class run(object):
 
 def get_name(regex,varlst):
     revar = re.compile(r'\b%s\b'%regex,re.I)
-    cvar  = filter(revar.match, varlst)
+    cvar  = revar.findall(','.join(varlst))
     if (len(cvar) > 1):
-        print regex+' name list is longer than 1 or 0; error'
-        print cvar[0]+' is selected'
+        print (regex+' name list is longer than 1 or 0; error')
+        print (cvar[0]+' is selected')
     if (len(cvar) == 0):
-        print 'no match between '+regex+' and :'
-        print varlst
+        print ('no match between '+regex+' and :')
+        print (varlst)
         sys.exit(42)
     return cvar[0]
 
@@ -97,7 +97,7 @@ def get_varname(cfile,cvar):
 
 #=============================== obs management =================================
 def load_obs(cfile):
-    print 'open file '+cfile
+    print ('open file '+cfile)
     with open(cfile) as fid:
         cmean = find_key('mean', fid)
         cstd  = find_key('std' , fid)
@@ -195,12 +195,11 @@ def parse_dbfile(runid):
                     cpltcolor = att[3].strip()
                     lstyle=True
         if not lstyle:
-            print runid+' not found in style.db'
-            raise Exception
+            raise Exception(runid+' not found in style.db')
 
     except Exception as e:
-        print 'Issue with file : style.db'
-        print e
+        print ('Issue with file : style.db')
+        print (e)
         sys.exit(42)
 
     # return value
@@ -256,7 +255,7 @@ def main():
                     fglob = args.f[irun]
                 cfile = glob.glob(args.dir[0]+'/'+runid+'/'+fglob)
                 if len(cfile)==0:
-                    print 'no file found with this pattern '+args.dir[0]+'/'+runid+'/'+fglob
+                    print ('no file found with this pattern '+args.dir[0]+'/'+runid+'/'+fglob)
                     sys.exit(42)
             elif args.varf:
                # in case only one file pattern given
@@ -266,12 +265,12 @@ def main():
                     fglob = args.varf[ivar]
                 cfile = glob.glob(args.dir[0]+'/'+runid+'/'+fglob)
                 if len(cfile)==0:
-                    print 'no file found with this pattern '+args.dir[0]+'/'+runid+'/'+fglob
+                    print ('no file found with this pattern '+args.dir[0]+'/'+runid+'/'+fglob)
                     sys.exit(42)
             else:
                 cfile = glob.glob(args.dir[0]+'/'+runid+'_'+cvar+'.nc')
                 if len(cfile)==0:
-                    print 'no file found with this pattern '+args.dir[0]+'/'+runid+'_'+cvar+'.nc'
+                    print ('no file found with this pattern '+args.dir[0]+'/'+runid+'_'+cvar+'.nc')
                     sys.exit(42)
 
             run_lst[irun].load_time_series(cfile, cvar)
