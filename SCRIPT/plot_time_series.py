@@ -176,10 +176,10 @@ def tidyup_ax(ax, xmin, xmax, ymin, ymax):
 
 def add_modstat(ax, run_lst):
     for irun in range(len(run_lst)):
-        cpl = plt.errorbar(irun+1, run_lst[irun].mean, yerr=run_lst[irun].std, fmt='o', markeredgecolor=run_lst[irun].color, markersize=8, color=run_lst[irun].color, linewidth=2)
+        cpl = plt.errorbar(irun+1, run_lst[irun].mean, yerr=run_lst[irun].std, fmt='o', markeredgecolor=run_lst[irun].color, markersize=8, color=run_lst[irun].color, linewidth=3)
 
 def add_obsstat(ax, mean, std):
-    cpl = plt.errorbar(0, mean, yerr=std, fmt='*', markeredgecolor='k', markersize=8, color='k', linewidth=2)
+    cpl = plt.errorbar(0, mean, yerr=std, fmt='*', markeredgecolor='k', markersize=8, color='k', linewidth=3)
 
 # ============================ file parser =====================================
 def parse_dbfile(runid):
@@ -276,7 +276,7 @@ def main():
 
             run_lst[irun].load_time_series(cfile, cvar)
             ts_lst[irun] = run_lst[irun].ts
-            lg = ts_lst[irun].plot(ax=ax[ivar], legend=False, style=run_lst[irun].line,color=run_lst[irun].color,label=run_lst[irun].name, x_compat=True, linewidth=2, rot=0)
+            lg = ts_lst[irun].plot(ax=ax[ivar], legend=False, style=run_lst[irun].line,color=run_lst[irun].color,label=run_lst[irun].name, x_compat=True, linewidth=3, rot=0)
             #
             # limit of time axis
             mintime=min([mintime,ts_lst[irun].index[0].to_pydatetime().date()])

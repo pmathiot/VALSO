@@ -13,5 +13,10 @@
  u-bo117   | GC3.1 weak Gent-McWilliams | -        | teal           |  
  u-bo119   | GC3.1 sss restoring        | -        | navy                  |
  u-bn943   | GC3.1 FOAM start dump      | -        | chocolate      |
- u-bn900   | GO8-025g     | -        | royalblue      |
- u-bs852   | GO8-ICB     | -        | sienna      |
+ u-bn900   | GO8-025g      | -        | royalblue      |
+ u-bt986   | GO8-025g p4   | -        | royalblue      |
+ u-bu424   | GO8-025g isf code | -        | chocolate      |
+ u-bs852   | GO8-ICB       | -        | black         |
+ u-bt223   | GO8-ISF_CORE2  | -        | orange        |
+ u-bt036   | GO8-ISF_DFS5.2 | -        | royalblue     |  
+ u-bt705   | GO8-ISF_JRA    | -        | purple        |

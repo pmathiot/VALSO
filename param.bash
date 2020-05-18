@@ -15,9 +15,9 @@ SCRPATH=${HOME}/VALSO/SCRIPT/
 DATPATH=${SCRATCH}/ACC/$CONFIG/$RUNID/           
 
 # diagnostics bundle
-RUNVALSO=0
+RUNVALSO=1
 RUNVALGLO=0
-RUNALL=1
+RUNALL=0
 # custom
 runACC=0
 runMLD=0
@@ -55,5 +55,4 @@ elif [[ $RUNVALGLO == 1 ]]; then
 #   exit 42
 fi
    
-
 module load gcc/8.1.0 mpi/mpich/3.2.1/gnu/8.1.0 hdf5/1.8.20/gnu/8.1.0 netcdf/4.6.1/gnu/8.1.0
