@@ -9,6 +9,8 @@ DATPATH=${SCRATCH}/ACC
 KEY=${1}
 FREQ=${2}
 RUNIDS=${@:3}
+SVAR='(mean_so|mean_vosaline|mean_so_abs)'
+TVAR='(mean_thetao|mean_votemper|mean_thetao_con)'
 
 # ACC
 # Drake
@@ -29,21 +31,21 @@ if [[ $? -ne 0 ]]; then exit 42; fi
 # HSSW
 # mean S WROSS
 echo 'plot mean bot S (WROSS) time series'
-python2.7 SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f *WROSS*so*${FREQ}*T.nc -var '(mean_so|mean_vosaline)' -title "Mean bot. sal. WROSS (PSU) : ${KEY}" -dir ${DATPATH} -o ${KEY}_WROSS_mean_bot_so -obs OBS/WROSS_botS_mean_obs.txt
+python2.7 SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f *WROSS*so*${FREQ}*T.nc -var $SVAR -title "Mean bot. sal. WROSS (PSU) : ${KEY}" -dir ${DATPATH} -o ${KEY}_WROSS_mean_bot_so -obs OBS/WROSS_botS_mean_obs.txt
 # mean S WWED
 if [[ $? -ne 0 ]]; then exit 42; fi
 echo 'plot mean bot S (WWED) time series'
-python2.7 SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f *WED*so*${FREQ}*T.nc   -var '(mean_so|mean_vosaline)' -title "Mean bot. sal. WWED  (PSU) : ${KEY}" -dir ${DATPATH} -o ${KEY}_WWED_mean_bot_so  -obs OBS/WWED_botS_mean_obs.txt
+python2.7 SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f *WED*so*${FREQ}*T.nc   -var $SVAR -title "Mean bot. sal. WWED  (PSU) : ${KEY}" -dir ${DATPATH} -o ${KEY}_WWED_mean_bot_so  -obs OBS/WWED_botS_mean_obs.txt
 if [[ $? -ne 0 ]]; then exit 42; fi
 
 # CDW
 # mean T AMU
 echo 'plot mean bot T (AMU) time series'
-python2.7 SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f *AMU*thetao*${FREQ}*T.nc   -var '(mean_thetao|mean_votemper)' -title "Mean bot. temp. AMU (C) : ${KEY}"   -dir ${DATPATH} -o ${KEY}_AMU_mean_bot_thetao   -obs OBS/AMU_botT_mean_obs.txt
+python2.7 SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f *AMU*thetao*${FREQ}*T.nc   -var $TVAR -title "Mean bot. temp. AMU (C) : ${KEY}"   -dir ${DATPATH} -o ${KEY}_AMU_mean_bot_thetao   -obs OBS/AMU_botT_mean_obs.txt
 if [[ $? -ne 0 ]]; then exit 42; fi
 # mean T EROSS
 echo 'plot mean bot T (EROSS) time series'
-python2.7 SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f *EROSS*thetao*${FREQ}*T.nc -var '(mean_thetao|mean_votemper)' -title "Mean bot. temp. EROSS (C) : ${KEY}" -dir ${DATPATH} -o ${KEY}_EROSS_mean_bot_thetao -obs OBS/EROSS_botT_mean_obs.txt
+python2.7 SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f *EROSS*thetao*${FREQ}*T.nc -var $TVAR -title "Mean bot. temp. EROSS (C) : ${KEY}" -dir ${DATPATH} -o ${KEY}_EROSS_mean_bot_thetao -obs OBS/EROSS_botT_mean_obs.txt
 if [[ $? -ne 0 ]]; then exit 42; fi
 
 # MLD
