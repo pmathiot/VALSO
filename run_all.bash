@@ -7,6 +7,12 @@ retreive_data() {
    # $1 = $CONFIG ; $2 = $RUNID ; $3 = $FREQ ; $4 = $TAG ; $5 = $GRID
    sbatch --job-name=moo_${4}_${5} --output=${JOBOUT_PATH}/moo_${3}_${4}_${5} ${SCRPATH}/get_data.bash $1 $2 $3 $4 $5 | awk '{print $4}'
 }
+
+build_mask() {
+   # $1 = $CONFIG ; $2 = $RUNID
+   sbatch --job-name=mk_msk_${1}_${2} --output=${JOBOUT_PATH}/mk_msk_${1}_${2}.out ${SCRPATH}/mk_msk.bash $1 $2 | awk '{print $4}'
+}
+
 run_tool() {
    # $1 = TOOL ; $2 = $CONFIG ; $3 = $TAG ; $4 = $RUNID ; $5 = $FREQ ; $6+ = ID
    # global var njob
@@ -63,42 +69,49 @@ for RUNID in `echo $RUNIDS`; do
         exit 42
    fi
 
+   [[ $runICB == 1 || $runBOT == 1 ]] && moomskid=$(build_mask $CONFIG $RUNID )
+
    for YEAR in `printf "%04d " $LSTY`; do
 
       for MONTH in `printf "%02d " $LSTM`; do
          # define tags
-         TAG=${YEAR}${MONTH}01
+         TAG=$(get_tag ${FREQ} ${YEAR} ${MONTH} 01)
 
          # get data (retreive_data function are defined in this script)
-         [[ $runACC == 1 || $runBSF == 1 || $runMOC == 1 || $runMHT == 1 ]] && mooVyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG grid-V)
-         [[ $runACC == 1 || $runBSF == 1 ]]                                 && mooUyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG grid-U)
-         [[ $runBOT == 1 || $runQHF == 1 || $runSST == 1 ]]                 && mooTyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG grid-T)
-          
+         [[ $runACC == 1 || $runBSF == 1 || $runMOC == 1 || $runMHT == 1 ]] && mooVyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDV  )
+         [[ $runACC == 1 || $runBSF == 1 ]]                                 && mooUyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDU  )
+         [[ $runBOT == 1 || $runSST == 1 ]]                                 && mooTyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDT  )
+         [[ $runQHF == 1 || $runICB == 1 || $runISF == 1 ]]                 && mooQyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDflx)
+
          # run cdftools
          [[ $runACC == 1 ]] && run_tool mk_trp  $CONFIG $TAG $RUNID $FREQ $mooVyid:$mooUyid
          [[ $runBSF == 1 ]] && run_tool mk_psi  $CONFIG $TAG $RUNID $FREQ $mooVyid:$mooUyid
-         [[ $runBOT == 1 ]] && run_tool mk_bot  $CONFIG $TAG $RUNID $FREQ $mooTyid
+         [[ $runBOT == 1 ]] && run_tool mk_bot  $CONFIG $TAG $RUNID $FREQ $mooTyid:$moomskid
          [[ $runMOC == 1 ]] && run_tool mk_moc  $CONFIG $TAG $RUNID $FREQ $mooUyid:$mooTyid
          [[ $runMHT == 1 ]] && run_tool mk_mht  $CONFIG $TAG $RUNID $FREQ $mooVyid:$mooVyid
-         [[ $runQHF == 1 ]] && run_tool mk_hfds $CONFIG $TAG $RUNID $FREQ $mooTyid 
+         [[ $runQHF == 1 ]] && run_tool mk_hfds $CONFIG $TAG $RUNID $FREQ $mooQyid 
+         [[ $runISF == 1 ]] && run_tool mk_isf  $CONFIG $TAG $RUNID $FREQ $mooQyid 
+         [[ $runICB == 1 ]] && run_tool mk_icb  $CONFIG $TAG $RUNID $FREQ $mooQyid:$moomskid 
          [[ $runSST == 1 ]] && run_tool mk_sst  $CONFIG $TAG $RUNID $FREQ $mooTyid
       done
 
       # define tag      
-      TAG09=${YEAR}0901
-      TAG02=${YEAR}0201
-      TAG03=${YEAR}0301
+      TAG09=$(get_tag 1m ${YEAR} 09 01)
+      TAG02=$(get_tag 1m ${YEAR} 02 01)
+      TAG03=$(get_tag 1m ${YEAR} 03 01)
 
       # get data (retreive_data function are defined in this script)
-      [[ $runSIE == 1 || $runMLD == 1 ]]                                 && mooT09mid=$(retreive_data $CONFIG $RUNID 1m $TAG09 grid-T)
-      [[ $runSIE == 1 ]]                                                 && mooT02mid=$(retreive_data $CONFIG $RUNID 1m $TAG02 grid-T)
-      [[ $runSIE == 1 ]]                                                 && mooT03mid=$(retreive_data $CONFIG $RUNID 1m $TAG03 grid-T)
+      [[ $runMLD == 1 ]]                                                 && mooT09mid=$(retreive_data $CONFIG $RUNID 1m $TAG09 $GRIDT)
+      [[ $runMLD == 1 ]]                                                 && mooT03mid=$(retreive_data $CONFIG $RUNID 1m $TAG03 $GRIDT)
+      [[ $runSIE == 1 || $runMLD == 1 ]]                                 && mooI09mid=$(retreive_data $CONFIG $RUNID 1m $TAG09 $GRIDI)
+      [[ $runSIE == 1 ]]                                                 && mooI02mid=$(retreive_data $CONFIG $RUNID 1m $TAG02 $GRIDI)
+      [[ $runSIE == 1 ]]                                                 && mooI03mid=$(retreive_data $CONFIG $RUNID 1m $TAG03 $GRIDI)
 
       # run cdftools
       [[ $runMLD == 1 ]] && run_tool mk_mxl  $CONFIG $TAG09 $RUNID 1m    $mooT09mid
-      [[ $runSIE == 1 ]] && run_tool mk_sie  $CONFIG $TAG09 $RUNID 1m    $mooT09mid 
-      [[ $runSIE == 1 ]] && run_tool mk_sie  $CONFIG $TAG02 $RUNID 1m    $mooT02mid
-      [[ $runSIE == 1 ]] && run_tool mk_sie  $CONFIG $TAG03 $RUNID 1m    $mooT03mid
+      [[ $runSIE == 1 ]] && run_tool mk_sie  $CONFIG $TAG09 $RUNID 1m    $mooI09mid 
+      [[ $runSIE == 1 ]] && run_tool mk_sie  $CONFIG $TAG02 $RUNID 1m    $mooI02mid
+      [[ $runSIE == 1 ]] && run_tool mk_sie  $CONFIG $TAG03 $RUNID 1m    $mooI03mid
    done
 
    # print task bar

@@ -1,4 +1,9 @@
- runid     |     name     |   line   |   color        |
+ runid                   |     name      |   line   |   color        |
+ eORCA025.L121-OPM000    | REF           | -        | royalblue      |
+ eORCA025.L121-OPM005    | 2000          | -        | chocolate      |
+ eORCA025.L121-OPM006    | INI           | -        | cornflowerblue |
+ eORCA025.L121-OPM007    | INI+DFS       | -        | navy           |
+ eORCA025.L121-OPM008    | INI+TKE       | -        | teal           |
  u-am916   | GO6-025      | -        | chocolate      |
  u-az867   | GO8-025g     | -        | royalblue      |
  u-ba470   | GO8-025b     | -        | cornflowerblue |

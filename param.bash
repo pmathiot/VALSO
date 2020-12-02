@@ -1,33 +1,76 @@
 #!/bin/bash
 
 ulimit -s unlimited
+module load python/3.5.3
+module load nco/4.7.9-gcc-4.8.5-hdf5-1.8.18-openmpi-2.0.4
+module load qt
 
 # where mask are stored (name of mesh mask in SCRIPT/common.bash)
-MSKPATH=${DATADIR}/MESH_MASK/
+MSKPATH=${SCRATCHDIR}/DRAKKAR/${CONFIG}/${CONFIG}-${RUNID}-MSH/
+MSHMSK=${CONFIG}-${RUNID}_mesh_mask.nc
+SUBMSK=${CONFIG}-${RUNID}_subbassins.nc
+ISFMSK=${CONFIG}-${RUNID}_mskisf.nc
+ISFLST=${CONFIG}-${RUNID}_isflst.nc
+
 # where cdftools are stored
 #CDFPATH=/project/nemo/TOOLS/CDFTOOLS/CDFTOOLS_4.0_master/bin/
-CDFPATH=/home/h05/pmathiot/TOOLS/CDFTOOLS_4.0/bin
+CDFPATH=${HOME}/GIT/CDFTOOLS_4.0_ISF/bin
+
 # toolbox location
-EXEPATH=${HOME}/VALSO/
+EXEPATH=${HOME}/GIT/VALSO/
+
 # SCRIPT location
-SCRPATH=${HOME}/VALSO/SCRIPT/
-# DATA path (CONFIG and RUNID are fill by script
-DATPATH=${SCRATCH}/ACC/$CONFIG/$RUNID/           
+SCRPATH=${EXEPATH}/SCRIPT/
+
+# STORE DIR
+STOPATH=${SCRATCHDIR}/DRAKKAR/${CONFIG}/${CONFIG}-${RUNID}-S/
+
+# WORK path
+WRKPATH=${SCRATCHDIR}/VALSO/
+
+# CFG path (CONFIG and RUNID are fill by script
+DATPATH=${WRKPATH}/${CONFIG}-${RUNID}/           
+
+# NEMO output format
+NEMOFILE=${CONFIG}-${RUNID}_${TAG}.${FREQ}_${GRID}.nc
+
+# grid
+GRIDT=gridT ; GRIDU=gridU ; GRIDV=gridV ; GRIDI=icemod ; GRIDflx=flxT
+
+# get NEMO FILE
+get_nemofilename() {
+  echo ${CONFIG}-${RUNID}_${TAG}.${FREQ}_${GRID}.nc
+}
+
+# get TAG
+get_tag() {
+  FREQ=$1 ; YYYY=$2 ; MM=$3 ; DD=$4
+  if [ $FREQ == '1y' ]; then
+     echo y${YYYY}
+  elif [ $FREQ == '1m' ]; then
+     echo y${YYYY}m${MM}
+  else
+     echo y${YYYY}m${MM}d${DD}
+  fi
+}
 
 # diagnostics bundle
 RUNVALSO=0
 RUNVALGLO=0
-RUNALL=1
+RUNVALSI=0
+RUNALL=0
 # custom
 runACC=0
 runMLD=0
-runBSF=1
+runBSF=0
 runBOT=0
 runMOC=0
-runMHT=0
+runMHT=1
 runSIE=0
 runSST=0
 runQHF=0
+runISF=0
+runICB=0
 #
 if [[ $RUNALL == 1 || $RUNTEST == 1 ]]; then
    runACC=1 #acc  ts
@@ -39,6 +82,8 @@ if [[ $RUNALL == 1 || $RUNTEST == 1 ]]; then
    runSIE=1
    runSST=1
    runQHF=1
+   runISF=1
+   runICB=1
 elif [[ $RUNVALSO == 1 ]]; then
    runACC=1 #acc  ts
    runMLD=1 #mld  ts
@@ -50,10 +95,8 @@ elif [[ $RUNVALGLO == 1 ]]; then
    runSIE=1
    runSST=1
    runQHF=1
-#else
-#   echo 'need to define what you want in param.bash; exit 42'
-#   exit 42
+elif [[ $RUNVALSI == 1 ]]; then
+   runISF=1
+   runICB=1
+   runBOT=1
 fi
-   
-
-module load gcc/8.1.0 mpi/mpich/3.2.1/gnu/8.1.0 hdf5/1.8.20/gnu/8.1.0 netcdf/4.6.1/gnu/8.1.0

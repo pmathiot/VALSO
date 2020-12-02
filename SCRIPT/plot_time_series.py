@@ -13,12 +13,11 @@ import matplotlib.ticker as ticker
 
 # def class runid
 class run(object):
-    def __init__(self, runid, sf):
+    def __init__(self, runid):
         # parse dbfile
         self.runid, self.name, self.line, self.color = parse_dbfile(runid)
-        self.sf = sf
 
-    def load_time_series(self, cfile, cvar):
+    def load_time_series(self, cfile, cvar, sf):
         # need to deal with mask, var and tag
         # need to do with the cdftools unit -> no unit !!!!
         # define time variable
@@ -28,9 +27,8 @@ class run(object):
         nf = len(cfile)
         df=[None]*nf
         for kf,cf in enumerate(cfile):
-            try:
+#            try:
                 ncid    = nc.Dataset(cf)
-
                 ncvtime = ncid.variables[ctime]
                 if 'units' in ncvtime.ncattrs():
                     cunits = ncvtime.units
@@ -58,14 +56,14 @@ class run(object):
                         timeidx[itime] = np.datetime64(time,'us')
         
                 # build series
-                cnam=get_varname(cf,cvar)
-                df[kf] = pd.Series(ncid.variables[cnam][:].squeeze()*self.sf, index = timeidx, name = self.name)
+                cnam=get_name(cvar,ncid.variables.keys())
+                print(ncid.variables[cnam][:].squeeze()*sf)
+                df[kf] = pd.Series(ncid.variables[cnam][:].squeeze()*sf, index = timeidx, name = self.name)
 
-            except Exception as e: 
-                print 'issue in trying to load file : '+cf
-                print e
-                sys.exit(42) 
-
+#            except Exception as e: 
+#                print('issue in trying to load file : '+cf) 
+#                print(e )
+#                sys.exit(42) 
 
         # build dataframe
         self.ts   = pd.DataFrame(pd.concat(df)).sort_index()
@@ -73,19 +71,20 @@ class run(object):
         self.std  = self.ts[self.name].std()
         self.min  = self.ts[self.name].min()
         self.max  = self.ts[self.name].max()
+        print('end get ts')
 
     def __str__(self):
         return 'runid = {}, name = {}, line = {}, color = {}'.format(self.runid, self.name, self.line, self.color)
 
 def get_name(regex,varlst):
     revar = re.compile(r'\b%s\b'%regex,re.I)
-    cvar  = filter(revar.match, varlst)
+    cvar  = list(filter(revar.match, varlst))
     if (len(cvar) > 1):
-        print regex+' name list is longer than 1 or 0; error'
-        print cvar[0]+' is selected'
+        print(regex+' name list is longer than 1 or 0; error')
+        print( cvar[0]+' is selected' )
     if (len(cvar) == 0):
-        print 'no match between '+regex+' and :'
-        print varlst
+        print( 'no match between '+regex+' and :' )
+        print( varlst )
         sys.exit(42)
     return cvar[0]
 
@@ -97,7 +96,7 @@ def get_varname(cfile,cvar):
 
 #=============================== obs management =================================
 def load_obs(cfile):
-    print 'open file '+cfile
+    print( 'open file '+cfile )
     with open(cfile) as fid:
         cmean = find_key('mean', fid)
         cstd  = find_key('std' , fid)
@@ -116,11 +115,11 @@ def load_argument():
     parser = argparse.ArgumentParser()
     parser.add_argument("-runid", metavar='runid list' , help="used to look information in runid.db"                  , type=str, nargs='+' , required=True )
     parser.add_argument("-f"    , metavar='file list'  , help="file list to plot (default is runid_var.nc)"           , type=str, nargs='+' , required=False)
-    parser.add_argument("-var"  , metavar='var list'   , help="variable to look for in the netcdf file ./runid_var.nc", type=str, nargs='+' , required=True )
+    parser.add_argument("-var"  , metavar='var list'   , help="variable to look for in the netcdf file ./runid_var.nc", type=str, nargs='+' , required=True)
     parser.add_argument("-varf" , metavar='var list'   , help="variable to look for in the netcdf file ./runid_var.nc", type=str, nargs='+' , required=False)
     parser.add_argument("-title", metavar='title'      , help="subplot title (associated with var)"                   , type=str, nargs='+' , required=False)
     parser.add_argument("-dir"  , metavar='directory of input file' , help="directory of input file"                  , type=str, nargs=1   , required=False, default=['./'])
-    parser.add_argument("-sf"  , metavar='scale factor', help="scale factor"                             , type=float, nargs=1   , required=False, default=[1])
+    parser.add_argument("-sf"  , metavar='scale factor', help="scale factor"                             , type=float, nargs='+'   , required=False)
     parser.add_argument("-o"    , metavar='figure_name', help="output figure name without extension"                  , type=str, nargs=1   , required=False, default=['output'])
     # flag argument
     parser.add_argument("-obs"  , metavar='obs mean and std file', help="obs mean and std file"          , type=str, nargs='+', required=False)
@@ -147,7 +146,8 @@ def get_ybnd(run_lst, omin, omax):
         run  = run_lst[irun]
         rmin = min(rmin, run.ts[run.name].min())
         rmax = max(rmax, run.ts[run.name].max())
-    return rmin, rmax
+        rrange=np.abs(rmax-rmin)
+    return rmin-0.05*rrange, rmax+0.05*rrange
 
 def add_legend(lg, ax, ncol=3, lvis=True):
     x0, x1, y0, y1 = get_corner(ax)
@@ -195,12 +195,12 @@ def parse_dbfile(runid):
                     cpltcolor = att[3].strip()
                     lstyle=True
         if not lstyle:
-            print runid+' not found in style.db'
+            print( runid+' not found in style.db' )
             raise Exception
 
     except Exception as e:
-        print 'Issue with file : style.db'
-        print e
+        print( 'Issue with file : style.db' )
+        print( e )
         sys.exit(42)
 
     # return value
@@ -227,7 +227,7 @@ def main():
 
     for irun, runid in enumerate(args.runid):
         # initialise run
-        run_lst[irun] = run(runid, args.sf[0])
+        run_lst[irun] = run(runid)
 
     plt.figure(figsize=np.array([210, 210]) / 25.4)
  
@@ -236,6 +236,12 @@ def main():
     maxtime=dt.date.min
     ymin=-sys.float_info.max
     ymax=sys.float_info.max
+
+    if args.sf:
+        sf=args.sf
+    else:
+        sf=np.ones(shape=(len(args.var),))
+       
 
     for ivar, cvar in enumerate(args.var):
         ax[ivar] = plt.subplot(nvar, 1, ivar+1)
@@ -256,7 +262,7 @@ def main():
                     fglob = args.f[irun]
                 cfile = glob.glob(args.dir[0]+'/'+runid+'/'+fglob)
                 if len(cfile)==0:
-                    print 'no file found with this pattern '+args.dir[0]+'/'+runid+'/'+fglob
+                    print( 'no file found with this pattern '+args.dir[0]+'/'+runid+'/'+fglob )
                     sys.exit(42)
             elif args.varf:
                # in case only one file pattern given
@@ -266,15 +272,15 @@ def main():
                     fglob = args.varf[ivar]
                 cfile = glob.glob(args.dir[0]+'/'+runid+'/'+fglob)
                 if len(cfile)==0:
-                    print 'no file found with this pattern '+args.dir[0]+'/'+runid+'/'+fglob
+                    print( 'no file found with this pattern '+args.dir[0]+'/'+runid+'/'+fglob )
                     sys.exit(42)
             else:
                 cfile = glob.glob(args.dir[0]+'/'+runid+'_'+cvar+'.nc')
                 if len(cfile)==0:
-                    print 'no file found with this pattern '+args.dir[0]+'/'+runid+'_'+cvar+'.nc'
+                    print( 'no file found with this pattern '+args.dir[0]+'/'+runid+'_'+cvar+'.nc' )
                     sys.exit(42)
 
-            run_lst[irun].load_time_series(cfile, cvar)
+            run_lst[irun].load_time_series(cfile, cvar, sf[ivar])
             ts_lst[irun] = run_lst[irun].ts
             lg = ts_lst[irun].plot(ax=ax[ivar], legend=False, style=run_lst[irun].line,color=run_lst[irun].color,label=run_lst[irun].name, x_compat=True, linewidth=2, rot=0)
             #
@@ -316,7 +322,7 @@ def main():
         ax[ivar].grid()
  
     # tidy up space
-    plt.subplots_adjust(left=0.1, right=0.8, bottom=0.2, top=0.92, wspace=0.15, hspace=0.15)
+    plt.subplots_adjust(left=0.1, right=0.8, bottom=0.2, top=0.92, wspace=0.3, hspace=0.3)
 
     # add legend
     add_legend(lg,ax[nvar-1])
