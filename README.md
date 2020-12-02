@@ -33,11 +33,11 @@ Simplest instalation (maybe not the most optimal)
 
 * these module are required : 
 ```
-   gcc/8.1.0 
-   mpi/mpich/3.2.1/gnu/8.1.0 
-   hdf5/1.8.20/gnu/8.1.0 
-   netcdf/4.6.1/gnu/8.1.0
-   scitools/production-os41-1
+   module load intel/17.0 
+   intelmpi/2017.0.098 hdf5/1.8.17 
+   netcdf/4.4.0_fortran-4.4.2
+   nco/4.7.9-gcc-4.8.5-hdf5-1.8.18-openmpi-2.0.4 
+   python/3.5.3
 ```
 
 ## Usage
