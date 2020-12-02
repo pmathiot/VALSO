@@ -16,25 +16,26 @@ ISFLST=${CONFIG}-${RUNID}_isflst.nc
 #CDFPATH=/project/nemo/TOOLS/CDFTOOLS/CDFTOOLS_4.0_master/bin/
 CDFPATH=${HOME}/GIT/CDFTOOLS_4.0_ISF/bin
 
-# toolbox location
+# toolbox location (where the toolbox is installed)
 EXEPATH=${HOME}/GIT/VALSO/
 
-# SCRIPT location
+# SCRIPT location (where script are, no need to be changed)
 SCRPATH=${EXEPATH}/SCRIPT/
 
-# STORE DIR
+# STORE DIR (where data are)
 STOPATH=${SCRATCHDIR}/DRAKKAR/${CONFIG}/${CONFIG}-${RUNID}-S/
 
-# WORK path
+# WORK path (where all the processing will be done)
 WRKPATH=${SCRATCHDIR}/VALSO/
 
-# CFG path (CONFIG and RUNID are fill by script
+# CFG path (CONFIG and RUNID are fill by script, no need to be changed)
 DATPATH=${WRKPATH}/${CONFIG}-${RUNID}/           
 
-# NEMO output format
+# NEMO output format (update it for your need)
+#       for TAG see get_tag below
 NEMOFILE=${CONFIG}-${RUNID}_${TAG}.${FREQ}_${GRID}.nc
 
-# grid
+# grid (update it for your need)
 GRIDT=gridT ; GRIDU=gridU ; GRIDV=gridV ; GRIDI=icemod ; GRIDflx=flxT
 
 # get NEMO FILE
@@ -58,14 +59,14 @@ get_tag() {
 RUNVALSO=0
 RUNVALGLO=0
 RUNVALSI=0
-RUNALL=0
+RUNALL=1
 # custom
 runACC=0
 runMLD=0
 runBSF=0
 runBOT=0
 runMOC=0
-runMHT=1
+runMHT=0
 runSIE=0
 runSST=0
 runQHF=0
