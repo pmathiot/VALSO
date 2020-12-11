@@ -27,7 +27,7 @@ class run(object):
         nf = len(cfile)
         df=[None]*nf
         for kf,cf in enumerate(cfile):
-#            try:
+            try:
                 ncid    = nc.Dataset(cf)
                 ncvtime = ncid.variables[ctime]
                 if 'units' in ncvtime.ncattrs():
@@ -57,13 +57,12 @@ class run(object):
         
                 # build series
                 cnam=get_name(cvar,ncid.variables.keys())
-                print(ncid.variables[cnam][:].squeeze()*sf)
                 df[kf] = pd.Series(ncid.variables[cnam][:].squeeze()*sf, index = timeidx, name = self.name)
 
-#            except Exception as e: 
-#                print('issue in trying to load file : '+cf) 
-#                print(e )
-#                sys.exit(42) 
+            except Exception as e: 
+                print('issue in trying to load file : '+cf) 
+                print(e )
+                sys.exit(42) 
 
         # build dataframe
         self.ts   = pd.DataFrame(pd.concat(df)).sort_index()
@@ -71,7 +70,6 @@ class run(object):
         self.std  = self.ts[self.name].std()
         self.min  = self.ts[self.name].min()
         self.max  = self.ts[self.name].max()
-        print('end get ts')
 
     def __str__(self):
         return 'runid = {}, name = {}, line = {}, color = {}'.format(self.runid, self.name, self.line, self.color)

@@ -11,7 +11,13 @@ FREQ=$3
 TAG=$4
 GRID=$5
 
+# load default parameter
 . param.bash
+#
+# load config dependant parameter
+. PARAM/param_${CONFIG}.bash
+#
+# make links
 . ${SCRPATH}/common.bash
 
 cd ${DATPATH}
@@ -23,7 +29,7 @@ elif [ $FREQ == '1y' ]; then echo '';
 else echo '$FREQ frequency is not supported'; exit 1
 fi
 
-FILE_LST=`ls ${STOPATH}/${FREQ}/*/${NEMOFILE}`;
+FILE_LST=`ls ${SIMPATH}/${NEMOFILE}`;
 
 for MFILE in `echo ${FILE_LST}`; do
    FILE=`basename $MFILE`

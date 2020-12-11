@@ -14,6 +14,11 @@ FREQ=$4
 
 # load path and mask
 . param.bash
+
+# load config param
+. PARAM/param_eORCA025.L121.bash
+
+# make links
 . ${SCRPATH}/common.bash
 
 cd $DATPATH/

@@ -8,6 +8,11 @@
    * Salinity of HSSW 
    * Intrusion of CDW in Amundsen sea
    * Intrusion of CDW on East Ross shelf
+   * AMOC
+   * MHT
+   * NWC sst
+   * ISF melt
+   * Antarctic shelf bottom T
 
 * Compare simulated metrics with what is called a good-enough simulation (this range is estimated from expert judgements not observation dataset)
 
@@ -15,10 +20,11 @@
 
 ## Limitation
 * only work for eORCA025 at the moment (section and box hard coded by index not lat/lon):
-   * need to find a better management of the box indexes (need CDFTOOLS modification or an other step to build the mask on the fily with lat/lon boxes)
+   * need to find a better management of the box indexes (need CDFTOOLS modification or an other step to build the mask on the fly with lat/lon boxes)
    * need a better management of section (need CDFTOOLS modification)
-* only work on Met Office computer
+* only work on Occigen computer
 * plot should not be used for publication as it is (std and mean value of observation should be corrected if you want to do so)
+* need to find a better method for plotting management (maybe an xml file with all available output)
 
 ## Installation
 Simplest instalation (maybe not the most optimal)
@@ -68,3 +74,8 @@ Other output :
 * bsf, bottom T, bottom S, september mld netcdf file for each year in your DATPATH directory.
 * all individual time series are saved in FIGURES along with the txt file describing the exact command line done to build it
 
+## To add a new diag
+* build a new script in SCRIPT
+* add a logical flag in param
+* update run_all.sh
+* build a new run_plot script

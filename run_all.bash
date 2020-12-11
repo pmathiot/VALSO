@@ -21,6 +21,65 @@ run_tool() {
    sbatch ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/${1}.bash $2 $4 $3 $5 > /dev/null 2>&1 &
    njob=$((njob+1))
 }
+
+compute_diags() {
+   # define tags
+   TAG=$(get_tag ${FREQ} ${YEAR} ${MONTH} 01)
+
+   # get data (retreive_data function are defined in this script)
+   [[ $runACC == 1 || $runBSF == 1 || $runMOC == 1 || $runMHT == 1 ]] && mooVyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDV  )
+   [[ $runACC == 1 || $runBSF == 1 ]]                                 && mooUyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDU  )
+   if [ $GRIDflx != $GRIDT ] ; then 
+      [[ $runBOT == 1 || $runSST == 1 ]]                              && mooTyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDT  )
+      [[ $runQHF == 1 || $runICB == 1 || $runISF == 1 ]]              && mooQyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDflx)
+   else
+      [[ $runBOT == 1 || $runSST == 1 || $runQHF == 1 || $runICB == 1 || $runISF == 1 ]] && mooTyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDT  )
+      mooQyid=$mooTyid
+   fi
+
+   # run cdftools
+   [[ $runACC == 1 ]] && run_tool mk_trp  $CONFIG $TAG $RUNID $FREQ $mooVyid:$mooUyid
+   [[ $runBSF == 1 ]] && run_tool mk_psi  $CONFIG $TAG $RUNID $FREQ $mooVyid:$mooUyid
+   [[ $runBOT == 1 ]] && run_tool mk_bot  $CONFIG $TAG $RUNID $FREQ $mooTyid:$moomskid
+   [[ $runMOC == 1 ]] && run_tool mk_moc  $CONFIG $TAG $RUNID $FREQ $mooUyid:$mooTyid
+   [[ $runMHT == 1 ]] && run_tool mk_mht  $CONFIG $TAG $RUNID $FREQ $mooVyid:$mooVyid
+   [[ $runQHF == 1 ]] && run_tool mk_hfds $CONFIG $TAG $RUNID $FREQ $mooQyid 
+   [[ $runISF == 1 ]] && run_tool mk_isf  $CONFIG $TAG $RUNID $FREQ $mooQyid 
+   [[ $runICB == 1 ]] && run_tool mk_icb  $CONFIG $TAG $RUNID $FREQ $mooQyid:$moomskid 
+   [[ $runSST == 1 ]] && run_tool mk_sst  $CONFIG $TAG $RUNID $FREQ $mooTyid
+}
+
+compute_onlymonthly_diags() {
+   # define tag      
+   TAG09=$(get_tag 1m ${YEAR} 09 01)
+   TAG02=$(get_tag 1m ${YEAR} 02 01)
+   TAG03=$(get_tag 1m ${YEAR} 03 01)
+
+   # get data (retreive_data function are defined in this script)
+   if   [[ $FREQF == 1y ]]  ; then   # tag02=tag09=tag03
+      [[ $runMLD == 1 ]]                                              && mooT09mid=$(retreive_data $CONFIG $RUNID 1m $TAG02 $GRIDT)
+      [[ $runSIE == 1 ]]                                              && mooI02mid=$(retreive_data $CONFIG $RUNID 1m $TAG02 $GRIDI)
+      mooT03mid=$mooT09mid
+      mooI03mid=$mooI02mid
+      mooI09mid=$mooI02mid
+
+      [[ $runMLD == 1 ]] && run_tool mk_mxl  $CONFIG $TAG09 $RUNID 1m    $mooT09mid:$moomskid
+      [[ $runSIE == 1 ]] && run_tool mk_sie  $CONFIG $TAG09 $RUNID 1m    $mooI09mid:$moomskid
+   elif [[ $FREQF == 1m ]]  ; then
+      [[ $runMLD == 1 ]]                                                 && mooT09mid=$(retreive_data $CONFIG $RUNID 1m $TAG09 $GRIDT)
+      [[ $runMLD == 1 ]]                                                 && mooT03mid=$(retreive_data $CONFIG $RUNID 1m $TAG03 $GRIDT)
+      [[ $runSIE == 1 ]]                                                 && mooI09mid=$(retreive_data $CONFIG $RUNID 1m $TAG09 $GRIDI)
+      [[ $runSIE == 1 ]]                                                 && mooI02mid=$(retreive_data $CONFIG $RUNID 1m $TAG02 $GRIDI)
+      [[ $runSIE == 1 ]]                                                 && mooI03mid=$(retreive_data $CONFIG $RUNID 1m $TAG03 $GRIDI)
+
+   # run cdftools
+      [[ $runMLD == 1 ]] && run_tool mk_mxl  $CONFIG $TAG09 $RUNID 1m    $mooT09mid:$moomskid
+      [[ $runSIE == 1 ]] && run_tool mk_sie  $CONFIG $TAG09 $RUNID 1m    $mooI09mid:$moomskid
+      [[ $runSIE == 1 ]] && run_tool mk_sie  $CONFIG $TAG02 $RUNID 1m    $mooI02mid:$moomskid
+      [[ $runSIE == 1 ]] && run_tool mk_sie  $CONFIG $TAG03 $RUNID 1m    $mooI03mid:$moomskid
+   fi
+}
+
 progress_bar() {
    sleep 4
    echo''
@@ -36,7 +95,6 @@ progress_bar() {
    echo ''
 }
 #=============================================================================================================================
-
 if [ $# -le 4 ]; then echo 'run_all.sh [CONFIG] [YEARB] [YEARE] [FREQ] [RUNID list]'; exit 42; fi
 
 CONFIG=$1
@@ -53,6 +111,7 @@ if [ -f ERROR.txt ]; then rm ERROR.txt ; fi
 # loop over years
 echo ''
 for RUNID in `echo $RUNIDS`; do
+   . PARAM/param_${CONFIG}.bash
 
    # set up jobout directory file
    JOBOUT_PATH=${EXEPATH}/SLURM/${CONFIG}/${RUNID}
@@ -62,56 +121,23 @@ for RUNID in `echo $RUNIDS`; do
 
    njob=0
    LSTY=`eval echo {${YEARB}..${YEARE}}`
-   if   [[ $FREQ == 1m ]]; then MONTHB=1  ; MONTHE=12 ; LSTM=`eval echo {$MONTHB..$MONTHE}` ;
-   elif [[ $FREQ == 1y ]]; then MONTHB=12 ; MONTHE=12 ; LSTM=`eval echo {$MONTHB..$MONTHE}` ;
-   else 
-        echo "E R R O R : $FREQ not supported; exit 42"
-        exit 42
-   fi
+   LSTM=`eval echo {1..12}`
 
-   [[ $runICB == 1 || $runBOT == 1 ]] && moomskid=$(build_mask $CONFIG $RUNID )
+   [[ $runICB == 1 || $runBOT == 1 || $runSIE ]] && moomskid=$(build_mask $CONFIG $RUNID )
 
+   MONTH=00
    for YEAR in `printf "%04d " $LSTY`; do
 
-      for MONTH in `printf "%02d " $LSTM`; do
-         # define tags
-         TAG=$(get_tag ${FREQ} ${YEAR} ${MONTH} 01)
+      if [[ $FREQ == 1y || $FREQF == 1y ]]  ; then
+         compute_diags
+      elif [[ $FREQ == 1m ]]                ; then
+         for MONTH in `printf "%02d " $LSTM`; do
+             compute_diags
+         done
+      fi
 
-         # get data (retreive_data function are defined in this script)
-         [[ $runACC == 1 || $runBSF == 1 || $runMOC == 1 || $runMHT == 1 ]] && mooVyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDV  )
-         [[ $runACC == 1 || $runBSF == 1 ]]                                 && mooUyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDU  )
-         [[ $runBOT == 1 || $runSST == 1 ]]                                 && mooTyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDT  )
-         [[ $runQHF == 1 || $runICB == 1 || $runISF == 1 ]]                 && mooQyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDflx)
-
-         # run cdftools
-         [[ $runACC == 1 ]] && run_tool mk_trp  $CONFIG $TAG $RUNID $FREQ $mooVyid:$mooUyid
-         [[ $runBSF == 1 ]] && run_tool mk_psi  $CONFIG $TAG $RUNID $FREQ $mooVyid:$mooUyid
-         [[ $runBOT == 1 ]] && run_tool mk_bot  $CONFIG $TAG $RUNID $FREQ $mooTyid:$moomskid
-         [[ $runMOC == 1 ]] && run_tool mk_moc  $CONFIG $TAG $RUNID $FREQ $mooUyid:$mooTyid
-         [[ $runMHT == 1 ]] && run_tool mk_mht  $CONFIG $TAG $RUNID $FREQ $mooVyid:$mooVyid
-         [[ $runQHF == 1 ]] && run_tool mk_hfds $CONFIG $TAG $RUNID $FREQ $mooQyid 
-         [[ $runISF == 1 ]] && run_tool mk_isf  $CONFIG $TAG $RUNID $FREQ $mooQyid 
-         [[ $runICB == 1 ]] && run_tool mk_icb  $CONFIG $TAG $RUNID $FREQ $mooQyid:$moomskid 
-         [[ $runSST == 1 ]] && run_tool mk_sst  $CONFIG $TAG $RUNID $FREQ $mooTyid
-      done
-
-      # define tag      
-      TAG09=$(get_tag 1m ${YEAR} 09 01)
-      TAG02=$(get_tag 1m ${YEAR} 02 01)
-      TAG03=$(get_tag 1m ${YEAR} 03 01)
-
-      # get data (retreive_data function are defined in this script)
-      [[ $runMLD == 1 ]]                                                 && mooT09mid=$(retreive_data $CONFIG $RUNID 1m $TAG09 $GRIDT)
-      [[ $runMLD == 1 ]]                                                 && mooT03mid=$(retreive_data $CONFIG $RUNID 1m $TAG03 $GRIDT)
-      [[ $runSIE == 1 || $runMLD == 1 ]]                                 && mooI09mid=$(retreive_data $CONFIG $RUNID 1m $TAG09 $GRIDI)
-      [[ $runSIE == 1 ]]                                                 && mooI02mid=$(retreive_data $CONFIG $RUNID 1m $TAG02 $GRIDI)
-      [[ $runSIE == 1 ]]                                                 && mooI03mid=$(retreive_data $CONFIG $RUNID 1m $TAG03 $GRIDI)
-
-      # run cdftools
-      [[ $runMLD == 1 ]] && run_tool mk_mxl  $CONFIG $TAG09 $RUNID 1m    $mooT09mid
-      [[ $runSIE == 1 ]] && run_tool mk_sie  $CONFIG $TAG09 $RUNID 1m    $mooI09mid 
-      [[ $runSIE == 1 ]] && run_tool mk_sie  $CONFIG $TAG02 $RUNID 1m    $mooI02mid
-      [[ $runSIE == 1 ]] && run_tool mk_sie  $CONFIG $TAG03 $RUNID 1m    $mooI03mid
+      compute_onlymonthly_diags
+      
    done
 
    # print task bar
@@ -121,7 +147,6 @@ for RUNID in `echo $RUNIDS`; do
    wait
 
 done # end runids
-
 # print out
 sleep 1
 ls > /dev/null 2>&1 # without this the following command sometimes failed (maybe it force to flush all the file on disk)

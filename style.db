@@ -1,9 +1,9 @@
  runid                   |     name      |   line   |   color        |
- eORCA025.L121-OPM000    | REF           | -        | royalblue      |
+ eORCA025.L121-OPM000    | NOINI         | -        | royalblue      |
  eORCA025.L121-OPM005    | 2000          | -        | chocolate      |
- eORCA025.L121-OPM006    | INI           | -        | cornflowerblue |
- eORCA025.L121-OPM007    | INI+DFS       | -        | navy           |
- eORCA025.L121-OPM008    | INI+TKE       | -        | teal           |
+ eORCA025.L121-OPM006    | REF           | -        | crimson        |
+ eORCA025.L121-OPM007    | DFS           | -        | navy           |
+ AMUXL12-GNJ004_BM02     | NJ_TEST       | -        | sienna
  u-am916   | GO6-025      | -        | chocolate      |
  u-az867   | GO8-025g     | -        | royalblue      |
  u-ba470   | GO8-025b     | -        | cornflowerblue |
@@ -12,11 +12,3 @@
  u-bn477   | GC5.0N96025  | --       | royalblue      |
  u-bo738   | GC3.1botfri  | --       | royalblue      |
  u-bc970   | GC3.1        | --       | cornflowerblue |
- u-ai758   | GC3.1 (spin-up) | --    | purple         |
- u-ar685   | GC3.1 Control              | --       | sienna         |
- u-bo112   | GC3.1 3xbilap viscosity    | -        | PaleTurquoise  |    
- u-bo117   | GC3.1 weak Gent-McWilliams | -        | teal           |  
- u-bo119   | GC3.1 sss restoring        | -        | navy                  |
- u-bn943   | GC3.1 FOAM start dump      | -        | chocolate      |
- u-bn900   | GO8-025g     | -        | royalblue      |
- u-bs852   | GO8-ICB     | -        | sienna      |

@@ -42,11 +42,11 @@ if [[ $? -ne 0 ]]; then exit 42; fi
 
 # ARC SIE
 echo 'plot 02 SIE time series'
-python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -varf '*sie*m03*.nc' '*sie*m09*.nc' -var NExnsidc NExnsidc -sf 0.001 0.001 -title "SIE Arctic m03 [1e6 km2]" "SIE Arctic m09 [1e6 km2]" -dir ${WRKPATH} -o ${KEY}_fig07 -obs OBS/ARC_sie03_obs.txt OBS/ARC_sie09_obs.txt
+python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -varf 'GLO*sie*m03*.nc' 'GLO*sie*m09*.nc' -var NExnsidc NExnsidc -sf 0.001 0.001 -title "SIE Arctic m03 [1e6 km2]" "SIE Arctic m09 [1e6 km2]" -dir ${WRKPATH} -o ${KEY}_fig07 -obs OBS/ARC_sie03_obs.txt OBS/ARC_sie09_obs.txt
 if [[ $? -ne 0 ]]; then exit 42; fi
 
 echo 'plot 09 SIE time series'
-python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -varf '*sie*m02*.nc' '*sie*m09*.nc' -var SExnsidc SExnsidc -sf 0.001 0.001 -title "SIE Antarctic m02 [1e6 km2]" "SIE Antarctic m09 [1e6 km2]" -dir ${WRKPATH} -o ${KEY}_fig08 -obs OBS/ANT_sie02_obs.txt OBS/ANT_sie09_obs.txt
+python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -varf 'GLO*sie*m02*.nc' 'GLO*sie*m09*.nc' -var SExnsidc SExnsidc -sf 0.001 0.001 -title "SIE Antarctic m02 [1e6 km2]" "SIE Antarctic m09 [1e6 km2]" -dir ${WRKPATH} -o ${KEY}_fig08 -obs OBS/ANT_sie02_obs.txt OBS/ANT_sie09_obs.txt
 if [[ $? -ne 0 ]]; then exit 42; fi
 
 # trim figure

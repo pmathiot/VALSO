@@ -14,12 +14,14 @@ FREQ=$4
 
 # load path and mask
 . param.bash
+
+# load config param
+. PARAM/param_${CONFIG}.bash
+
+# make links
 . ${SCRPATH}/common.bash
 
 cd $DATPATH/
-
-# name
-RUN_NAME=${RUNID#*-}
 
 # check presence of input file
 
@@ -41,10 +43,10 @@ fi
 
 # WG max
 ijbox=$($CDFPATH/cdffindij -c mesh.nc -p T -w -31.250 37.500 -66.500 -60.400 | tail -2 | head -1)
-$CDFPATH/cdfmean -f $FILEOUT -v sobarstf -p T -w ${ijbox} 0 0 -minmax -o WG_$FILEOUT
+$CDFPATH/cdfmean -f $FILEOUT -v sobarstf -p T -w ${ijbox} 0 0 -o WG_$FILEOUT
 if [ $? -ne 0 ] ; then echo "error when running cdfmean (WG)"; echo "E R R O R in : ./mk_psi.bash $@ (see SLURM/${CONFIG}/${RUNID}/mk_psi_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; fi
 
 # RG max
 ijbox=$($CDFPATH/cdffindij -c mesh.nc -p T -w -168.500 -135.750 -72.650 -61.600 | tail -2 | head -1)
-$CDFPATH/cdfmean -f $FILEOUT -v sobarstf -p T -w ${ijbox} 0 0 -minmax -o RG_$FILEOUT
+$CDFPATH/cdfmean -f $FILEOUT -v sobarstf -p T -w ${ijbox} 0 0 -o RG_$FILEOUT
 if [ $? -ne 0 ] ; then echo "error when running cdfmean (RG)"; echo "E R R O R in : ./mk_psi.bash $@ (see SLURM/${CONFIG}/${RUNID}/mk_psi_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; fi
