@@ -1,6 +1,7 @@
 #!/bin/bash
 
 ulimit -s unlimited
+module load intel/17.0 intelmpi/2017.0.098 hdf5/1.8.17 netcdf/4.4.0_fortran-4.4.2
 module load python/3.5.3
 module load nco/4.7.9-gcc-4.8.5-hdf5-1.8.18-openmpi-2.0.4
 module load qt

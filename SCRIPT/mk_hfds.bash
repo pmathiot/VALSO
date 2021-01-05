@@ -31,7 +31,7 @@ if [ ! -f $FILE ] ; then echo "$FILE is missing; exit"; echo "E R R O R in : ./m
 FILEOUT=GLO_hfds_${CONFIG}-${RUNID}_${FREQ}_${TAG}_grid-${GRID}.nc
 set -x
 pwd
-$CDFPATH/cdfmean -f $FILE -v '|sohefldo|hfds|' -surf -p T -o tmp_$FILEOUT 
+$CDFPATH/cdfmean -f $FILE -v '|sohefldo|hfds|' -surf -p T -o $FILEOUT 
 
 # mv output file
 if [[ $? -ne 0 ]]; then 

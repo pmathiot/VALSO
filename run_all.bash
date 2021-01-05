@@ -30,7 +30,7 @@ compute_diags() {
    [[ $runACC == 1 || $runBSF == 1 || $runMOC == 1 || $runMHT == 1 ]] && mooVyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDV  )
    [[ $runACC == 1 || $runBSF == 1 ]]                                 && mooUyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDU  )
    if [ $GRIDflx != $GRIDT ] ; then 
-      [[ $runBOT == 1 || $runSST == 1 ]]                              && mooTyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDT  )
+      [[ $runBOT == 1 || $runSST == 1 || $runISF == 1 ]]              && mooTyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDT  )
       [[ $runQHF == 1 || $runICB == 1 || $runISF == 1 ]]              && mooQyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDflx)
    else
       [[ $runBOT == 1 || $runSST == 1 || $runQHF == 1 || $runICB == 1 || $runISF == 1 ]] && mooTyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDT  )
@@ -44,7 +44,7 @@ compute_diags() {
    [[ $runMOC == 1 ]] && run_tool mk_moc  $CONFIG $TAG $RUNID $FREQ $mooUyid:$mooTyid
    [[ $runMHT == 1 ]] && run_tool mk_mht  $CONFIG $TAG $RUNID $FREQ $mooVyid:$mooVyid
    [[ $runQHF == 1 ]] && run_tool mk_hfds $CONFIG $TAG $RUNID $FREQ $mooQyid 
-   [[ $runISF == 1 ]] && run_tool mk_isf  $CONFIG $TAG $RUNID $FREQ $mooQyid 
+   [[ $runISF == 1 ]] && run_tool mk_isf  $CONFIG $TAG $RUNID $FREQ $mooQyid:$mooTyid
    [[ $runICB == 1 ]] && run_tool mk_icb  $CONFIG $TAG $RUNID $FREQ $mooQyid:$moomskid 
    [[ $runSST == 1 ]] && run_tool mk_sst  $CONFIG $TAG $RUNID $FREQ $mooTyid
 }
