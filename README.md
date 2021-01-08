@@ -25,18 +25,25 @@
 
 ## Installation
 Simplest instalation (maybe not the most optimal)
+* install the CDFTOOLS at v3.0.2-355-g66ce3da :
+```
+   git clone https://github.com/pmathiot/CDFTOOLS_4.0_ISF.git
+```
 * ckeckout the VALSO directory
+```
+   git clone https://github.com/pmathiot/VALSO.git
+```
 * edit param.bash to fit your setup/need
-   * mesh mask location with mesh mask name
-   * location of the toolbox (optional if you install it on your home directory)
-   * where to process the data (optional if you stick to SPICE scratch directory)
-   * where are your CDFTOOLS version 4.0 (optional if you stick to already installed cdftools)
-* edit PARAM/param_CONFIG.bash
-   * edit the mesh mask files name
-   * simulation storage location
-   * simulation processing location
-   * get_nemofile function to match your output name.
-   * get_tag function to match your output name.
+   * path of the toolbox (`$EXEPATH`)
+   * path of the processing directory (`$WRKPATH`) 
+   * path of the CDFTOOLS version 4.0 bin drectory (`$CDFPATH`)
+* edit `PARAM/param_CONFIG.bash` (`$CONFIG`, `$RUNID`, `$FREQ`, `$GRID` are automatically filled during the run, so they can be used in param_CONFIG.bash). Rename the file with the correct CONFIG name (eORCA025.L121 in my case).
+   * path of the mask file (`$MSKPATH`) and the corresponding mask name (`$MSHMSK`, `$SUBMSK`, `$ISFMSK` and `$ISFLST`)
+   * path of storage location (`$STOPATH`)
+   * path where the simulation processing location is done (`$DATPATH`)
+   * template for the file name (`$NEMOFILE`)
+   * edit `get_nemofile` function to match your output name.
+   * edit `get_tag` function to match your output name.
 
 * these module are required on Occigen: 
 ```
@@ -49,10 +56,11 @@ Simplest instalation (maybe not the most optimal)
 
 ## Usage
 * define your style for each simulation (file style.db)
-* `./run_all.bash [CONFIG] [YEARB] [YEARE] [RUNID list]` as example : 
+* `./run_all.bash [CONFIG] [YEARB] [YEARE] [FREQ (1y or 1m)] [RUNID list]` as example : 
 ```
-./run_all.bash eORCA025.L121 1976 1977 OPM006 OPM007
+./run_all.bash eORCA025.L121 1976 1977 1y OPM006 OPM007
 ```
+will proceed the year 1976 to 1977 for runid OPM006 and OPM007 of configuration eORCA025.L121
 
 Once this is done and if no error or minor errors 
 (ie for example we ask from 2000 to 2020 
@@ -63,6 +71,7 @@ you can now build the plot for the Southern Ocean:
 ```
 ./run_plot_VALSO.bash output_name 1y eORCA025.L121-OPM006 eORCA025.L121-OPM007
 ```
+The script will look for file with a generic pattern and plot all the available data.
 * You can also run with a similar command VALGLO, VALSI and VALAMU.
 
 ## Output
@@ -72,7 +81,9 @@ Other output :
 * all individual time series are saved in FIGURES along with the txt file describing the exact command line done to build it
 
 ## To add a new diag
-* build a new script in SCRIPT
-* add a logical flag in param
-* update run_all.sh
+* build a new script in SCRIPT or modify one (for exemple if you want another area for the bottomT time series, update `mk_bot.bash` to add it)
+If a new script is added you need also to:
+  * add a logical flag in param
+  * update `run_all.sh`
+Then:
 * build a new run_plot script based on the existing one
