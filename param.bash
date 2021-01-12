@@ -24,7 +24,7 @@ WRKPATH=${SCRATCHDIR}/VALSO/
 RUNVALSO=0
 RUNVALGLO=0
 RUNVALSI=0
-RUNALL=1
+RUNALL=0
 # custom
 runACC=0
 runMLD=0
@@ -37,6 +37,7 @@ runSST=0
 runQHF=0
 runISF=0
 runICB=0
+runMEAN=1
 #
 if [[ $RUNALL == 1 || $RUNTEST == 1 ]]; then
    runACC=1 #acc  ts
@@ -50,6 +51,7 @@ if [[ $RUNALL == 1 || $RUNTEST == 1 ]]; then
    runQHF=1
    runISF=1
    runICB=1
+   runMEAN=1
 elif [[ $RUNVALSO == 1 ]]; then
    runACC=1 #acc  ts
    runMLD=1 #mld  ts
