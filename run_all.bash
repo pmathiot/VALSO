@@ -129,7 +129,7 @@ for RUNID in `echo $RUNIDS`; do
    MONTH=00
    for YEAR in `printf "%04d " $LSTY`; do
 
-      if [[ $FREQ == 1y || $FREQF == 1y ]]  ; then
+      if [[ $FREQ == 1y || $FREQ == 10y || $FREQF == 1y ]]  ; then
          compute_diags
       elif [[ $FREQ == 1m ]]                ; then
          for MONTH in `printf "%02d " $LSTM`; do

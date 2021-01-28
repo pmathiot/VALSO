@@ -28,7 +28,7 @@ RUNALL=0
 # custom
 runACC=0
 runMLD=0
-runBSF=0
+runBSF=1
 runBOT=0
 runMOC=0
 runMHT=0
@@ -37,7 +37,7 @@ runSST=0
 runQHF=0
 runISF=0
 runICB=0
-runMEAN=1
+runMEAN=0
 #
 if [[ $RUNALL == 1 || $RUNTEST == 1 ]]; then
    runACC=1 #acc  ts

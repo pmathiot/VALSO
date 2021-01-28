@@ -1,5 +1,5 @@
 #!/bin/bash -l
-#SBATCH --mem=5000
+#SBATCH --mem=500
 #SBATCH --time=60
 #SBATCH --ntasks=1
 #SBATCH --nodes=1
@@ -26,6 +26,7 @@ cd ${DATPATH}
 if   [ $FREQ == '5d' ]; then echo '';
 elif [ $FREQ == '1m' ]; then echo '';
 elif [ $FREQ == '1y' ]; then echo '';
+elif [ $FREQ == '10y' ]; then echo '';
 else echo '$FREQ frequency is not supported'; exit 1
 fi
 

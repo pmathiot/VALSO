@@ -11,33 +11,36 @@ FREQ=$3
 TAG=$4
 GRID=$5
 
+# load default parameter
 . param.bash
+#
+# load config dependant parameter
+. PARAM/param_${CONFIG}.bash
+#
+# make links
 . ${SCRPATH}/common.bash
 
 cd ${DATPATH}
-
-FILTER=${EXEPATH}/FILTERS/filter_${GRID}
 
 # get data
 if   [ $FREQ == '5d' ]; then echo '';
 elif [ $FREQ == '1m' ]; then echo '';
 elif [ $FREQ == '1y' ]; then echo '';
+elif [ $FREQ == '10y' ]; then echo '';
 else echo '$FREQ frequency is not supported'; exit 1
 fi
 
-# flexibility for old-style filenames:
-#GRID=$(echo $GRID | sed 's/-/[-_]/g')
-
-FILE_LST=`ls ${STOPATH}/${FREQ}/*/${NEMOPREFIX}_${GRID}.nc`;
+FILE_LST=`ls ${SIMPATH}/${NEMOFILE}`;
 
 for MFILE in `echo ${FILE_LST}`; do
-   FILE=`basname $MFILE`
+   FILE=`basename $MFILE`
    if [ -f $FILE ]; then 
       TIME=`ncdump -h $FILE | grep UNLIMITED | sed -e 's/(//' | awk '{print $6}'`
       if [[ $TIME -eq 0 ]]; then echo " $FILE is corrupted "; rm $FILE; fi
    fi
    if [ ! -f $FILE ]; then
-      echo "downloading file ${FILE}"
+      echo "downloading file ${MFILE} in ${DATPATH} ..."
       cp $MFILE .
    fi
 done
+echo 'done'
