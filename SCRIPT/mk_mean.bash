@@ -11,54 +11,88 @@ write_err() {
    echo "error when running cdfmean; exit"; echo "E R R O R in : ./mk_mean.bash $@ (see SLURM/${CONFIG}/${RUNID}/mk_mean_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1
 }
 
-if [[ $# -ne 4 ]]; then echo 'mk_mean.bash [CONFIG (eORCA12, eORCA025 ...)] [RUNID (mi-aa000)] [TAG (19991201_20061201_ANN)] [FREQ (1y)]'; exit 1 ; fi
+compute_means_obs() {
+   IJBOX=$($CDFPATH/cdffindij -c mesh.nc -p T -w $LLBOX | tail -2 | head -1)
+   # compute profile T
+   FILEOUT=${ZONE}_${PRET}_${CONFIG}-${RUNID}_${FREQ}_${TAG}_${GRID}.nc
+   $CDFPATH/cdfmean -f $FILE -v $VART -p T -o $FILEOUT -w $IJBOX 0 0
+   if [[ $? -ne 0 ]]; then write_err ; fi
+
+   FILEOUT=${ZONE}_${PRES}_${CONFIG}-${RUNID}_${FREQ}_${TAG}_${GRID}.nc
+   $CDFPATH/cdfmean -f $FILE -v $VARS -p T -o $FILEOUT -w $IJBOX 0 0
+   if [[ $? -ne 0 ]]; then write_err ; fi
+}
+
+
+compute_means() {
+   IJBOX=$($CDFPATH/cdffindij -c mesh.nc -p T -w $LLBOX | tail -2 | head -1)
+   # compute profile T
+   FILEOUT=${ZONE}_${PRET}_${CONFIG}-${RUNID}_${FREQ}_${TAG}_${GRID}.nc
+   $CDFPATH/cdfmean -f $FILE -v $VART -p T -o $FILEOUT -vvl  -w $IJBOX 0 0
+   if [[ $? -ne 0 ]]; then write_err ; fi
+
+   FILEOUT=${ZONE}_${PRES}_${CONFIG}-${RUNID}_${FREQ}_${TAG}_${GRID}.nc
+   $CDFPATH/cdfmean -f $FILE -v $VARS -p T -o $FILEOUT -vvl  -w $IJBOX 0 0
+   if [[ $? -ne 0 ]]; then write_err ; fi
+}
+
+if [[ $# -lt 4 ]]; then echo 'mk_mean.bash [CONFIG (eORCA12, eORCA025 ...)] [RUNID (mi-aa000)] [TAG (19991201_20061201_ANN)] [FREQ (1y)] [lOBS]'; exit 1 ; fi
 set -x
 CONFIG=$1
 RUNID=$2
 TAG=$3
 FREQ=$4
+lOBS=0
+if [[ $# -lt 5 ]] ; then lOBS=1; fi
 # load path and mask
 . param.bash
 
 # load config param
 . PARAM/param_${CONFIG}.bash
 
+if [[ lOBS -eq 1 ]]; then
+    . PARAM/param_obs.bash
+    FILE=${OBSTS_DIR}/${OBSTS_FILE}
+else  
+    GRID=$GRIDT
+    FILE=`get_nemofilename`
+fi
+
+if [ ! -f $FILE ] ; then echo "$FILE is missing; exit"; echo "E R R O R in : ./mk_mean.bash $@ (see SLURM/${CONFIG}/${RUNID}/mk_mean_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1 ; fi
+
 # make links
 . ${SCRPATH}/common.bash
 
 cd $DATPATH/
 
-GRID=$GRIDT
-FILE=`get_nemofilename`
-if [ ! -f $FILE ] ; then echo "$FILE is missing; exit"; echo "E R R O R in : ./mk_mean.bash $@ (see SLURM/${CONFIG}/${RUNID}/mk_mean_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1 ; fi
+if [[ lOBS -eq 1 ]]; then
+    VART=$OBST_VAR
+    VARS=$OBSS_VAR  
+    RUNID=${OBSTS_NAME}_${OBSTS_ATT}
+    TAG=$OBSTS_TAG
+    MEAN_SCRIPT=compute_means_obs
+else  
+    VART='votemper' ; VARS='vosaline'
+    MEAN_SCRIPT=compute_means
+fi
 
+PRET='Tprof'    ; PRES='Sprof' 
 ZONE='AMUSill'
 LLBOX='-106.972 -101.992  -72.189  -70.970'
-VART='votemper' ; VARS='vosaline'
-PRET='Tprof'    ; PRES='Sprof' 
-
-IJBOX=$($CDFPATH/cdffindij -c mesh.nc -p T -w $LLBOX | tail -2 | head -1)
-# compute profile T
-FILEOUT=${ZONE}_${PRET}_${CONFIG}-${RUNID}_${FREQ}_${TAG}_${GRID}.nc
-$CDFPATH/cdfmean -f $FILE -v $VART -p T -o $FILEOUT -vvl  -w $IJBOX 0 0
-if [[ $? -ne 0 ]]; then write_err ; fi
-
-FILEOUT=${ZONE}_${PRES}_${CONFIG}-${RUNID}_${FREQ}_${TAG}_${GRID}.nc
-$CDFPATH/cdfmean -f $FILE -v $VARS -p T -o $FILEOUT -vvl  -w $IJBOX 0 0
-if [[ $? -ne 0 ]]; then write_err ; fi
+$MEAN_SCRIPT
 
 ZONE='GETZSill'
 LLBOX='-119.460 -117.478  -72.514  -71.841'
-VART='votemper' ; VARS='vosaline'
-PRET='Tprof'    ; PRES='Sprof' 
+$MEAN_SCRIPT
 
-IJBOX=$($CDFPATH/cdffindij -c mesh.nc -p T -w $LLBOX | tail -2 | head -1)
-# compute profile T
-FILEOUT=${ZONE}_${PRET}_${CONFIG}-${RUNID}_${FREQ}_${TAG}_${GRID}.nc
-$CDFPATH/cdfmean -f $FILE -v $VART -p T -o $FILEOUT -vvl  -w $IJBOX 0 0
-if [[ $? -ne 0 ]]; then write_err ; fi
+ZONE='AMUopen'
+LLBOX='-130 -86 -70 -65'
+$MEAN_SCRIPT
 
-FILEOUT=${ZONE}_${PRES}_${CONFIG}-${RUNID}_${FREQ}_${TAG}_${GRID}.nc
-$CDFPATH/cdfmean -f $FILE -v $VARS -p T -o $FILEOUT -vvl  -w $IJBOX 0 0
-if [[ $? -ne 0 ]]; then write_err ; fi
+ZONE='ROSSgyre'
+LLBOX='-168.500 -135.750 -72.650 -61.600'
+$MEAN_SCRIPT
 
+ZONE='WEDgyre'
+LLBOX='-20.0 20.0 -66.500 -60.400'
+$MEAN_SCRIPT
