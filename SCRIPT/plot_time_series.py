@@ -127,7 +127,7 @@ def load_argument():
 
 def output_argument_lst(cfile, arglst):
     fid = open(cfile, "w")
-    fid.write(' python2.7 '+' '.join(arglst))
+    fid.write(' python '+' '.join(arglst))
     fid.close()
 
 # ============================ plotting tools ==================================
