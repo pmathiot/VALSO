@@ -1,8 +1,13 @@
  runid                   |     name      |   line   |   color        |
  eORCA025.L121-OPM000    | NOINI         | -        | royalblue      |
  eORCA025.L121-OPM005    | 2000          | -        | chocolate      |
+ ORCA025.L75-GNJ002      | O025GNJ002    | -        | chocolate      |
  eORCA025.L121-OPM006    | REF           | -        | crimson        |
  eORCA025.L121-OPM007    | DFS           | -        | navy           |
+ eORCA025.L121-OPM010    | EIV150        | -        | royalblue      |
+ eORCA025.L121-OPM011    | AHT300        | -        | sienna         |
+ eORCA025.L121-OPM012    | AHT300+EIV300 | -        | cornflowerblue |
+ eORCA025.L121-OPM013    | AHT300+EIV300+PSLIP | -        | lightgreen |
  AMUXL12-GNJ004_BM02     | NJ_TEST       | -        | sienna
  u-am916   | GO6-025      | -        | chocolate      |
  u-az867   | GO8-025g     | -        | royalblue      |

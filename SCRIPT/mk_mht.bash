@@ -15,7 +15,7 @@ FREQ=$4
 . param.bash
 
 # load config param
-. PARAM/param_eORCA025.L121.bash
+. PARAM/param_${CONFIG}.bash
 
 # make links
 . ${SCRPATH}/common.bash
@@ -29,7 +29,7 @@ if [ ! -f $FILEV ] ; then echo "$FILEV is missing; exit"; echo "E R R O R in : .
 # make mht
 FILEOUT=${CONFIG}-${RUNID}_${FREQ}_${TAG}_mht.nc
 set -x
-$CDFPATH/cdfmhst -vt $FILEV -vvl -o tmp_$FILEOUT
+$CDFPATH/cdfmhst -vt $FILEV ${VVL} -o tmp_$FILEOUT
 
 # mv output file
 if [[ $? -eq 0 ]]; then 
@@ -54,4 +54,4 @@ case $CONFIG in
     echo "error when running cdfmht; exit"; echo "E R R O R in : ./mk_mht.bash $@ (see SLURM/${CONFIG}/${RUNID}/mk_mht_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt; exit 1
     ;;
 esac
-ncks -O -d y,$jj,$jj $FILEOUT nemo_${RUN_NAME}o_${FREQ}_${TAG}_mht_265.nc
+ncks -O -d y,$jj,$jj $FILEOUT ${CONFIG}-${RUNID}_${FREQ}_${TAG}_mht_265.nc

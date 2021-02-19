@@ -1,11 +1,6 @@
 #!/bin/bash
 
 ulimit -s unlimited
-module load intel/17.0 intelmpi/2017.0.098 hdf5/1.8.17 netcdf/4.4.0_fortran-4.4.2
-module load python/3.5.3
-module load nco/4.7.9-gcc-4.8.5-hdf5-1.8.18-openmpi-2.0.4
-module load qt
-
 
 # where cdftools are stored
 #CDFPATH=/project/nemo/TOOLS/CDFTOOLS/CDFTOOLS_4.0_master/bin/
@@ -22,9 +17,9 @@ WRKPATH=${SCRATCHDIR}/VALSO/
 
 # diagnostics bundle
 RUNVALSO=0
-RUNVALGLO=0
+RUNVALGLO=1
 RUNVALSI=0
-RUNALL=1
+RUNALL=0
 # custom
 runACC=0
 runMLD=0
@@ -38,6 +33,7 @@ runQHF=0
 runISF=0
 runICB=0
 runMEAN=0
+runEKE=0
 #
 if [[ $RUNALL == 1 || $RUNTEST == 1 ]]; then
    runACC=1 #acc  ts
@@ -52,6 +48,7 @@ if [[ $RUNALL == 1 || $RUNTEST == 1 ]]; then
    runISF=1
    runICB=1
    runMEAN=1
+   runEKE=1
 elif [[ $RUNVALSO == 1 ]]; then
    runACC=1 #acc  ts
    runMLD=1 #mld  ts

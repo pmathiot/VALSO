@@ -17,27 +17,27 @@ if [[ $? -ne 0 ]]; then exit 42; fi
 
 # AMOC
 echo 'plot AMOC time series'
-python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f rapid_*moc.nc -var Total_max_amoc_rapid -title "Max AMOC 26.5N (Sv)" -dir ${WRKPATH} -o ${KEY}_fig02 -obs OBS/AMOC_obs.txt
+python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f rapid_*${FREQ}*moc.nc -var Total_max_amoc_rapid -title "Max AMOC 26.5N (Sv)" -dir ${WRKPATH} -o ${KEY}_fig02 -obs OBS/AMOC_obs.txt
 if [[ $? -ne 0 ]]; then exit 42; fi
 
 # MHT 
 echo 'plot MHT  time series'
-python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f *mht*_265.nc -var zomht_atl -title "AMHT 26.5N (PW)" -dir ${WRKPATH} -o ${KEY}_fig03 -obs OBS/AMHT_obs.txt
+python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f *${FREQ}*mht_265.nc -var zomht_atl -title "AMHT 26.5N (PW)" -dir ${WRKPATH} -o ${KEY}_fig03 -obs OBS/AMHT_obs.txt
 if [[ $? -ne 0 ]]; then exit 42; fi
 
 # QNET
 echo 'plot QNET  time series'
-python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f GLO_hfds*.nc -var '(mean_sohefldo|mean_hfds)' -title "Net downward heat flux (W/m2)" -dir ${WRKPATH} -o ${KEY}_fig04 -obs OBS/QNET_obs.txt
+python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f GLO_hfds*${FREQ}*.nc -var '(mean_sohefldo|mean_hfds)' -title "Net downward heat flux (W/m2)" -dir ${WRKPATH} -o ${KEY}_fig04 -obs OBS/QNET_obs.txt
 if [[ $? -ne 0 ]]; then exit 42; fi
 
 # SO SST
 echo 'plot SO SST time series'
-python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f SO_sst*.nc -var '(mean_votemper|mean_thetao)' -title "SO sst [K]" -dir ${WRKPATH} -o ${KEY}_fig05 -obs OBS/SO_sst_mean_obs.txt
+python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f SO_sst*${FREQ}*.nc -var '(mean_votemper|mean_thetao)' -title "SO sst [K]" -dir ${WRKPATH} -o ${KEY}_fig05 -obs OBS/SO_sst_mean_obs.txt
 if [[ $? -ne 0 ]]; then exit 42; fi
 
 # SO SST
 echo 'plot SO SST time series'
-python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f NWC_sst*.nc -var '(mean_votemper|mean_thetao)' -title "NWC sst [K]" -dir ${WRKPATH} -o ${KEY}_fig06 -obs OBS/NWC_sst_mean_obs.txt
+python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f NWC_sst*${FREQ}*.nc -var '(mean_votemper|mean_thetao)' -title "NWC sst [K]" -dir ${WRKPATH} -o ${KEY}_fig06 -obs OBS/NWC_sst_mean_obs.txt
 if [[ $? -ne 0 ]]; then exit 42; fi
 
 # ARC SIE

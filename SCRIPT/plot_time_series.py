@@ -208,12 +208,15 @@ def parse_dbfile(runid):
 def main():
 
 # load argument
+    print('read args')
     args = load_argument()
 
 # output argument list
+    print('argument list')
     output_argument_lst(args.o[0]+'.txt', sys.argv)
 
 # parse db file
+    print('init var')
     nrun = len(args.runid)
     nvar = len(args.var)
     lg_lst   = [None]*nrun
@@ -223,13 +226,16 @@ def main():
     obs_mean = [None]*nvar; obs_std = [None]*nvar; obs_min = [999999.9]*nvar; obs_max = [-999999.9]*nvar
     rmin = [None]*nvar; rmax = [None]*nvar;
 
+    print('parse db')
     for irun, runid in enumerate(args.runid):
         # initialise run
         run_lst[irun] = run(runid)
 
+    print('init figure')
     plt.figure(figsize=np.array([210, 210]) / 25.4)
  
 # need to deal with multivar
+    print('get min/max possible range')
     mintime=dt.date.max
     maxtime=dt.date.min
     ymin=-sys.float_info.max
@@ -242,13 +248,15 @@ def main():
        
 
     for ivar, cvar in enumerate(args.var):
-        ax[ivar] = plt.subplot(nvar, 1, ivar+1)
         # load obs
         if args.obs:
+            print('load obs')
             obs_mean[ivar], obs_std[ivar] = load_obs(args.obs[ivar])
             obs_min[ivar] = obs_mean[ivar]-obs_std[ivar]
             obs_max[ivar] = obs_mean[ivar]+obs_std[ivar]
  
+        print('load data and plot')
+        ax[ivar] = plt.subplot(nvar, 1, ivar+1)
         for irun, runid in enumerate(args.runid):
 
             # load data
@@ -325,6 +333,7 @@ def main():
     # add legend
     add_legend(lg,ax[nvar-1])
 
+    print('add obs')
     if args.mean or args.obs:
         xmin = 0 ; xmax = 0
         for ivar, cvar in enumerate(args.var):

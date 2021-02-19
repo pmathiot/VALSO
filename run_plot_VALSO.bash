@@ -7,6 +7,7 @@ if [ $# -eq 0 ] ; then echo 'need a [KEYWORD] (will be inserted inside the outpu
 KEY=${1}
 FREQ=${2}
 RUNIDS=${@:3}
+echo $RUNIDS
 
 # ACC
 # Drake
@@ -28,28 +29,28 @@ if [[ $? -ne 0 ]]; then exit 42; fi
 # HSSW
 # mean S WROSS
 echo 'plot mean bot S (WROSS) time series'
-python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f *WROSS*so*${FREQ}*T.nc -var '(mean_sosbs)' -title "Mean bot. sal. WROSS (PSU)" -dir ${WRKPATH} -o ${KEY}_WROSS_mean_bot_so -obs OBS/WROSS_botS_mean_obs.txt
+python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f *WROSS*so*${FREQ}*T.nc -var '(mean_sosbs|mean_vosaline)' -title "Mean bot. sal. WROSS (PSU)" -dir ${WRKPATH} -o ${KEY}_WROSS_mean_bot_so -obs OBS/WROSS_botS_mean_obs.txt
 # mean S WWED
 if [[ $? -ne 0 ]]; then exit 42; fi
 echo 'plot mean bot S (WWED) time series'
-python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f *WED*so*${FREQ}*T.nc   -var '(mean_sosbs)' -title "Mean bot. sal. WWED  (PSU)" -dir ${WRKPATH} -o ${KEY}_WWED_mean_bot_so  -obs OBS/WWED_botS_mean_obs.txt
+python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f *WED*so*${FREQ}*T.nc   -var '(mean_sosbs|mean_vosaline)' -title "Mean bot. sal. WWED  (PSU)" -dir ${WRKPATH} -o ${KEY}_WWED_mean_bot_so  -obs OBS/WWED_botS_mean_obs.txt
 if [[ $? -ne 0 ]]; then exit 42; fi
 
 # CDW
 # mean T AMU
 echo 'plot mean bot T (AMU) time series'
-python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f *AMU_*thetao*${FREQ}*T.nc   -var '(mean_sosbt)' -title "Mean bot. temp. AMU (C)"   -dir ${WRKPATH} -o ${KEY}_AMU_mean_bot_thetao   -obs OBS/AMU_botT_mean_obs.txt
+python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f *AMU_*thetao*${FREQ}*T.nc   -var '(mean_sosbt|mean_votemper)' -title "Mean bot. temp. AMU (C)"   -dir ${WRKPATH} -o ${KEY}_AMU_mean_bot_thetao   -obs OBS/AMU_botT_mean_obs.txt
 if [[ $? -ne 0 ]]; then exit 42; fi
 # mean T EROSS
 echo 'plot mean bot T (EROSS) time series'
-python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f *EROSS*thetao*${FREQ}*T.nc -var '(mean_sosbt)' -title "Mean bot. temp. EROSS (C)" -dir ${WRKPATH} -o ${KEY}_EROSS_mean_bot_thetao -obs OBS/EROSS_botT_mean_obs.txt
+python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f *EROSS*thetao*${FREQ}*T.nc -var '(mean_sosbt|mean_votemper)' -title "Mean bot. temp. EROSS (C)" -dir ${WRKPATH} -o ${KEY}_EROSS_mean_bot_thetao -obs OBS/EROSS_botT_mean_obs.txt
 if [[ $? -ne 0 ]]; then exit 42; fi
 
 # MLD
 # max mld in WEDDELL GYRE
-echo 'plot max mld in Weddell Gyre time series'
-python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f *WMXL*1m*m09_*T.nc -var '(max_sokaraml|max_somxzint1|max_somxl010)' -title "Max Kara mld WG (m)" -dir ${WRKPATH} -o ${KEY}_WG_max_karamld -obs OBS/WG_karamld_max_obs.txt
-if [[ $? -ne 0 ]]; then exit 42; fi
+#echo 'plot max mld in Weddell Gyre time series'
+#python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f *WMXL*1m*m09_*T.nc -var '(max_sokaraml|max_somxzint1|max_somxl010)' -title "Max Kara mld WG (m)" -dir ${WRKPATH} -o ${KEY}_WG_max_karamld -obs OBS/WG_karamld_max_obs.txt
+#if [[ $? -ne 0 ]]; then exit 42; fi
 
 # crop figure (rm legend)
 convert ${KEY}_ACC.png                   -crop 1240x1040+0+0 tmp01.png

@@ -33,6 +33,10 @@ Simplest instalation (maybe not the most optimal)
 ```
    git clone https://github.com/pmathiot/VALSO.git
 ```
+* install python valso environment
+```
+  conda env create -f valso.yml 
+```
 * edit param.bash to fit your setup/need
    * path of the toolbox (`$EXEPATH`)
    * path of the processing directory (`$WRKPATH`) 
@@ -45,14 +49,7 @@ Simplest instalation (maybe not the most optimal)
    * edit `get_nemofile` function to match your output name.
    * edit `get_tag` function to match your output name.
 
-* these module are required on Occigen: 
-```
-   module load intel/17.0 
-   intelmpi/2017.0.098 hdf5/1.8.17 
-   netcdf/4.4.0_fortran-4.4.2
-   nco/4.7.9-gcc-4.8.5-hdf5-1.8.18-openmpi-2.0.4 
-   python/3.5.3
-```
+* the module required are the one used to compiled the CDFTOOLS and nco 
 
 ## Usage
 * define your style for each simulation (file style.db)
@@ -67,6 +64,10 @@ Once this is done and if no error or minor errors
 but some simulation only span between 2010 and 2020. In this case no data will be built for the period 2000 2009 but error will show up)
 
 you can now build the plot for the Southern Ocean:
+* activate your valso python environment:
+```
+   conda activate valso
+```
 * `./run_plot_VALSO.bash [KEY] [FREQ] [RUNID list]` as example : 
 ```
 ./run_plot_VALSO.bash output_name 1y eORCA025.L121-OPM006 eORCA025.L121-OPM007

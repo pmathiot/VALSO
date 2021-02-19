@@ -28,11 +28,11 @@ compute_means() {
    IJBOX=$($CDFPATH/cdffindij -c mesh.nc -p T -w $LLBOX | tail -2 | head -1)
    # compute profile T
    FILEOUT=${ZONE}_${PRET}_${CONFIG}-${RUNID}_${FREQ}_${TAG}_${GRID}.nc
-   $CDFPATH/cdfmean -f $FILE -v $VART -p T -o $FILEOUT -vvl  -w $IJBOX 0 0
+   $CDFPATH/cdfmean -f $FILE -v $VART -p T -o $FILEOUT ${VVL} -w $IJBOX 0 0
    if [[ $? -ne 0 ]]; then write_err ; fi
 
    FILEOUT=${ZONE}_${PRES}_${CONFIG}-${RUNID}_${FREQ}_${TAG}_${GRID}.nc
-   $CDFPATH/cdfmean -f $FILE -v $VARS -p T -o $FILEOUT -vvl  -w $IJBOX 0 0
+   $CDFPATH/cdfmean -f $FILE -v $VARS -p T -o $FILEOUT ${VVL} -w $IJBOX 0 0
    if [[ $? -ne 0 ]]; then write_err ; fi
 }
 

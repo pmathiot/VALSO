@@ -46,10 +46,10 @@ if [ ! -f $FILE ] ; then echo "$FILE is missing; exit"; echo "E R R O R in : ./m
 jtop=$($CDFPATH/cdffindij -c mesh.nc -p T -w 0 0 -60 -60 | tail -2 | head -1 | awk '{print $3}')
 # compute profile T
 FILEOUT=ISF_Tprof_${CONFIG}-${RUNID}_${FREQ}_${TAG}_${GRID}.nc
-$CDFPATH/cdfmean -f $FILE -v votemper -p T -I mskisf.nc mask_isf_front isflst.txt -o $FILEOUT -vvl  -w 0 0 1 $jtop 0 0
+$CDFPATH/cdfmean -f $FILE -v votemper -p T -I mskisf.nc mask_isf_front isflst.txt -o $FILEOUT ${VVL}  -w 0 0 1 $jtop 0 0
 if [[ $? -ne 0 ]]; then write_err ; fi
 
 FILEOUT=ISF_Sprof_${CONFIG}-${RUNID}_${FREQ}_${TAG}_${GRID}.nc
-$CDFPATH/cdfmean -f $FILE -v vosaline -p T -I mskisf.nc mask_isf_front isflst.txt -o $FILEOUT -vvl  -w 0 0 1 $jtop 0 0
+$CDFPATH/cdfmean -f $FILE -v vosaline -p T -I mskisf.nc mask_isf_front isflst.txt -o $FILEOUT ${VVL}  -w 0 0 1 $jtop 0 0
 if [[ $? -ne 0 ]]; then write_err ; fi
 
