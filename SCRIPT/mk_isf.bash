@@ -3,7 +3,7 @@
 #SBATCH --time=20
 #SBATCH --ntasks=4
 #SBATCH --nodes=1
-#SBATCH --constraint HSW24
+#SBATCH --constraint BDW28
 
 export OMP_NUM_THREADS=8
 
@@ -43,13 +43,12 @@ GRID=$GRIDT
 FILE=`get_nemofilename`
 if [ ! -f $FILE ] ; then echo "$FILE is missing; exit"; echo "E R R O R in : ./mk_isf.bash $@ (see SLURM/${CONFIG}/${RUNID}/mk_isf_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1 ; fi
 
-jtop=$($CDFPATH/cdffindij -c mesh.nc -p T -w 0 0 -60 -60 | tail -2 | head -1 | awk '{print $3}')
 # compute profile T
 FILEOUT=ISF_Tprof_${CONFIG}-${RUNID}_${FREQ}_${TAG}_${GRID}.nc
-$CDFPATH/cdfmean -f $FILE -v votemper -p T -I mskisf.nc mask_isf_front isflst.txt -o $FILEOUT ${VVL}  -w 0 0 1 $jtop 0 0
+$CDFPATH/cdfmean -f $FILE -v votemper -p T -I mskisf.nc mask_isf_front isflst.txt -o $FILEOUT ${VVL}
 if [[ $? -ne 0 ]]; then write_err ; fi
 
 FILEOUT=ISF_Sprof_${CONFIG}-${RUNID}_${FREQ}_${TAG}_${GRID}.nc
-$CDFPATH/cdfmean -f $FILE -v vosaline -p T -I mskisf.nc mask_isf_front isflst.txt -o $FILEOUT ${VVL}  -w 0 0 1 $jtop 0 0
+$CDFPATH/cdfmean -f $FILE -v vosaline -p T -I mskisf.nc mask_isf_front isflst.txt -o $FILEOUT ${VVL}
 if [[ $? -ne 0 ]]; then write_err ; fi
 

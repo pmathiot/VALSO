@@ -30,6 +30,7 @@ class run(object):
             try:
                 ncid    = nc.Dataset(cf)
                 ncvtime = ncid.variables[ctime]
+
                 if 'units' in ncvtime.ncattrs():
                     cunits = ncvtime.units
                 else:
@@ -54,7 +55,7 @@ class run(object):
                         timeidx[itime] = np.datetime64(time[itime],'us')
                     else:
                         timeidx[itime] = np.datetime64(time,'us')
-        
+       
                 # build series
                 cnam=get_name(cvar,ncid.variables.keys())
                 df[kf] = pd.Series(ncid.variables[cnam][:].squeeze()*sf, index = timeidx, name = self.name)
@@ -302,17 +303,20 @@ def main():
         nlabel=5
         ndays=(maxtime-mintime).days
         nyear=ndays/365
-        if nyear < 10:
+        if nyear < 9:
             nyt=1
-        elif 10<=nyear<50:
+        elif 6<= nyear < 15:
+            nyt=2
+        elif 15<=nyear<41:
             nyt=5
-        elif 50<=nyear<100:
+        elif 41<=nyear<100:
             nyt=10
         else:
             nyt=100
         nmt=ts_lst[irun].index[0].to_pydatetime().date().month
         ndt=ts_lst[irun].index[0].to_pydatetime().date().day
          
+        print(ndays, nyear,nyt)
         ax[ivar].xaxis.set_major_locator(mdates.YearLocator(nyt,month=1,day=1))
         ax[ivar].tick_params(axis='both', labelsize=16)
         if (ivar != nvar-1):

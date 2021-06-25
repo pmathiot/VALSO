@@ -3,7 +3,7 @@
 #SBATCH --time=10
 #SBATCH --ntasks=1
 #SBATCH --nodes=1
-#SBATCH --constraint HSW24
+#SBATCH --constraint BDW28
 
 write_err() {
 echo "error when running cdfmean ($1)"; echo "E R R O R in : ./mk_bot.bash $@ (see SLURM/${CONFIG}/${RUNID}/mk_bot_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt
@@ -32,6 +32,7 @@ cd $DATPATH/
 # check presence of input file
 GRID=$GRIDT
 FILE=`get_nemofilename`
+
 if [ ! -f $FILE ] ; then echo "$FILE is missing; exit"; echo "E R R O R in : ./mk_bot.bash $@ (see SLURM/${CONFIG}/${RUNID}/mk_bot_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1 ; fi
 
 FILEOUT=${CONFIG}-${RUNID}_${FREQ}_${TAG}_bottom-${GRID}.nc
@@ -68,10 +69,15 @@ if [ $? -ne 0 ] ; then write_err EROSS ; fi
 
 # Weddell Avg (bottom water)
 ijbox=$($CDFPATH/cdffindij -c mesh.nc -p T -w -65.130  -53.020  -75.950  -72.340 | tail -2 | head -1)
-$CDFPATH/cdfmean -f $FILEOUT -v $SBOTvar  -p T -w ${ijbox} 0 0 -o WED_so_$FILEOUT 
+$CDFPATH/cdfmean -f $FILEOUT -v $SBOTvar  -p T -w ${ijbox} 0 0 -o WWED_so_$FILEOUT 
 if [ $? -ne 0 ] ; then write_err WWED ; fi
 
-for AREA in FRIS ROSS AMUS GETZ ; do
+# EWeddell Avg (CDW)
+ijbox=$($CDFPATH/cdffindij -c mesh.nc -p T -w -45.647  -32.253  -78.632  -76.899 | tail -2 | head -1)
+$CDFPATH/cdfmean -f $FILEOUT -v $TBOTvar  -p T -w ${ijbox} 0 0 -o EWED_thetao_$FILEOUT
+if [ $? -ne 0 ] ; then write_err EWED ; fi
+
+for AREA in FRIS ROSS AMUS GETZ BELING WPEN ; do
    echo "$AREA ..."
    $CDFPATH/cdfmean -f $FILEOUT -v $TBOTvar  -p T  -o ${AREA}_thetao_$FILEOUT -B msk_${AREA}_shelf.nc tmask
    if [ $? -ne 0 ] ; then write_err $AREA ; fi

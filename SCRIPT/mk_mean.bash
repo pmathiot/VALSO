@@ -3,7 +3,7 @@
 #SBATCH --time=20
 #SBATCH --ntasks=4
 #SBATCH --nodes=1
-#SBATCH --constraint HSW24
+#SBATCH --constraint BDW28
 
 export OMP_NUM_THREADS=8
 
@@ -42,13 +42,19 @@ CONFIG=$1
 RUNID=$2
 TAG=$3
 FREQ=$4
-lOBS=0
-if [[ $# -lt 5 ]] ; then lOBS=1; fi
+lOBS=1
+if [[ $# -lt 5 ]] ; then lOBS=0; fi
+
 # load path and mask
 . param.bash
 
 # load config param
 . PARAM/param_${CONFIG}.bash
+
+# make links
+. ${SCRPATH}/common.bash
+
+cd $DATPATH/
 
 if [[ lOBS -eq 1 ]]; then
     . PARAM/param_obs.bash
@@ -60,11 +66,6 @@ fi
 
 if [ ! -f $FILE ] ; then echo "$FILE is missing; exit"; echo "E R R O R in : ./mk_mean.bash $@ (see SLURM/${CONFIG}/${RUNID}/mk_mean_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1 ; fi
 
-# make links
-. ${SCRPATH}/common.bash
-
-cd $DATPATH/
-
 if [[ lOBS -eq 1 ]]; then
     VART=$OBST_VAR
     VARS=$OBSS_VAR  
@@ -72,7 +73,7 @@ if [[ lOBS -eq 1 ]]; then
     TAG=$OBSTS_TAG
     MEAN_SCRIPT=compute_means_obs
 else  
-    VART='votemper' ; VARS='vosaline'
+    VART='|votemper|t_an|' ; VARS='|vosaline|s_an|'
     MEAN_SCRIPT=compute_means
 fi
 

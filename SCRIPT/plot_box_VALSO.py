@@ -35,7 +35,7 @@ def add_land_features(ax,cfeature_lst):
         elif cfeat=='bathy_z3000':
             feature = cartopy.feature.NaturalEarthFeature('physical', 'bathymetry_H_3000'          , '10m',facecolor='none',edgecolor='k')
         else:
-            print 'feature unknown : '+cfeat
+            print('feature unknown : '+cfeat)
             sys.exit(42)
         ax.add_feature(feature,linewidth=0.5)
 
@@ -47,28 +47,25 @@ class box(object):
         self.ymax=corner[3]-1
         self.name=name
 
-cfile='/data/cr1/pmathiot/MESH_MASK/bathymetry_eORCA025-GO6.nc'
+cfile='eORCA025.L121-OPM020/mask.nc'
 ncid   = nc.Dataset(cfile)
-bathy = ncid.variables['Bathymetry'][0:-2,:]
-ncid.close()
-cfile='/data/cr1/pmathiot/MESH_MASK/mesh_mask_eORCA025-GO6.nc'
+bathy = ncid.variables['bathy_metry'][:,0:-2,:].squeeze()
 ncid   = nc.Dataset(cfile)
 lon = ncid.variables['nav_lon'][0:-2,:]
 lat = ncid.variables['nav_lat'][0:-2,:]
 delta_lon=np.abs(np.diff(lon))
 j_lst,i_lst=np.nonzero(delta_lon>180)
-print j_lst.shape, i_lst.shape
 for idx in range(0,len(j_lst)):
     lon[j_lst[idx], i_lst[idx]+1:] += 360
-print lon.shape, lat.shape, bathy.shape
 
-box_lst=[None]*6
-box_lst[0]=box([710,741,202,266],'AMU')
-box_lst[1]=box([891,938,204,258],'WWED')
-box_lst[2]=box([347,404,150,233],'WROSS')
-box_lst[3]=box([448,519,152,180],'EROSS')
-box_lst[4]=box([1025,1300,325,380],'WG')
-box_lst[5]=box([476,607 ,254,370],'RG')
+box_lst=[]
+box_lst.append(box([710,741,202,266],'AMU'))
+box_lst.append(box([891,938,204,258],'WWED'))
+box_lst.append(box([347,404,150,233],'WROSS'))
+box_lst.append(box([448,519,152,180],'EROSS'))
+box_lst.append(box([1025,1300,325,380],'WG'))
+box_lst.append(box([476,607 ,254,370],'RG'))
+box_lst.append(box([968,1020,159,190],'EWED'))
 
 mask=np.zeros(shape=bathy.shape)
 for box in box_lst:
@@ -77,10 +74,11 @@ for box in box_lst:
 proj=ccrs.Stereographic(central_latitude=-90.0, central_longitude=0.0)
 XY_lim=[-180, 180, -90, -45]
 plt.figure(figsize=np.array([210, 210]) / 25.4)
-ax=plt.subplot(1, 1, 1, projection=proj, axisbg='0.75')
+ax=plt.subplot(1, 1, 1, projection=proj)
 #ax=plt.subplot(1, 1, 1)
 add_land_features(ax,['isf','lakes','land'])
-print np.max(bathy), np.min(bathy)
+
+print(lon.shape, lat.shape, bathy.shape)
 ax.pcolormesh(lon,lat,bathy,cmap='Blues',vmin=0,vmax=7000,transform=ccrs.PlateCarree(),rasterized=True)
 
 ax.contour(lon,lat,mask,levels=[0.99, 2.0],transform=ccrs.PlateCarree(),colors='k',rasterized=True,linewidths=2)
@@ -89,11 +87,12 @@ ax.plot([lon[420,874], lon[332,899]],[lat[420,874], lat[332,899]],transform=ccrs
 ax.text(lon[420,874]-5,lat[420,874]-3,'ACC',transform=ccrs.PlateCarree(),color='k',fontweight='bold',fontsize=16)
 
 box=box_lst[0]; ax.text(lon[box.ymin,box.xmin]-1, lat[box.ymin,box.xmin]-1,box.name,transform=ccrs.PlateCarree(),color='k',fontweight='bold',fontsize=16)
-box=box_lst[1]; ax.text(lon[box.ymin,box.xmin], lat[box.ymin,box.xmin]-2,box.name,transform=ccrs.PlateCarree(),color='k',fontweight='bold',fontsize=16)
+box=box_lst[1]; ax.text(lon[box.ymin,box.xmin]-20, lat[box.ymin,box.xmin]+4,box.name,transform=ccrs.PlateCarree(),color='k',fontweight='bold',fontsize=16)
 box=box_lst[2]; ax.text(lon[box.ymin,box.xmin], lat[box.ymin,box.xmin]-1,box.name,transform=ccrs.PlateCarree(),color='k',fontweight='bold',fontsize=16)
 box=box_lst[3]; ax.text(lon[box.ymin,box.xmin]+45, lat[box.ymin,box.xmin]+3,box.name,transform=ccrs.PlateCarree(),color='k',fontweight='bold',fontsize=16)
 box=box_lst[4]; ax.text(lon[box.ymin,box.xmin]+30, lat[box.ymin,box.xmin]+10,box.name,transform=ccrs.PlateCarree(),color='k',fontweight='bold',fontsize=16)
 box=box_lst[5]; ax.text(lon[box.ymin,box.xmin]+15, lat[box.ymin,box.xmin]+5,box.name,transform=ccrs.PlateCarree(),color='k',fontweight='bold',fontsize=16)
+box=box_lst[6]; ax.text(lon[box.ymax,box.xmax]+1, lat[box.ymax,box.xmax]+1,box.name,transform=ccrs.PlateCarree(),color='k',fontweight='bold',fontsize=16)
 
 #pcol=ax.pcolormesh(lon,lat,bathy)
 ax.set_extent(XY_lim, ccrs.PlateCarree())

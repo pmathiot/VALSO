@@ -2,6 +2,9 @@
 
 ulimit -s unlimited
 
+# specify SCRATCHDIR as sometime the default value can be wrong because of ldap_start_tls: Can't contact LDAP server (-1)
+SCRATCHDIR=/scratch/cnt0021/egi6035/pmathiot/
+
 # where cdftools are stored
 #CDFPATH=/project/nemo/TOOLS/CDFTOOLS/CDFTOOLS_4.0_master/bin/
 CDFPATH=${HOME}/GIT/CDFTOOLS_4.0_ISF/bin
@@ -13,13 +16,14 @@ EXEPATH=${HOME}/GIT/VALSO/
 SCRPATH=${EXEPATH}/SCRIPT/
 
 # WORK path (where all the processing will be done)
-WRKPATH=${SCRATCHDIR}/VALSO/
+WRKPATH=/work/pmathiot/VALSO/
 
 # diagnostics bundle
 RUNVALSO=0
-RUNVALGLO=1
+RUNVALGLO=0
 RUNVALSI=0
-RUNALL=0
+RUNVALAMU=0
+RUNALL=1
 # custom
 runACC=0
 runMLD=0
@@ -34,6 +38,8 @@ runISF=0
 runICB=0
 runMEAN=0
 runEKE=0
+#
+runOBS=0
 #
 if [[ $RUNALL == 1 || $RUNTEST == 1 ]]; then
    runACC=1 #acc  ts
@@ -64,4 +70,8 @@ elif [[ $RUNVALSI == 1 ]]; then
    runISF=1
    runICB=1
    runBOT=1
+elif [[ $RUNVALAMU == 1 ]]; then
+   runISF=1
+   runBOT=1
+   runSIE=1
 fi
