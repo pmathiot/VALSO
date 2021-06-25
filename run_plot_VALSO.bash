@@ -15,7 +15,6 @@ echo 'plot ACC time series'
 set -x
 python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f *ACC*${FREQ}*.nc -var vtrp -sf -1 -title "ACC transport (Sv)" -dir ${WRKPATH} -o "${KEY}_ACC" -obs OBS/ACC_obs.txt
 if [[ $? -ne 0 ]]; then exit 42; fi
-
 # GYRE
 # ROSS GYRE
 echo 'plot Ross Gyre time series'

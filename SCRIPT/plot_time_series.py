@@ -10,6 +10,7 @@ import argparse
 import pandas as pd
 import matplotlib.dates as mdates
 import matplotlib.ticker as ticker
+import xarray as xr
 
 # def class runid
 class run(object):
@@ -23,50 +24,11 @@ class run(object):
         # define time variable
         ctime = 'time_centered'
 
-        # define unit
-        nf = len(cfile)
-        df=[None]*nf
-        for kf,cf in enumerate(cfile):
-            try:
-                ncid    = nc.Dataset(cf)
-                ncvtime = ncid.variables[ctime]
+        ds=xr.open_mfdataset(cfile, parallel=True, concat_dim='time_counter',combine='nested').sortby(ctime)
+        da=xr.DataArray(ds[cvar].values.squeeze()*sf, [(ctime, ds[ctime].values)], name=self.name)
+        da[ctime] = da.indexes[ctime].to_datetimeindex()
 
-                if 'units' in ncvtime.ncattrs():
-                    cunits = ncvtime.units
-                else:
-                    cunits = "seconds since 1900-01-01 00:00:00"
-    
-                # define calendar
-                if 'calendar' in ncvtime.ncattrs():
-                    ccalendar = ncvtime.calendar
-                else:
-                    ccalendar = "noleap"
-                time = nc.num2date(ncid.variables[ctime][:].squeeze(), cunits, ccalendar)
-        
-                # convert to proper datetime object
-                if isinstance(time,(list,np.ndarray)):
-                    ntime = time.shape[0]
-                else:
-                    ntime = 1
-    
-                timeidx=[None]*ntime
-                for itime in range(0, ntime):
-                    if isinstance(time,(list,np.ndarray)):
-                        timeidx[itime] = np.datetime64(time[itime],'us')
-                    else:
-                        timeidx[itime] = np.datetime64(time,'us')
-       
-                # build series
-                cnam=get_name(cvar,ncid.variables.keys())
-                df[kf] = pd.Series(ncid.variables[cnam][:].squeeze()*sf, index = timeidx, name = self.name)
-
-            except Exception as e: 
-                print('issue in trying to load file : '+cf) 
-                print(e )
-                sys.exit(42) 
-
-        # build dataframe
-        self.ts   = pd.DataFrame(pd.concat(df)).sort_index()
+        self.ts=da.to_dataframe()
         self.mean = self.ts[self.name].mean()
         self.std  = self.ts[self.name].std()
         self.min  = self.ts[self.name].min()
@@ -289,11 +251,11 @@ def main():
 
             run_lst[irun].load_time_series(cfile, cvar, sf[ivar])
             ts_lst[irun] = run_lst[irun].ts
-            lg = ts_lst[irun].plot(ax=ax[ivar], legend=False, style=run_lst[irun].line,color=run_lst[irun].color,label=run_lst[irun].name, x_compat=True, linewidth=2, rot=0)
+            lg = ts_lst[irun].plot(ax=ax[ivar], legend=False, style=run_lst[irun].line, color=run_lst[irun].color, label=run_lst[irun].name, x_compat=True, linewidth=2, rot=0)
             #
             # limit of time axis
-            mintime=min([mintime,ts_lst[irun].index[0].to_pydatetime().date()])
-            maxtime=max([maxtime,ts_lst[irun].index[-1].to_pydatetime().date()])
+            mintime=min([mintime,ts_lst[irun].index[0]])
+            maxtime=max([maxtime,ts_lst[irun].index[-1]])
 
         # set title
         if (args.title):
@@ -313,10 +275,9 @@ def main():
             nyt=10
         else:
             nyt=100
-        nmt=ts_lst[irun].index[0].to_pydatetime().date().month
-        ndt=ts_lst[irun].index[0].to_pydatetime().date().day
+        nmt=ts_lst[irun].index[0].month
+        ndt=ts_lst[irun].index[0].day
          
-        print(ndays, nyear,nyt)
         ax[ivar].xaxis.set_major_locator(mdates.YearLocator(nyt,month=1,day=1))
         ax[ivar].tick_params(axis='both', labelsize=16)
         if (ivar != nvar-1):
@@ -329,6 +290,7 @@ def main():
  
         rmin[ivar],rmax[ivar]=get_ybnd(run_lst,obs_min[ivar],obs_max[ivar])
         ax[ivar].set_ylim([rmin[ivar],rmax[ivar]])
+        ax[ivar].set_xlabel('')
         ax[ivar].grid()
  
     # tidy up space
