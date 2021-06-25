@@ -3,7 +3,7 @@
 #SBATCH --time=10
 #SBATCH --ntasks=1
 #SBATCH --nodes=1
-#SBATCH --constraint HSW24
+#SBATCH --constraint BDW28
 
 if [[ $# -ne 4 ]]; then echo 'mk_psi.bash [CONFIG (eORCA12, eORCA025 ...)] [RUNID (mi-aa000)] [TAG (19991201_20061201_ANN)] [FREQ (1y)]'; exit 1 ; fi
 
@@ -32,7 +32,7 @@ if [ ! -f $FILEU ] ; then echo "$FILEU is missing; exit"; echo "E R R O R in : .
 
 # make psi
 FILEOUT=${CONFIG}-${RUNID}_${FREQ}_${TAG}_psi.nc
-$CDFPATH/cdfpsi -u $FILEU -v $FILEV -vvl -nc4 -ref 1 1 -o tmp_$FILEOUT
+$CDFPATH/cdfpsi -u $FILEU -v $FILEV ${VVL} -nc4 -ref 1 1 -o tmp_$FILEOUT
 
 # mv output file
 if [[ $? -eq 0 ]]; then 

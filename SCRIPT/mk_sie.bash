@@ -3,7 +3,7 @@
 #SBATCH --time=10
 #SBATCH --ntasks=1
 #SBATCH --nodes=1
-#SBATCH --constraint HSW24
+#SBATCH --constraint BDW28
 
 write_err() {
 echo "error when running cdficediags ($1)"; echo "E R R O R in : ./mk_sie.bash $@ (see SLURM/${CONFIG}/${RUNID}/mk_sie_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt

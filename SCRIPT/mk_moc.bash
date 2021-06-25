@@ -3,7 +3,7 @@
 #SBATCH --time=20
 #SBATCH --ntasks=1
 #SBATCH --nodes=1
-#SBATCH --constraint HSW24
+#SBATCH --constraint BDW28
 
 if [[ $# -ne 4 ]]; then echo 'mk_moc.bash [CONFIG (eORCA12, eORCA025 ...)] [RUNID (mi-aa000)] [TAG (19991201_20061201_ANN)] [FREQ (1y)]'; exit 1 ; fi
 
@@ -15,7 +15,7 @@ FREQ=$4
 . param.bash
 
 # load config param
-. PARAM/param_eORCA025.L121.bash
+. PARAM/param_${CONFIG}.bash
 
 # make links
 . ${SCRPATH}/common.bash
@@ -35,7 +35,7 @@ if [ ! -f $FILES ] ; then echo "$FILES is missing; exit"; echo "E R R O R in : .
 # make moc
 FILEOUT=${CONFIG}-${RUNID}_${FREQ}_${TAG}_moc.nc
 set -x
-$CDFPATH/cdfmoc -v $FILEV -u $FILEU -t $FILET -s $FILES -rapid -vvl -o tmp_$FILEOUT
+$CDFPATH/cdfmoc -v $FILEV -u $FILEU -t $FILET -s $FILES -rapid ${VVL} -o tmp_$FILEOUT
 
 # mv output file
 if [[ $? -eq 0 ]]; then 

@@ -31,13 +31,13 @@ compute_diags() {
    TAG=$(get_tag ${FREQ} ${YEAR} ${MONTH} 01)
 
    # get data (retreive_data function are defined in this script)
-   [[ $runACC == 1 || $runBSF == 1 || $runMOC == 1 || $runMHT == 1 ]]      && mooVyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDV  )
-   [[ $runACC == 1 || $runBSF == 1 ]]                                      && mooUyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDU  )
+   [[ $runACC == 1 || $runBSF == 1 || $runMOC == 1 || $runMHT == 1 || $runEKE == 1 ]]      && mooVyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDV  )
+   [[ $runACC == 1 || $runBSF == 1 || $runMOC == 1 || $runEKE == 1 ]]                      && mooUyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDU  )
    if [ $GRIDflx != $GRIDT ] ; then 
-      [[ $runBOT == 1 || $runSST == 1 || $runISF == 1 || $runMEAN == 1 ]]  && mooTyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDT  )
-      [[ $runQHF == 1 || $runICB == 1 || $runISF == 1 ]]                   && mooQyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDflx)
+      [[ $runBOT == 1 || $runSST == 1 || $runISF == 1 || $runMEAN == 1 || $runEKE == 1 ]]  && mooTyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDT  )
+      [[ $runQHF == 1 || $runICB == 1 || $runISF == 1 ]]                              && mooQyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDflx)
    else
-      [[ $runBOT == 1 || $runSST == 1 || $runQHF == 1 || $runICB == 1 || $runISF == 1 || $runMEAN == 1 ]] && mooTyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDT  )
+      [[ $runBOT == 1 || $runSST == 1 || $runQHF == 1 || $runICB == 1 || $runISF == 1 || $runMEAN == 1 || $runEKE == 1 ]] && mooTyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDT  )
       mooQyid=$mooTyid
    fi
 
@@ -52,6 +52,7 @@ compute_diags() {
    [[ $runICB  == 1 ]] && run_tool mk_icb  $CONFIG $TAG $RUNID $FREQ $mooQyid:$moomskid 
    [[ $runSST  == 1 ]] && run_tool mk_sst  $CONFIG $TAG $RUNID $FREQ $mooTyid
    [[ $runMEAN == 1 ]] && run_tool mk_mean $CONFIG $TAG $RUNID $FREQ $mooTyid
+   [[ $runEKE  == 1 ]] && run_tool mk_eke  $CONFIG $TAG $RUNID $FREQ $mooTyid:$mooUyid:$mooVyid
 }
 
 compute_onlymonthly_diags() {
@@ -128,9 +129,9 @@ for RUNID in `echo $RUNIDS`; do
    LSTY=`eval echo {${YEARB}..${YEARE}}`
    LSTM=`eval echo {1..12}`
 
-   [[ $runICB == 1 || $runBOT == 1 || $runSIE ]] && moomskid=$(build_mask $CONFIG $RUNID )
+   [[ $runICB == 1 || $runBOT == 1 || $runSIE == 1 ]] && moomskid=$(build_mask $CONFIG $RUNID )
 
-   compute_obs_diags
+   [[ $runOBS == 1 ]] && compute_obs_diags
 
    MONTH=00
    for YEAR in `printf "%04d " $LSTY`; do

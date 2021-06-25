@@ -3,7 +3,7 @@
 #SBATCH --time=10
 #SBATCH --ntasks=1
 #SBATCH --nodes=1
-#SBATCH --constraint HSW24
+#SBATCH --constraint BDW28
 
 if [[ $# -ne 4 ]]; then echo 'mk_icb.bash [CONFIG (eORCA12, eORCA025 ...)] [RUNID (mi-aa000)] [TAG (19991201_20061201_ANN)] [FREQ (1y)]'; exit 1 ; fi
 
@@ -16,7 +16,7 @@ VAR='|berg_melt|'
 . param.bash
 
 # load config param
-. PARAM/param_eORCA025.L121.bash
+. PARAM/param_${CONFIG}.bash
 
 # make links
 . ${SCRPATH}/common.bash

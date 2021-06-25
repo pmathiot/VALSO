@@ -1,11 +1,9 @@
 #!/bin/bash
 
 ulimit -s unlimited
-module load intel/17.0 intelmpi/2017.0.098 hdf5/1.8.17 netcdf/4.4.0_fortran-4.4.2
-module load python/3.5.3
-module load nco/4.7.9-gcc-4.8.5-hdf5-1.8.18-openmpi-2.0.4
-module load qt
 
+# specify SCRATCHDIR as sometime the default value can be wrong because of ldap_start_tls: Can't contact LDAP server (-1)
+SCRATCHDIR=/scratch/cnt0021/egi6035/pmathiot/
 
 # where cdftools are stored
 #CDFPATH=/project/nemo/TOOLS/CDFTOOLS/CDFTOOLS_4.0_master/bin/
@@ -18,12 +16,13 @@ EXEPATH=${HOME}/GIT/VALSO/
 SCRPATH=${EXEPATH}/SCRIPT/
 
 # WORK path (where all the processing will be done)
-WRKPATH=${SCRATCHDIR}/VALSO/
+WRKPATH=/work/pmathiot/VALSO/
 
 # diagnostics bundle
 RUNVALSO=0
 RUNVALGLO=0
 RUNVALSI=0
+RUNVALAMU=0
 RUNALL=1
 # custom
 runACC=0
@@ -38,6 +37,9 @@ runQHF=0
 runISF=0
 runICB=0
 runMEAN=0
+runEKE=0
+#
+runOBS=0
 #
 if [[ $RUNALL == 1 || $RUNTEST == 1 ]]; then
    runACC=1 #acc  ts
@@ -52,6 +54,7 @@ if [[ $RUNALL == 1 || $RUNTEST == 1 ]]; then
    runISF=1
    runICB=1
    runMEAN=1
+   runEKE=1
 elif [[ $RUNVALSO == 1 ]]; then
    runACC=1 #acc  ts
    runMLD=1 #mld  ts
@@ -67,4 +70,8 @@ elif [[ $RUNVALSI == 1 ]]; then
    runISF=1
    runICB=1
    runBOT=1
+elif [[ $RUNVALAMU == 1 ]]; then
+   runISF=1
+   runBOT=1
+   runSIE=1
 fi
