@@ -15,16 +15,20 @@ import xarray as xr
 # def class runid
 class run(object):
     def __init__(self, runid):
+        # var ?, file list ?, time_variable ?
         # parse dbfile
         self.runid, self.name, self.line, self.color = parse_dbfile(runid)
 
-    def load_time_series(self, cfile, cvar, sf):
+    def load_time_series(self, cfile, cvarregex, sf):
         # need to deal with mask, var and tag
         # need to do with the cdftools unit -> no unit !!!!
         # define time variable
         ctime = 'time_centered'
 
         ds=xr.open_mfdataset(cfile, parallel=True, concat_dim='time_counter',combine='nested').sortby(ctime)
+
+        cvar = get_name(cvarregex,ds.keys())
+
         da=xr.DataArray(ds[cvar].values.squeeze()*sf, [(ctime, ds[ctime].values)], name=self.name)
         da[ctime] = da.indexes[ctime].to_datetimeindex()
 
@@ -49,13 +53,8 @@ def get_name(regex,varlst):
         sys.exit(42)
     return cvar[0]
 
-def get_varname(cfile,cvar):
-    ncid   = nc.Dataset(cfile)
-    cnam=get_name(cvar,ncid.variables.keys())
-    ncid.close()
-    return cnam
-
 #=============================== obs management =================================
+#class with mean,std,min,max
 def load_obs(cfile):
     print( 'open file '+cfile )
     with open(cfile) as fid:
@@ -111,7 +110,6 @@ def get_ybnd(run_lst, omin, omax):
     return rmin-0.05*rrange, rmax+0.05*rrange
 
 def add_legend(lg, ax, ncol=3, lvis=True):
-    x0, x1, y0, y1 = get_corner(ax)
     lax = plt.axes([0.0, 0.0, 1, 0.15])
     lline, llabel = lg.get_legend_handles_labels()
     leg=plt.legend(lline, llabel, loc='upper left', ncol = ncol, fontsize=16, frameon=False)
@@ -120,13 +118,32 @@ def add_legend(lg, ax, ncol=3, lvis=True):
     lax.set_axis_off() 
 
 def add_text(lg, ax, clabel, ncol=3, lvis=True):
-    x0, x1, y0, y1 = get_corner(ax)
     lax = plt.axes([0.0, 0.0, 1, 0.15])
     lline, llabel = lg.get_legend_handles_labels()
     leg=plt.legend(lline, clabel, loc='upper left', ncol = ncol, fontsize=16, frameon=False)
     for item in leg.legendHandles:
         item.set_visible(lvis)
     lax.set_axis_off() 
+
+def add_legend_plot(lg):
+    # build specific legend figure
+    plt.figure(figsize=np.array([210*3, 210*3]) / 25.4)
+    ax = plt.subplot(1, 1, 1)
+    ax.axis('off')
+    add_legend(lg,ax,ncol=10)
+    plt.savefig('legend.png', format='png', dpi=150)
+
+def add_text_plot(lg,rlst,rid):
+    # build specific text figure
+    plt.figure(figsize=np.array([210*3, 210*3]) / 25.4)
+    ax = plt.subplot(1, 1, 1)
+    ax.axis('off')
+    clabel=['']*len(rid)
+    for irun, runid in enumerate(rid):
+        clabel[irun]=rlst[irun].name+' = '+runid
+    add_text(lg,ax,clabel,ncol=10,lvis=False)
+    plt.savefig('runidname.png', format='png', dpi=150)
+
 # ========================== stat plot ============================
 def tidyup_ax(ax, xmin, xmax, ymin, ymax):
     ax.set_ylim([ymin, ymax])
@@ -262,23 +279,6 @@ def main():
             ax[ivar].set_title(args.title[ivar],fontsize=20)
 
         # set x axis
-        nlabel=5
-        ndays=(maxtime-mintime).days
-        nyear=ndays/365
-        if nyear < 9:
-            nyt=1
-        elif 6<= nyear < 15:
-            nyt=2
-        elif 15<=nyear<41:
-            nyt=5
-        elif 41<=nyear<100:
-            nyt=10
-        else:
-            nyt=100
-        nmt=ts_lst[irun].index[0].month
-        ndt=ts_lst[irun].index[0].day
-         
-        ax[ivar].xaxis.set_major_locator(mdates.YearLocator(nyt,month=1,day=1))
         ax[ivar].tick_params(axis='both', labelsize=16)
         if (ivar != nvar-1):
             ax[ivar].set_xticklabels([])
@@ -331,21 +331,10 @@ def main():
        plt.show()
 
     # build specific legend figure
-    plt.figure(figsize=np.array([210*3, 210*3]) / 25.4)
-    ax = plt.subplot(1, 1, 1)
-    ax.axis('off')
-    add_legend(lg,ax,ncol=10)
-    plt.savefig('legend.png', format='png', dpi=150)
+    add_legend_plot(lg)
 
     # build specific text figure
-    plt.figure(figsize=np.array([210*3, 210*3]) / 25.4)
-    ax = plt.subplot(1, 1, 1)
-    ax.axis('off')
-    clabel=['']*len(args.runid)
-    for irun, runid in enumerate(args.runid):
-        clabel[irun]=run_lst[irun].name+' = '+runid
-    add_text(lg,ax,clabel,ncol=10,lvis=False)
-    plt.savefig('runidname.png', format='png', dpi=150)
+    add_text_plot(lg,run_lst,args.runid)
 
 if __name__=="__main__":
     main()
