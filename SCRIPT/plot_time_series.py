@@ -42,6 +42,21 @@ class run(object):
         return 'runid = {}, name = {}, line = {}, color = {}'.format(self.runid, self.name, self.line, self.color)
 
 def get_name(regex,varlst):
+    """
+    Purpose: return the variable inside a list that match a specific regex.
+    
+    Args:
+        regex: regular expression for a variable name [string]
+	varlst: list of possible variable name [string list]
+        
+    Return: 
+	cvar: variable name matching the regex inside the variable name list 
+              (if multiple matches, the first is return) [string]
+    
+    Raise:
+        RuntimeError : in case no match is found between regex and variable name list
+    """
+
     revar = re.compile(r'\b%s\b'%regex,re.I)
     cvar  = list(filter(revar.match, varlst))
     if (len(cvar) > 1):
@@ -50,23 +65,57 @@ def get_name(regex,varlst):
     if (len(cvar) == 0):
         print( 'no match between '+regex+' and :' )
         print( varlst )
-        sys.exit(42)
+        raise RuntimeError('empty match')
     return cvar[0]
 
 #=============================== obs management =================================
 #class with mean,std,min,max
 def load_obs(cfile):
-    print( 'open file '+cfile )
-    with open(cfile) as fid:
-        cmean = find_key('mean', fid)
-        cstd  = find_key('std' , fid)
-    return float(cmean), float(cstd)
+    """
+    Purpose: find mean and std inside a text file.
+    
+    Args:
+        cfile : text file name [string]
+        
+    Return: 
+        cmean: mean value [scalar]
+        cstd : std  value [scalar]
+    
+    Raise:
+        RuntimeError
+    """
 
-def find_key(char, fid):
+    print( 'open file '+cfile )
+    try:
+        with open(cfile) as fid:
+            cmean = find_key('mean', fid)
+            cstd  = find_key('std' , fid)
+        return float(cmean), float(cstd)
+
+    except:
+        raise RuntimeError('mean and std keys not found in {}'.format(cfile))
+
+def find_key(ckey, fid):
+    """
+    Purpose: find value of a specific key in an open text file (separator is a space character)
+    
+    Args:
+        ckey: key variable you want to extract the value [string]
+        fid : text file id where you want to find the key value [txt file id]
+        
+    Return: 
+        cvar: the key value [scalar]
+    
+    Raise:
+        RuntimeError : in case no match is found between regex and variable name list
+    """
+
     for cline in fid:
-        lmatch = re.findall(char, cline) 
+        lmatch = re.findall(ckey, cline) 
         if (lmatch) :
             return cline.rstrip().strip('\n').split(' ')[-1]
+
+    raise RuntimeError('empty match: key {} is not in the fid file'.format(ckey))
 #================================================================================
 
 # check argument
@@ -88,9 +137,24 @@ def load_argument():
     return parser.parse_args()
 
 def output_argument_lst(cfile, arglst):
-    fid = open(cfile, "w")
-    fid.write(' python '+' '.join(arglst))
-    fid.close()
+    """
+    Purpose: write the command line in a text file
+    
+    Args:
+        cfile : output text file name [string]
+        arglst: list of arguments used in the command line [list of strings]
+        
+    Return: None
+    
+    Raise:
+        RuntimeError : in case no match is found between regex and variable name list
+    """
+    try:
+        fid = open(cfile, "w")
+        fid.write('python '+' '.join(arglst))
+        fid.close()
+    except:
+        raise RuntimeError('Error when trying to print the command line text file')
 
 # ============================ plotting tools ==================================
 def get_corner(ax):
