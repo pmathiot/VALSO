@@ -378,10 +378,11 @@ def main():
             if args.mean:
                 xmax = max(xmax, len(run_lst)+1)
                 # rebuild run_lst for the mean (not optimale but fast enough for the application)
-                for irun, runid in enumerate(args.runid):
+                ### should not be useful as already loaded
+		###for irun, runid in enumerate(args.runid):
                     # load data
-                    cfile = args.dir[0]+'/'+runid+'_'+cvar+'.nc'
-                    run_lst[irun].load_time_series(cfile, cvar)
+                ###    cfile = args.dir[0]+'/'+runid+'_'+cvar+'.nc'
+                ###    run_lst[irun].load_time_series(cfile, cvar)
                 # add mean and std
                 add_modstat(cax, run_lst)
             # set min/max/grid ...

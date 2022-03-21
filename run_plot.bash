@@ -2,6 +2,9 @@
 
 if [ $# -eq 0 ] ; then echo 'need a [KEYWORD] (will be inserted inside the output name) and a list of id [RUNIDS RUNID ...] (definition of line style need to be done in RUNID.db)'; exit; fi
 
+. ~/.bashrc
+conda activate valso
+
 KEY=${1}
 FREQ=${2}
 RUNIDS=${@:3}

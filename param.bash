@@ -7,16 +7,16 @@ SCRATCHDIR=/scratch/cnt0021/egi6035/pmathiot/
 
 # where cdftools are stored
 #CDFPATH=/project/nemo/TOOLS/CDFTOOLS/CDFTOOLS_4.0_master/bin/
-CDFPATH=${HOME}/GIT/CDFTOOLS_4.0_ISF/bin
+CDFPATH=/work/${USER}/TOOLS/CDFTOOLS_4.0_ISF/bin
 
 # toolbox location (where the toolbox is installed)
-EXEPATH=${HOME}/GIT/VALSO/
+EXEPATH=/work/${USER}/TOOLS/VALSO/
 
 # SCRIPT location (where script are, no need to be changed)
 SCRPATH=${EXEPATH}/SCRIPT/
 
 # WORK path (where all the processing will be done)
-WRKPATH=/work/pmathiot/VALSO/
+WRKPATH=/work/${USER}/VALSO/
 
 # diagnostics bundle
 RUNVALSO=0

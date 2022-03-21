@@ -69,7 +69,7 @@ convert ${KEY}_AMU_mean_bot_thetao.png   -crop 1240x1040+0+0 tmp08.png
 convert ${KEY}_WG_max_karamld.png        -crop 1240x1040+0+0 tmp09.png
 
 # trim figure (remove white area)
-convert FIGURES/box.png -trim -bordercolor White -border 40 tmp10.png
+convert FIGURES/box_VALSO.png -trim -bordercolor White -border 40 tmp10.png
 convert legend.png      -trim -bordercolor White -border 20 tmp11.png
 convert runidname.png   -trim -bordercolor White -border 20 tmp12.png
 
