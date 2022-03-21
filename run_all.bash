@@ -3,24 +3,6 @@
 #=============================================================================================================================
 #                         FUNCTIONS 
 #=============================================================================================================================
-retreive_data() {
-   # $1 = $CONFIG ; $2 = $RUNID ; $3 = $FREQ ; $4 = $TAG ; $5 = $GRID
-   sbatch --job-name=moo_${4}_${5} --output=${JOBOUT_PATH}/moo_${3}_${4}_${5} ${SCRPATH}/get_data.bash $1 $2 $3 $4 $5 | awk '{print $4}'
-}
-
-build_mask() {
-   # $1 = $CONFIG ; $2 = $RUNID
-   sbatch --job-name=mk_msk_${1}_${2} --output=${JOBOUT_PATH}/mk_msk_${1}_${2}.out ${SCRPATH}/mk_msk.bash $1 $2 | awk '{print $4}'
-}
-
-run_tool() {
-   # $1 = TOOL ; $2 = $CONFIG ; $3 = $TAG ; $4 = $RUNID ; $5 = $FREQ ; $6+ = ID
-   # global var njob
-   sbatchschopt='--wait ' #--qos=long '  
-   sbatchrunopt="--dependency=afterany:${@:6} --job-name=SO_${1}_${2}_${3}_${4} --output=${JOBOUT_PATH}/${1}_${5}_${3}.out"
-   sbatch ${sbatchschopt} ${sbatchrunopt} ${SCRPATH}/${1}.bash $2 $4 $3 $5 > /dev/null 2>&1 &
-   njob=$((njob+1))
-}
 
 compute_obs_diags() {
    [[ $runMEAN == 1 ]] && sbatch mk_mean $CONFIG $TAG $RUNID $FREQ OBSTS > /dev/null 2>&1
@@ -35,7 +17,7 @@ compute_diags() {
    [[ $runACC == 1 || $runBSF == 1 || $runMOC == 1 || $runEKE == 1 ]]                      && mooUyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDU  )
    if [ $GRIDflx != $GRIDT ] ; then 
       [[ $runBOT == 1 || $runSST == 1 || $runISF == 1 || $runMEAN == 1 || $runEKE == 1 ]]  && mooTyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDT  )
-      [[ $runQHF == 1 || $runICB == 1 || $runISF == 1 ]]                              && mooQyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDflx)
+      [[ $runQHF == 1 || $runICB == 1 || $runISF == 1 ]]                                   && mooQyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDflx)
    else
       [[ $runBOT == 1 || $runSST == 1 || $runQHF == 1 || $runICB == 1 || $runISF == 1 || $runMEAN == 1 || $runEKE == 1 ]] && mooTyid=$(retreive_data $CONFIG $RUNID $FREQ $TAG $GRIDT  )
       mooQyid=$mooTyid

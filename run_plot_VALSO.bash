@@ -2,17 +2,13 @@
 
 if [ $# -eq 0 ] ; then echo 'need a [KEYWORD] (will be inserted inside the output name), [FREQ] (1y or 1m) and a list of id [RUNIDS RUNID ...] (definition of line style need to be done in RUNID.db)'; exit; fi
 
-. ./param.bash
-
 KEY=${1}
 FREQ=${2}
 RUNIDS=${@:3}
-echo $RUNIDS
 
 # ACC
 # Drake
 echo 'plot ACC time series'
-set -x
 python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f *ACC*${FREQ}*.nc -var vtrp -sf -1 -title "ACC transport (Sv)" -dir ${WRKPATH} -o "${KEY}_ACC" -obs OBS/ACC_obs.txt
 if [[ $? -ne 0 ]]; then exit 42; fi
 # GYRE

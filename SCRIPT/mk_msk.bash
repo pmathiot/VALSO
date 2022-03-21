@@ -1,14 +1,9 @@
 #!/bin/bash
-#SBATCH --mem=4G
-#SBATCH --time=10
-#SBATCH --ntasks=1
-#SBATCH --nodes=1
-#SBATCH --constraint BDW28
 
-if [[ $# -ne 2 ]]; then echo 'mk_msk.bash [CONFIG (eORCA12, eORCA025 ...)] [RUNID (mi-aa000)]'; exit 1 ; fi
+# inputs
+CONFIG=<CONFIG>
+RUNID=<RUNID>
 
-CONFIG=$1
-RUNID=$2
 # load path and mask
 . param.bash
 

@@ -1,16 +1,11 @@
 #!/bin/bash
-#SBATCH --mem=1G
-#SBATCH --time=20
-#SBATCH --ntasks=1
-#SBATCH --nodes=1
-#SBATCH --constraint BDW28
 
-if [[ $# -ne 4 ]]; then echo 'mk_moc.bash [CONFIG (eORCA12, eORCA025 ...)] [RUNID (mi-aa000)] [TAG (19991201_20061201_ANN)] [FREQ (1y)]'; exit 1 ; fi
+# input
+CONFIG=<CONFIG>
+RUNID=<RUNID>
+TAG=<TAG>
+FREQ=<FREQ>
 
-CONFIG=$1
-RUNID=$2
-TAG=$3
-FREQ=$4
 # load path and mask
 . param.bash
 

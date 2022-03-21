@@ -1,9 +1,4 @@
 #!/bin/bash
-#SBATCH --mem=4G
-#SBATCH --time=20
-#SBATCH --ntasks=4
-#SBATCH --nodes=1
-#SBATCH --constraint BDW28
 
 export OMP_NUM_THREADS=8
 
@@ -11,13 +6,14 @@ write_err() {
    echo "error when running cdfisf_diags; exit"; echo "E R R O R in : ./mk_isf.bash $@ (see SLURM/${CONFIG}/${RUNID}/mk_isf_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1
 }
 
-if [[ $# -ne 4 ]]; then echo 'mk_isf.bash [CONFIG (eORCA12, eORCA025 ...)] [RUNID (mi-aa000)] [TAG (19991201_20061201_ANN)] [FREQ (1y)]'; exit 1 ; fi
-set -x
-CONFIG=$1
-RUNID=$2
-TAG=$3
-FREQ=$4
+# input
+CONFIG=<CONFIG>
+RUNID=<RUNID>
+TAG=<TAG>
+FREQ=<FREQ>
+
 VAR='|fwfisf|sowflisf_cav|'
+
 # load path and mask
 . param.bash
 

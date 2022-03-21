@@ -1,36 +1,19 @@
 #!/bin/bash
 
-ulimit -s unlimited
-
-# specify SCRATCHDIR as sometime the default value can be wrong because of ldap_start_tls: Can't contact LDAP server (-1)
-SCRATCHDIR=/scratch/cnt0021/egi6035/pmathiot/
-
-# where cdftools are stored
-#CDFPATH=/project/nemo/TOOLS/CDFTOOLS/CDFTOOLS_4.0_master/bin/
-CDFPATH=/work/${USER}/TOOLS/CDFTOOLS_4.0_ISF/bin
-
-# toolbox location (where the toolbox is installed)
-EXEPATH=/work/${USER}/TOOLS/VALSO/
-
-# SCRIPT location (where script are, no need to be changed)
-SCRPATH=${EXEPATH}/SCRIPT/
-
-# WORK path (where all the processing will be done)
-WRKPATH=/work/${USER}/VALSO/
-
 # diagnostics bundle
 RUNVALSO=0
 RUNVALGLO=0
 RUNVALSI=0
 RUNVALAMU=0
 RUNALL=1
+
 # custom
 runACC=0
 runMLD=0
 runBSF=0
 runBOT=0
 runMOC=0
-runMHT=0
+runMHT=1
 runSIE=0
 runSST=0
 runQHF=0
