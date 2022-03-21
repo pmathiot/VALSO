@@ -80,5 +80,3 @@ mv tmp11.png FIGURES/${KEY}_runidname.png
 # clean
 rm tmp??.png
 
-#display
-display -resize 30% $KEY.png

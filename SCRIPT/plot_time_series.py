@@ -10,63 +10,29 @@ import argparse
 import pandas as pd
 import matplotlib.dates as mdates
 import matplotlib.ticker as ticker
+import xarray as xr
 
 # def class runid
 class run(object):
     def __init__(self, runid):
+        # var ?, file list ?, time_variable ?
         # parse dbfile
         self.runid, self.name, self.line, self.color = parse_dbfile(runid)
 
-    def load_time_series(self, cfile, cvar, sf):
+    def load_time_series(self, cfile, cvarregex, sf):
         # need to deal with mask, var and tag
         # need to do with the cdftools unit -> no unit !!!!
         # define time variable
         ctime = 'time_centered'
 
-        # define unit
-        nf = len(cfile)
-        df=[None]*nf
-        for kf,cf in enumerate(cfile):
-            try:
-                ncid    = nc.Dataset(cf)
-                ncvtime = ncid.variables[ctime]
+        ds=xr.open_mfdataset(cfile, parallel=True, concat_dim='time_counter',combine='nested').sortby(ctime)
 
-                if 'units' in ncvtime.ncattrs():
-                    cunits = ncvtime.units
-                else:
-                    cunits = "seconds since 1900-01-01 00:00:00"
-    
-                # define calendar
-                if 'calendar' in ncvtime.ncattrs():
-                    ccalendar = ncvtime.calendar
-                else:
-                    ccalendar = "noleap"
-                time = nc.num2date(ncid.variables[ctime][:].squeeze(), cunits, ccalendar)
-        
-                # convert to proper datetime object
-                if isinstance(time,(list,np.ndarray)):
-                    ntime = time.shape[0]
-                else:
-                    ntime = 1
-    
-                timeidx=[None]*ntime
-                for itime in range(0, ntime):
-                    if isinstance(time,(list,np.ndarray)):
-                        timeidx[itime] = np.datetime64(time[itime],'us')
-                    else:
-                        timeidx[itime] = np.datetime64(time,'us')
-       
-                # build series
-                cnam=get_name(cvar,ncid.variables.keys())
-                df[kf] = pd.Series(ncid.variables[cnam][:].squeeze()*sf, index = timeidx, name = self.name)
+        cvar = get_name(cvarregex,ds.keys())
 
-            except Exception as e: 
-                print('issue in trying to load file : '+cf) 
-                print(e )
-                sys.exit(42) 
+        da=xr.DataArray(ds[cvar].values.squeeze()*sf, [(ctime, ds[ctime].values)], name=self.name)
+        da[ctime] = da.indexes[ctime].to_datetimeindex()
 
-        # build dataframe
-        self.ts   = pd.DataFrame(pd.concat(df)).sort_index()
+        self.ts=da.to_dataframe()
         self.mean = self.ts[self.name].mean()
         self.std  = self.ts[self.name].std()
         self.min  = self.ts[self.name].min()
@@ -76,6 +42,21 @@ class run(object):
         return 'runid = {}, name = {}, line = {}, color = {}'.format(self.runid, self.name, self.line, self.color)
 
 def get_name(regex,varlst):
+    """
+    Purpose: return the variable inside a list that match a specific regex.
+    
+    Args:
+        regex: regular expression for a variable name [string]
+	varlst: list of possible variable name [string list]
+        
+    Return: 
+	cvar: variable name matching the regex inside the variable name list 
+              (if multiple matches, the first is return) [string]
+    
+    Raise:
+        RuntimeError : in case no match is found between regex and variable name list
+    """
+
     revar = re.compile(r'\b%s\b'%regex,re.I)
     cvar  = list(filter(revar.match, varlst))
     if (len(cvar) > 1):
@@ -84,28 +65,57 @@ def get_name(regex,varlst):
     if (len(cvar) == 0):
         print( 'no match between '+regex+' and :' )
         print( varlst )
-        sys.exit(42)
+        raise RuntimeError('empty match')
     return cvar[0]
 
-def get_varname(cfile,cvar):
-    ncid   = nc.Dataset(cfile)
-    cnam=get_name(cvar,ncid.variables.keys())
-    ncid.close()
-    return cnam
-
 #=============================== obs management =================================
+#class with mean,std,min,max
 def load_obs(cfile):
-    print( 'open file '+cfile )
-    with open(cfile) as fid:
-        cmean = find_key('mean', fid)
-        cstd  = find_key('std' , fid)
-    return float(cmean), float(cstd)
+    """
+    Purpose: find mean and std inside a text file.
+    
+    Args:
+        cfile : text file name [string]
+        
+    Return: 
+        cmean: mean value [scalar]
+        cstd : std  value [scalar]
+    
+    Raise:
+        RuntimeError
+    """
 
-def find_key(char, fid):
+    print( 'open file '+cfile )
+    try:
+        with open(cfile) as fid:
+            cmean = find_key('mean', fid)
+            cstd  = find_key('std' , fid)
+        return float(cmean), float(cstd)
+
+    except:
+        raise RuntimeError('mean and std keys not found in {}'.format(cfile))
+
+def find_key(ckey, fid):
+    """
+    Purpose: find value of a specific key in an open text file (separator is a space character)
+    
+    Args:
+        ckey: key variable you want to extract the value [string]
+        fid : text file id where you want to find the key value [txt file id]
+        
+    Return: 
+        cvar: the key value [scalar]
+    
+    Raise:
+        RuntimeError : in case no match is found between regex and variable name list
+    """
+
     for cline in fid:
-        lmatch = re.findall(char, cline) 
+        lmatch = re.findall(ckey, cline) 
         if (lmatch) :
             return cline.rstrip().strip('\n').split(' ')[-1]
+
+    raise RuntimeError('empty match: key {} is not in the fid file'.format(ckey))
 #================================================================================
 
 # check argument
@@ -127,9 +137,24 @@ def load_argument():
     return parser.parse_args()
 
 def output_argument_lst(cfile, arglst):
-    fid = open(cfile, "w")
-    fid.write(' python '+' '.join(arglst))
-    fid.close()
+    """
+    Purpose: write the command line in a text file
+    
+    Args:
+        cfile : output text file name [string]
+        arglst: list of arguments used in the command line [list of strings]
+        
+    Return: None
+    
+    Raise:
+        RuntimeError : in case no match is found between regex and variable name list
+    """
+    try:
+        fid = open(cfile, "w")
+        fid.write('python '+' '.join(arglst))
+        fid.close()
+    except:
+        raise RuntimeError('Error when trying to print the command line text file')
 
 # ============================ plotting tools ==================================
 def get_corner(ax):
@@ -149,7 +174,6 @@ def get_ybnd(run_lst, omin, omax):
     return rmin-0.05*rrange, rmax+0.05*rrange
 
 def add_legend(lg, ax, ncol=3, lvis=True):
-    x0, x1, y0, y1 = get_corner(ax)
     lax = plt.axes([0.0, 0.0, 1, 0.15])
     lline, llabel = lg.get_legend_handles_labels()
     leg=plt.legend(lline, llabel, loc='upper left', ncol = ncol, fontsize=16, frameon=False)
@@ -158,13 +182,32 @@ def add_legend(lg, ax, ncol=3, lvis=True):
     lax.set_axis_off() 
 
 def add_text(lg, ax, clabel, ncol=3, lvis=True):
-    x0, x1, y0, y1 = get_corner(ax)
     lax = plt.axes([0.0, 0.0, 1, 0.15])
     lline, llabel = lg.get_legend_handles_labels()
     leg=plt.legend(lline, clabel, loc='upper left', ncol = ncol, fontsize=16, frameon=False)
     for item in leg.legendHandles:
         item.set_visible(lvis)
     lax.set_axis_off() 
+
+def add_legend_plot(lg):
+    # build specific legend figure
+    plt.figure(figsize=np.array([210*3, 210*3]) / 25.4)
+    ax = plt.subplot(1, 1, 1)
+    ax.axis('off')
+    add_legend(lg,ax,ncol=10)
+    plt.savefig('legend.png', format='png', dpi=150)
+
+def add_text_plot(lg,rlst,rid):
+    # build specific text figure
+    plt.figure(figsize=np.array([210*3, 210*3]) / 25.4)
+    ax = plt.subplot(1, 1, 1)
+    ax.axis('off')
+    clabel=['']*len(rid)
+    for irun, runid in enumerate(rid):
+        clabel[irun]=rlst[irun].name+' = '+runid
+    add_text(lg,ax,clabel,ncol=10,lvis=False)
+    plt.savefig('runidname.png', format='png', dpi=150)
+
 # ========================== stat plot ============================
 def tidyup_ax(ax, xmin, xmax, ymin, ymax):
     ax.set_ylim([ymin, ymax])
@@ -289,35 +332,17 @@ def main():
 
             run_lst[irun].load_time_series(cfile, cvar, sf[ivar])
             ts_lst[irun] = run_lst[irun].ts
-            lg = ts_lst[irun].plot(ax=ax[ivar], legend=False, style=run_lst[irun].line,color=run_lst[irun].color,label=run_lst[irun].name, x_compat=True, linewidth=2, rot=0)
+            lg = ts_lst[irun].plot(ax=ax[ivar], legend=False, style=run_lst[irun].line, color=run_lst[irun].color, label=run_lst[irun].name, x_compat=True, linewidth=2, rot=0)
             #
             # limit of time axis
-            mintime=min([mintime,ts_lst[irun].index[0].to_pydatetime().date()])
-            maxtime=max([maxtime,ts_lst[irun].index[-1].to_pydatetime().date()])
+            mintime=min([mintime,ts_lst[irun].index[0]])
+            maxtime=max([maxtime,ts_lst[irun].index[-1]])
 
         # set title
         if (args.title):
             ax[ivar].set_title(args.title[ivar],fontsize=20)
 
         # set x axis
-        nlabel=5
-        ndays=(maxtime-mintime).days
-        nyear=ndays/365
-        if nyear < 9:
-            nyt=1
-        elif 6<= nyear < 15:
-            nyt=2
-        elif 15<=nyear<41:
-            nyt=5
-        elif 41<=nyear<100:
-            nyt=10
-        else:
-            nyt=100
-        nmt=ts_lst[irun].index[0].to_pydatetime().date().month
-        ndt=ts_lst[irun].index[0].to_pydatetime().date().day
-         
-        print(ndays, nyear,nyt)
-        ax[ivar].xaxis.set_major_locator(mdates.YearLocator(nyt,month=1,day=1))
         ax[ivar].tick_params(axis='both', labelsize=16)
         if (ivar != nvar-1):
             ax[ivar].set_xticklabels([])
@@ -329,6 +354,7 @@ def main():
  
         rmin[ivar],rmax[ivar]=get_ybnd(run_lst,obs_min[ivar],obs_max[ivar])
         ax[ivar].set_ylim([rmin[ivar],rmax[ivar]])
+        ax[ivar].set_xlabel('')
         ax[ivar].grid()
  
     # tidy up space
@@ -352,10 +378,11 @@ def main():
             if args.mean:
                 xmax = max(xmax, len(run_lst)+1)
                 # rebuild run_lst for the mean (not optimale but fast enough for the application)
-                for irun, runid in enumerate(args.runid):
+                ### should not be useful as already loaded
+		###for irun, runid in enumerate(args.runid):
                     # load data
-                    cfile = args.dir[0]+'/'+runid+'_'+cvar+'.nc'
-                    run_lst[irun].load_time_series(cfile, cvar)
+                ###    cfile = args.dir[0]+'/'+runid+'_'+cvar+'.nc'
+                ###    run_lst[irun].load_time_series(cfile, cvar)
                 # add mean and std
                 add_modstat(cax, run_lst)
             # set min/max/grid ...
@@ -369,21 +396,10 @@ def main():
        plt.show()
 
     # build specific legend figure
-    plt.figure(figsize=np.array([210*3, 210*3]) / 25.4)
-    ax = plt.subplot(1, 1, 1)
-    ax.axis('off')
-    add_legend(lg,ax,ncol=10)
-    plt.savefig('legend.png', format='png', dpi=150)
+    add_legend_plot(lg)
 
     # build specific text figure
-    plt.figure(figsize=np.array([210*3, 210*3]) / 25.4)
-    ax = plt.subplot(1, 1, 1)
-    ax.axis('off')
-    clabel=['']*len(args.runid)
-    for irun, runid in enumerate(args.runid):
-        clabel[irun]=run_lst[irun].name+' = '+runid
-    add_text(lg,ax,clabel,ncol=10,lvis=False)
-    plt.savefig('runidname.png', format='png', dpi=150)
+    add_text_plot(lg,run_lst,args.runid)
 
 if __name__=="__main__":
     main()

@@ -15,7 +15,6 @@ echo 'plot ACC time series'
 set -x
 python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f *ACC*${FREQ}*.nc -var vtrp -sf -1 -title "ACC transport (Sv)" -dir ${WRKPATH} -o "${KEY}_ACC" -obs OBS/ACC_obs.txt
 if [[ $? -ne 0 ]]; then exit 42; fi
-
 # GYRE
 # ROSS GYRE
 echo 'plot Ross Gyre time series'
@@ -70,7 +69,7 @@ convert ${KEY}_AMU_mean_bot_thetao.png   -crop 1240x1040+0+0 tmp08.png
 convert ${KEY}_WG_max_karamld.png        -crop 1240x1040+0+0 tmp09.png
 
 # trim figure (remove white area)
-convert FIGURES/box.png -trim -bordercolor White -border 40 tmp10.png
+convert FIGURES/box_VALSO.png -trim -bordercolor White -border 40 tmp10.png
 convert legend.png      -trim -bordercolor White -border 20 tmp11.png
 convert runidname.png   -trim -bordercolor White -border 20 tmp12.png
 
