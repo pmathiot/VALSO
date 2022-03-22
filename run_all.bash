@@ -93,13 +93,14 @@ RUNIDS=${@:5}
 
 . param.bash
 
+. PARAM/param_${CONFIG}.bash
+
 # clean ERROR.txt file
 if [ -f ERROR.txt ]; then rm ERROR.txt ; fi
 
 # loop over years
 echo ''
 for RUNID in `echo $RUNIDS`; do
-   . PARAM/param_${CONFIG}.bash
 
    # set up jobout directory file
    JOBOUT_PATH=${EXEPATH}/SLURM/${CONFIG}/${RUNID}
@@ -111,7 +112,7 @@ for RUNID in `echo $RUNIDS`; do
    LSTY=`eval echo {${YEARB}..${YEARE}}`
    LSTM=`eval echo {1..12}`
 
-   [[ $runICB == 1 || $runBOT == 1 || $runSIE == 1 ]] && moomskid=$(build_mask $CONFIG $RUNID )
+   [[ $runICB == 1 || $runBOT == 1 || $runSIE == 1 || $runMLD ]] && moomskid=$(build_mask $CONFIG $RUNID )
 
    [[ $runOBS == 1 ]] && compute_obs_diags
 
@@ -125,8 +126,9 @@ for RUNID in `echo $RUNIDS`; do
              compute_diags
          done
       fi
-
+set -x
       compute_onlymonthly_diags
+set +x
       
    done
 

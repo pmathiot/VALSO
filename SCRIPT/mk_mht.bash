@@ -50,3 +50,7 @@ case $CONFIG in
     ;;
 esac
 ncks -O -d y,$jj,$jj $FILEOUT ${CONFIG}-${RUNID}_${FREQ}_${TAG}_mht_265.nc
+if [[ $? -ne 0 ]]; then
+   echo "error when running ncks; exit"
+   echo "E R R O R in : ./mk_mht.bash $@ (see SLURM/${CONFIG}/${RUNID}/mk_mht_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt; exit 1
+fi

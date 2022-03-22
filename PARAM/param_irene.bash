@@ -2,6 +2,9 @@
 
 ulimit -s unlimited
 
+module purge
+module load intel/20.0.0 hdf5/1.8.20 netcdf-fortran/4.4.4 nco
+
 # where cdftools are stored
 CDFPATH=${CCCWORKDIR}/TOOLS/CDFTOOLS_4.0_ISF/bin/
 
@@ -23,12 +26,7 @@ STOPATH=${CCCSCRATCHDIR}/DRAKKAR/
 #++++++++++++++++++++++++++++++++++++
 
 load_python() {
-module purge
-module load intel/20.0.0 hdf5/1.8.20 netcdf-fortran/4.4.4
-module load python3/3.7.5
-shopt -s expand_aliases
-alias python='python3'
-echo ''
+conda activate valso
 }
 
 retreive_data() {

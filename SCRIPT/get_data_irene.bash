@@ -33,8 +33,9 @@ FILE_LST=`ls ${SIMPATH}/${NEMOFILE}`;
 for MFILE in `echo ${FILE_LST}`; do
    FILE=`basename $MFILE`
    if [ -f $FILE ]; then 
+      echo 'File $FILE already there, test integrity :'
       TIME=`ncdump -h $FILE | grep UNLIMITED | sed -e 's/(//' | awk '{print $6}'`
-      if [[ $TIME -eq 0 ]]; then echo " $FILE is corrupted "; rm $FILE; fi
+      if [[ $TIME -eq 0 ]]; then echo " $FILE is corrupted "; rm $FILE; else echo 'File seems OK'; fi
    fi
    if [ ! -f $FILE ]; then
       echo "downloading file ${MFILE} in ${DATPATH} ..."

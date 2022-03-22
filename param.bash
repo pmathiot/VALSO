@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. PARAM/param_arch.bash
+
 # diagnostics bundle
 RUNVALSO=0
 RUNVALGLO=0
@@ -13,7 +15,7 @@ runMLD=0
 runBSF=0
 runBOT=0
 runMOC=0
-runMHT=1
+runMHT=0
 runSIE=0
 runSST=0
 runQHF=0

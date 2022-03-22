@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+
 # where mask are stored (name of mesh mask in SCRIPT/common.bash)
 MSKPATH=${STOPATH}/${CONFIG}/${CONFIG}-${RUNID}-MSH/
 MSHMSK=${CONFIG}-${RUNID}_mesh_mask.nc
@@ -51,4 +51,3 @@ get_tag() {
 VVL=-vvl
 # do we need to run cdfbottom ?
 BOT=0
-set +x
