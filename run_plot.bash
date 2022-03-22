@@ -8,12 +8,8 @@ KEY=${1}
 FREQ=${2}
 RUNIDS=${@:3}
 
-. PARAM/param_arch.bash
-
-load_python
-
-. ./run_plot_VALGLO.bash VALGLO_$KEY $FREQ $RUNIDS
-. ./run_plot_VALSO.bash  VALSO_$KEY  $FREQ $RUNIDS
-. ./run_plot_VALSI.bash  VALSI_$KEY  $FREQ $RUNIDS
-. ./run_plot_VALAMU.bash VALAMU_$KEY $FREQ $RUNIDS
+./run_plot_VALGLO.bash VALGLO_$KEY $FREQ $RUNIDS
+./run_plot_VALSO.bash  VALSO_$KEY  $FREQ $RUNIDS
+./run_plot_VALSI.bash  VALSI_$KEY  $FREQ $RUNIDS
+./run_plot_VALAMU.bash VALAMU_$KEY $FREQ $RUNIDS
 

@@ -6,6 +6,10 @@ KEY=${1}
 FREQ=${2}
 RUNIDS=${@:3}
 
+. ~/.bashrc
+. PARAM/param_arch.bash
+load_python
+
 # ACC
 # Drake
 echo 'plot ACC time series'
