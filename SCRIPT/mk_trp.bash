@@ -27,7 +27,6 @@ if [ ! -f $FILEU ] ; then echo "$FILEU is missing; exit"; echo "E R R O R in : .
 $CDFPATH/cdftransport -u $FILEU -v $FILEV -lonlat -noheat ${VVL} -pm  -sfx ${CONFIG}-${RUNID}_${FREQ}_${TAG} < ${EXEPATH}/SECTIONS/section_LONLAT.dat
 
 # mv output file
-if [[ $? -eq 0 ]]; then 
-else 
+if [[ $? -ne 0 ]]; then
    echo "error when running cdftransport; exit" ; echo "E R R O R in : ./mk_trp.bash $@ (see SLURM/${CONFIG}/${RUNID}/mk_trp_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1
 fi

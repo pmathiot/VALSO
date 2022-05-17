@@ -1,6 +1,8 @@
 import numpy as np
 import glob
 import netCDF4 as nc
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import sys

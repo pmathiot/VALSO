@@ -2,8 +2,8 @@
 
 ulimit -s unlimited
 
-module purge
-module load intel/20.0.0 hdf5/1.8.20 netcdf-fortran/4.4.4 nco
+module purge > /dev/null
+module load intel/20.0.0 hdf5/1.8.20 netcdf-fortran/4.4.4 nco > /dev/null
 
 # where cdftools are stored
 CDFPATH=${CCCWORKDIR}/TOOLS/CDFTOOLS_4.0_ISF/bin/
@@ -20,6 +20,8 @@ WRKPATH=${CCCWORKDIR}/NEMO/PP/
 # Storage path: where the data are stored
 STOPATH=${CCCSCRATCHDIR}/DRAKKAR/
 
+# sstat command
+JOBSTATcmd="ccc_mpp -u $USER "
 
 #++++++++++++++++++++++++++++++++++++
 #      FUNCTION to submit task
@@ -70,7 +72,7 @@ run_tool() {
    ccc_msub -r SO_${1}_${2}_${3}_${4}                \
             -o ${JOBOUT_PATH}/${1}_${5}_${3}.out     \
             -e ${JOBOUT_PATH}/${1}_${5}_${3}.err     \
-            -T 1200 -n 1 -A gen6035 -q rome -m store,work,scratch -E " -D ${EXEPATH} --dependency=afterany:${@:6} --wait " \
-            ${WRKPATH}/${2}-${4}/${1}.bash_${2}_${4}_${3}_${5} > /dev/null 2>&1 &
+            -T 1200 -n 1 -A gen6035 -q rome -m store,work,scratch -E " -D ${EXEPATH} --dependency=afterany:${@:6} " \
+            ${WRKPATH}/${2}-${4}/${1}.bash_${2}_${4}_${3}_${5} | awk '{print $4}' #> /dev/null 2>&1 &
    njob=$((njob+1))
 }

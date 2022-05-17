@@ -13,7 +13,6 @@ RUNIDS=${@:3}
 # ACC
 # Drake
 echo 'plot ACC time series'
-set -x
 python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f *ACC*${FREQ}*.nc -var vtrp -sf -1 -title "ACC transport (Sv)" -dir ${WRKPATH} -o ${KEY}_fig01 -obs OBS/ACC_obs.txt
 if [[ $? -ne 0 ]]; then exit 42; fi
 

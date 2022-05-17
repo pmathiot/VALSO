@@ -38,7 +38,6 @@ done
 
 i=$((i+1))
 echo 'plot SIE time series'
-set -x
 python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -varf 'AMUXL*sie*m02*.nc' 'AMUXL*sie*m09*.nc' -var SExnsidc SExnsidc -sf 0.001 0.001 -title "SIE AMUXL m02 [1e6 km2]" "SIE AMUXL m09 [1e6 km2]" -dir ${WRKPATH} -o ${KEY}_fig13
 if [[ $? -ne 0 ]]; then exit 42; fi
 

@@ -19,9 +19,9 @@
 ![Alt text](FIGURES/example.png?raw=true "Example of the VALSO output")
 
 ## Limitation
-* only work on Occigen computer
+* only work on Occigen and irene computer
 * plot should not be used for publication as it is (std and mean value of observation should be corrected if you want to do so)
-* need to find a better method for plotting management (maybe an xml file with all available output)
+* need to find a better method for plotting management (maybe an xml file with all available output) => in dev.
 
 ## Installation
 Simplest instalation (maybe not the most optimal)
@@ -37,14 +37,14 @@ Simplest instalation (maybe not the most optimal)
 ```
   conda env create -f valso.yml 
 ```
-* edit param.bash to fit your setup/need
+* edit PARAM/param_yourcomputer.bash to fit your setup/need
    * path of the toolbox (`$EXEPATH`)
    * path of the processing directory (`$WRKPATH`) 
    * path of the CDFTOOLS version 4.0 bin drectory (`$CDFPATH`)
+   * create a link toward PARAM/param_arch.bash
 * edit `PARAM/param_CONFIG.bash` (`$CONFIG`, `$RUNID`, `$FREQ`, `$GRID` are automatically filled during the run, so they can be used in param_CONFIG.bash). Rename the file with the correct CONFIG name (eORCA025.L121 in my case).
    * path of the mask file (`$MSKPATH`) and the corresponding mask name (`$MSHMSK`, `$SUBMSK`, `$ISFMSK` and `$ISFLST`)
    * path of storage location (`$STOPATH`)
-   * path where the simulation processing location is done (`$DATPATH`)
    * template for the file name (`$NEMOFILE`)
    * edit `get_nemofile` function to match your output name.
    * edit `get_tag` function to match your output name.
