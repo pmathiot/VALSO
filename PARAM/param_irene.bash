@@ -43,7 +43,7 @@ retreive_data() {
    ccc_msub -r moo_${4}_${5}                                                          \
             -o  ${JOBOUT_PATH}/moo_${3}_${4}_${5}                                     \
             -e  ${JOBOUT_PATH}/moo_${3}_${4}_${5}_err                                 \
-            -T 600 -n 1 -A gen6035 -q rome -m store,work,scratch -E " -D ${EXEPATH} " \
+            -T 600 -n 1 -A gen6035 -q rome -m store,work,workflash,scratch -E " -D ${EXEPATH} " \
             ${WRKPATH}/${1}-${2}/get_data.bash_${1}_${2}_${3}_${4}_${5} | awk '{print $4}'
 }
 
@@ -56,7 +56,7 @@ build_mask() {
    ccc_msub -r mk_msk_${1}_${2}                         \
             -o ${JOBOUT_PATH}/mk_msk_${1}_${2}.out      \
             -e ${JOBOUT_PATH}/mk_msk_${1}_${2}.err      \
-            -T 600 -n 1 -A gen6035 -q rome -m store,work,scratch -E " -D ${EXEPATH} " \
+            -T 600 -n 1 -A gen6035 -q rome -m store,work,workflash,scratch -E " -D ${EXEPATH} " \
             ${WRKPATH}/${1}-${2}/mk_msk.bash_${1}_${2} | awk '{print $4}'
 }
 
@@ -72,7 +72,7 @@ run_tool() {
    ccc_msub -r SO_${1}_${2}_${3}_${4}                \
             -o ${JOBOUT_PATH}/${1}_${5}_${3}.out     \
             -e ${JOBOUT_PATH}/${1}_${5}_${3}.err     \
-            -T 1200 -n 1 -A gen6035 -q rome -m store,work,scratch -E " -D ${EXEPATH} --dependency=afterany:${@:6} " \
+            -T 1200 -n 1 -A gen6035 -q rome -m store,work,workflash,scratch -E " -D ${EXEPATH} --dependency=afterany:${@:6} " \
             ${WRKPATH}/${2}-${4}/${1}.bash_${2}_${4}_${3}_${5} | awk '{print $4}' #> /dev/null 2>&1 &
    njob=$((njob+1))
 }
