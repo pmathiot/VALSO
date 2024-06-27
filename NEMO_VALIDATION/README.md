@@ -19,8 +19,9 @@ DATA ----- NEMO_v422
 
 Setup
 =====
-- 1: activate your python environement: `conda activate valso`
-- 2: setup your line definition for python in `style.db`
+- 1: create your python environement using the file `valso.yml` using conda (`conda env create -f valso.yml` or using [conda pack](https://conda.github.io/conda-pack/))
+- 2: activate your python environement: `conda activate valso` (or `source /path_to_valso_python_env/valso/bin/activate` if you used conda pack)
+- 3: setup your line definitions for python in `style.db`
 
 ```
 (valso) [my_prompt]$ cat style.db 
@@ -34,11 +35,21 @@ Setup
 
 Plotting tool
 =============
+The main script is `run_plot_NEMO.bash`. Its usage is fairly simple:
+```
+(valso) [NEMO_VALIDATION]$ ./run_plot_NEMO.bash
+need a [DIR] [KEYWORD] (will be inserted inside the output name) and a list of id [RUNIDS RUNID ...] (definition of line style need to be done in RUNID.db)
+```
+So to compare 2 simulations (O2IP_CLIM_NEMO5 O2IP_CLIM_NEMO422):
+```
+./run_plot_NEMO.bash /path_to_data/DATA NEMO O2IP_CLIM_NEMO5 O2IP_CLIM_NEMO422
+```
 
-The plotting script is based on the python script ``:
+The plotting script is based on the python script:
 ```
 python ${PATH_SCRIPT}/plot_time_series.py -noshow -runid <list of runids> -f <input files list (wild card accepted like *toto*.nc)> -var <variable name> -sf <scale factor> -title "title [unit]" -dir <master directory (DATA)> -o <tmp figure name (fig01)
 ```
+One call of this script do one plot.
 
 Once all the plot are build a page is build using image magic:
 
