@@ -32,6 +32,6 @@ $CDFPATH/cdfmean -f $FILE -v $MXLvar -p T -w ${ijbox} 0 0 -o tmp_$FILEOUT
 
 # mv output file
 if [[ $? -ne 0 ]]; then 
-   echo "error when running cdfmxl; exit"; echo "E R R O R in : ./mk_mxl.bash $@ (see SLURM/${CONFIG}/${RUNID}/mxl_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1
+   echo "error when running cdfmxl; exit"; echo "E R R O R in : ./mk_mxl.bash $@ (see SLURM/${CONFIG}/${RUNID}/mk_mxl_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1
 fi
 #

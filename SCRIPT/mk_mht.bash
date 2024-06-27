@@ -35,7 +35,7 @@ fi
 
 # extract only 26.5
 case $CONFIG in
-  eORCA1)
+  eORCA1*)
     jj=227
     ;;
   eORCA025*)

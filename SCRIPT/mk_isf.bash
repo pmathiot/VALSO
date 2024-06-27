@@ -40,11 +40,13 @@ FILE=`get_nemofilename`
 if [ ! -f $FILE ] ; then echo "$FILE is missing; exit"; echo "E R R O R in : ./mk_isf.bash $@ (see SLURM/${CONFIG}/${RUNID}/mk_isf_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1 ; fi
 
 # compute profile T
+VAR2='|votemper|thetao|'
 FILEOUT=ISF_Tprof_${CONFIG}-${RUNID}_${FREQ}_${TAG}_${GRID}.nc
-$CDFPATH/cdfmean -f $FILE -v votemper -p T -I mskisf.nc mask_isf_front isflst.txt -o $FILEOUT ${VVL}
+$CDFPATH/cdfmean -f $FILE -v $VAR2 -p T -I mskisf.nc mask_isf_front isflst.txt -o $FILEOUT ${VVL}
 if [[ $? -ne 0 ]]; then write_err ; fi
 
+VAR3='|vosaline|so|'
 FILEOUT=ISF_Sprof_${CONFIG}-${RUNID}_${FREQ}_${TAG}_${GRID}.nc
-$CDFPATH/cdfmean -f $FILE -v vosaline -p T -I mskisf.nc mask_isf_front isflst.txt -o $FILEOUT ${VVL}
+$CDFPATH/cdfmean -f $FILE -v $VAR3 -p T -I mskisf.nc mask_isf_front isflst.txt -o $FILEOUT ${VVL}
 if [[ $? -ne 0 ]]; then write_err ; fi
 

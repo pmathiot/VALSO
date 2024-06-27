@@ -26,7 +26,11 @@ FILEOUT=SO_sst_${CONFIG}-${RUNID}_${FREQ}_${TAG}*_grid-${GRID}.nc
 
 # make sst
 set -x
+if [[ ${CONFIG} == "eANT025.L121" ]]; then
+jlimits=$($CDFPATH/cdffindij -w 0.0 1.0 -60.000  -52.800 -c mesh.nc -p T | tail -2 | head -1 | tr -s ' ' | cut -d' ' -f4-5)
+else
 jlimits=$($CDFPATH/cdffindij -w 0.0 1.0 -60.000  -40.000 -c mesh.nc -p T | tail -2 | head -1 | tr -s ' ' | cut -d' ' -f4-5)
+fi
 echo "jlimits : $jlimits"
 $CDFPATH/cdfmean -f $FILE -v '|thetao|votemper|' -w 0 0 ${jlimits} 1 1 -p T -o tmp_$FILEOUT 
 
@@ -37,6 +41,11 @@ else
    echo "error when running cdfmean; exit"; echo "E R R O R in : ./mk_sst.bash $@ (see SLURM/${CONFIG}/${RUNID}/mk_sst_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1
 fi
 
+
+if [[ ${CONFIG} == "eANT025.L121" ]]; then
+echo "only SO"
+
+else
 FILEOUT=NWC_sst_nemo_${RUN_NAME}o_${FREQ}_${TAG}*_grid-${GRID}.nc
 ijbox=$($CDFPATH/cdffindij -w -50.190 -32.873 41.846 54.413 -c mesh.nc -p T | tail -2 | head -1 )
 echo "ijbox : $ijbox"
@@ -47,4 +56,5 @@ if [[ $? -eq 0 ]]; then
    mv tmp_$FILEOUT $FILEOUT
 else 
    echo "error when running cdfmean; exit"; echo "E R R O R in : ./mk_sst.bash $@ (see SLURM/${CONFIG}/${RUNID}/mk_sst_${FREQ}_${TAG}.out)" >> ${EXEPATH}/ERROR.txt ; exit 1
+fi
 fi

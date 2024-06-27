@@ -27,13 +27,21 @@ class run(object):
         # define time variable
         ctime = 'time_centered'
 
-        ds=xr.open_mfdataset(cfile, parallel=True, concat_dim='time_counter',combine='nested').sortby(ctime)
+        try:
+            ctime = 'time_centered'
+            ds=xr.open_mfdataset(cfile, parallel=True, concat_dim='time_counter',combine='nested').sortby(ctime)
+
+        except:
+            ctime = 'time_counter'
+            ds=xr.open_mfdataset(cfile, parallel=True, concat_dim='time_counter',combine='nested').sortby(ctime)
 
         cvar = get_name(cvarregex,ds.keys())
 
         da=xr.DataArray(ds[cvar].values.squeeze()*sf, [(ctime, ds[ctime].values)], name=self.name)
-        da[ctime] = da.indexes[ctime].to_datetimeindex()
-
+        try:
+            da[ctime] = pd.to_datetime(da.indexes[ctime])
+        except:
+            da[ctime] = da.indexes[ctime].to_datetimeindex()
         self.ts=da.to_dataframe()
         self.mean = self.ts[self.name].mean()
         self.std  = self.ts[self.name].std()

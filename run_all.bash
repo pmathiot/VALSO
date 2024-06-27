@@ -38,6 +38,7 @@ compute_diags() {
    [[ $runMEAN == 1 ]] && runAVGy00id=$(run_tool mk_mean $CONFIG $TAG $RUNID $FREQ $mooTyid                       )
    [[ $runEKE  == 1 ]] && runEKEy00id=$(run_tool mk_eke  $CONFIG $TAG $RUNID $FREQ $mooTyid:$mooUyid:$mooVyid     )
 
+
    JOBID=`echo "$JOBID $mooVyid $mooUyid $mooTyid $mooQyid $mooTyid $mooQyid"`
    JOBID=`echo "$JOBID $runACCy00id $runPSIy00id $runBOTy00id $runMOCy00id $runMHTy00id $runHFDy00id $runISFy00id $runICBy00id $runSSTy00id $runAVGy00id $runEKEy00id"`
 }
@@ -125,19 +126,22 @@ for RUNID in `echo $RUNIDS`; do
    LSTY=`eval echo {${YEARB}..${YEARE}}`
    LSTM=`eval echo {1..12}`
 
-   [[ $runICB == 1 || $runBOT == 1 || $runSIE == 1 || $runMLD ]] && moomskid=$(build_mask $CONFIG $RUNID )
+   [[ $runICB == 1 || $runBOT == 1 || $runSIE == 1 || $runMLD == 1 ]] && moomskid=$(build_mask $CONFIG $RUNID )
 
    [[ $runOBS == 1 ]] && compute_obs_diags
 
    MONTH=00
    for YEAR in `printf "%04d " $LSTY`; do
 
-      if [[ $FREQ == 1y || $FREQ == 10y || $FREQ == 5y || $FREQF == 1y ]]  ; then
+      if [[ $FREQ == 1y || $FREQ == 10y || $FREQ == 5y || $FREQ == 30y || $FREQF == 1y ]]  ; then
          compute_diags
       elif [[ $FREQ == 1m ]]                ; then
          for MONTH in `printf "%02d " $LSTM`; do
              compute_diags
          done
+      else
+	 echo "FREQ ($FREQ) is unknown"
+	 exit 42
       fi
 
       compute_onlymonthly_diags

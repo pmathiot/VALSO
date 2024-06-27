@@ -67,7 +67,7 @@ if [[ lOBS -eq 1 ]]; then
     TAG=$OBSTS_TAG
     MEAN_SCRIPT=compute_means_obs
 else  
-    VART='|votemper|t_an|' ; VARS='|vosaline|s_an|'
+    VART='|votemper|t_an|thetao|' ; VARS='|vosaline|s_an|so|'
     MEAN_SCRIPT=compute_means
 fi
 
@@ -90,4 +90,24 @@ $MEAN_SCRIPT
 
 ZONE='WEDgyre'
 LLBOX='-20.0 20.0 -66.500 -60.400'
+$MEAN_SCRIPT
+
+ZONE='WROSS'
+LLBOX='157.100  173.333  -78.130  -74.040'
+$MEAN_SCRIPT
+
+ZONE='WWED'
+LLBOX='-65.130  -53.020  -75.950  -72.340'
+$MEAN_SCRIPT
+
+ZONE='EROSS'
+LLBOX='-176.790 -157.820  -78.870  -77.520'
+$MEAN_SCRIPT
+
+ZONE='EWED'
+LLBOX='-45.647  -32.253  -78.632  -76.899'
+$MEAN_SCRIPT
+
+ZONE='AMU'
+LLBOX='-109.640 -102.230  -75.800  -71.660'
 $MEAN_SCRIPT

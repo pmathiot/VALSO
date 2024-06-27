@@ -42,7 +42,7 @@ python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f AMUS*thetao*${FREQ}*
 if [[ $? -ne 0 ]]; then exit 42; fi
 
 # TOTAL
-echo 'plot total TOTAL melt time series'
+#echo 'plot total TOTAL melt time series'
 python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f ISF_ALL*${FREQ}*.nc -var '(isfmelt_TOTA)' -title "ANT (isf) total melt (Gt/y)"  -sf -1.0 -dir ${WRKPATH} -o ${KEY}_fig07  -obs OBS/ANT_obs.txt
 if [[ $? -ne 0 ]]; then exit 42; fi
 
@@ -82,4 +82,4 @@ mv tmp11.png FIGURES/${KEY}_runidname.png
 rm tmp??.png
 
 #display
-#display -resize 30% $KEY.png
+display -resize 30% $KEY.png

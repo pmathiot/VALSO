@@ -9,6 +9,7 @@ ISFLST=${CONFIG}-${RUNID}_isflst.txt
 
 # STORE DIR (where data are)
 STOPATH=${STOPATH}/${CONFIG}/${CONFIG}-${RUNID}-S/
+#STOPATH=${STOPATH}/${CONFIG}/${CONFIG}-${RUNID}-MEAN/
 SIMPATH=${STOPATH}/${FREQ}/*/
 
 # CFG path, ie where processing is done (CONFIG and RUNID are fill by script)
@@ -33,7 +34,7 @@ get_nemofilename() {
 # get TAG
 get_tag() {
   FREQ=$1 ; YYYY=$2 ; MM=$3 ; DD=$4
-  if [ $FREQ == '10y' ]; then
+  if [[ $FREQ == '10y' || $FREQ == '30y' ]]; then
      echo y${YYYY}
   elif [ $FREQ == '5y' ]; then
      echo y${YYYY}
