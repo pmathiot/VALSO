@@ -1,20 +1,20 @@
 
 Assumption
 ==========
-- You already have all your scalar you want to plot as time series ready somewhere. I let you compute or output directly via xios the variable you want
-- Conda is avalaible on your computer (much easier to set up the correct environement). You can create it via the yml file 
-- image magic (`convert`)
+- You already have all your scalar data you want to plot as time series ready somewhere in netcdf format. Here we will not discuss how to compute or output directly via xios the variables you want
+- Conda is avalaible on your computer (much easier to set up the correct environement). You can create it via the yml file. If your HPC do not have http connection, you need to pack it, copye it on your HPC and un-pack it (see https://conda.github.io/conda-pack/ for detailed explanation on conda pack)
+- image magic (`convert`) to set up the various plots in a specific way.
 
 Data location
 =============
-Data directory tree is very simple. Let's say you want to compare 2 simulations called `NEMO_v4.2.2` and `NEMO_v5.0`. 
-In this case, you simply need to dump all the netcdf that contain the scalar or time series you want to plot in 2 different repo call `NEMO_v4.2.2` and `NEMO_v5.0` each in a master directory of your choice.
+Data directory tree is very simple. Let's say you want to compare 2 simulations called `NEMO_v422` and `NEMO_v50`. 
+In this case, you simply need to dump all the netcdf that contain the scalar or time series you want to plot in 2 different repo call `NEMO_v422` and `NEMO_v50` each in a master directory of your choice.
 This directory can be anywhere on your computer.
 
 ```
-DATA ----- O2IP_CLIM_NEMO422
-             |
-             --- O2IP_CLIM_NEMO5
+DATA ----- NEMO_v422
+       |
+        --- NEMO_v5
 ```
 
 Setup
