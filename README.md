@@ -88,3 +88,5 @@ If a new script is added you need also to:
   * update `run_all.sh`
 Then:
 * build a new run_plot script based on the existing one
+
+
