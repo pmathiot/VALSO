@@ -22,7 +22,7 @@
 * only work on Occigen and irene computer
 * plot should not be used for publication as it is (std and mean value of observation should be corrected if you want to do so)
 * need to find a better method for plotting management (maybe an xml file with all available output) => in dev.
-
+  
 ## Installation
 Simplest instalation (maybe not the most optimal)
 * install the CDFTOOLS at v3.0.2-355-g66ce3da :
