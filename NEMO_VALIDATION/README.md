@@ -1,26 +1,27 @@
 
 Assumption
 ==========
-- You already have all your scalar you want to plot as time series ready somewhere. I let you compute or output directly via xios the variable you want
-- Conda is avalaible on your computer (much easier to set up the correct environement). You can create it via the yml file `valso.yml`. In case your computer do note have http connexion, you can use conda pack (https://conda.github.io/conda-pack/). 
-- image magic (`convert`)
+- You already have all your scalar data you want to plot as time series ready somewhere in netcdf format. Here we will not discuss how to compute or output directly via xios the variables you want
+- Conda is avalaible on your computer (much easier to set up the correct environement). You can create it via the yml file. If your HPC do not have http connection, you need to pack it, copye it on your HPC and un-pack it (see https://conda.github.io/conda-pack/ for detailed explanation on conda pack)
+- image magic (`convert`) to set up the various plots in a specific way.
 
 Data location
 =============
-Data directory tree is very simple. Let's say you want to compare 2 simulations called `NEMO_v4.2.2` and `NEMO_v5.0`. 
-In this case, you simply need to dump all the netcdf that contain the scalar or time series you want to plot in 2 different repo call `NEMO_v4.2.2` and `NEMO_v5.0` each in a master directory of your choice.
+Data directory tree is very simple. Let's say you want to compare 2 simulations called `NEMO_v422` and `NEMO_v50`. 
+In this case, you simply need to dump all the netcdf that contain the scalar or time series you want to plot in 2 different repo call `NEMO_v422` and `NEMO_v50` each in a master directory of your choice.
 This directory can be anywhere on your computer.
 
 ```
-DATA ----- O2IP_CLIM_NEMO422
-             |
-             --- O2IP_CLIM_NEMO5
+DATA ----- NEMO_v422
+       |
+        --- NEMO_v5
 ```
 
 Setup
 =====
-- 1: activate your python environement: `conda activate valso`
-- 2: setup your line definition for python in `style.db`
+- 1: create your python environement using the file `valso.yml` using conda (`conda env create -f valso.yml` or using [conda pack](https://conda.github.io/conda-pack/))
+- 2: activate your python environement: `conda activate valso` (or `source /path_to_valso_python_env/valso/bin/activate` if you used conda pack)
+- 3: setup your line definitions for python in `style.db`
 
 ```
 (valso) [my_prompt]$ cat style.db 
@@ -34,11 +35,21 @@ Setup
 
 Plotting tool
 =============
+The main script is `run_plot_NEMO.bash`. Its usage is fairly simple:
+```
+(valso) [NEMO_VALIDATION]$ ./run_plot_NEMO.bash
+need a [DIR] [KEYWORD] (will be inserted inside the output name) and a list of id [RUNIDS RUNID ...] (definition of line style need to be done in RUNID.db)
+```
+So to compare 2 simulations (O2IP_CLIM_NEMO5 O2IP_CLIM_NEMO422):
+```
+./run_plot_NEMO.bash /path_to_data/DATA NEMO O2IP_CLIM_NEMO5 O2IP_CLIM_NEMO422
+```
 
-The plotting script is based on the python script ``:
+The plotting script is based on the python script:
 ```
-python ${PATH_SCRIPT}/plot_time_series.py -noshow -runid <list of runids> -f <input files list (wild card accepted like *toto*.nc)> -var <variable name> -sf <scale factor> -title "title [unit]" -dir <master directory (DATA)> -o <tmp figure name (fig01)
+python ${PATH_SCRIPT}/plot_time_series.py -noshow -runid <list of runids> -f <input files list (wild card accepted like *toto*.nc)> -var <variable name> -sf <scale factor> -title "title [unit]" -dir <master directory (DATA)> -o <tmp figure name (fig01)>
 ```
+One call of this script do one plot.
 
 Once all the plot are build a page is build using image magic:
 
