@@ -107,6 +107,9 @@ RUNIDS=${@:5}
 
 . PARAM/param_arch.bash
 
+if [ $((YEARE-YEARB)) > 20 ]; then echo 'Check your arguments, you ask for too many years'; exit 10; fi
+exit
+
 # clean ERROR.txt file
 if [ -f ERROR.txt ]; then rm ERROR.txt ; fi
 
