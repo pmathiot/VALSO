@@ -2,7 +2,7 @@
 Assumption
 ==========
 - You already have all your scalar you want to plot as time series ready somewhere. I let you compute or output directly via xios the variable you want
-- Conda is avalaible on your computer (much easier to set up the correct environement). You can create it via the yml file 
+- Conda is avalaible on your computer (much easier to set up the correct environement). You can create it via the yml file `valso.yml`. In case your computer do note have http connexion, you can use conda pack (https://conda.github.io/conda-pack/). 
 - image magic (`convert`)
 
 Data location
