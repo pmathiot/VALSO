@@ -57,6 +57,11 @@ echo 'plot max mld in Weddell Gyre time series'
 python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f *WMXL*1m*m09_*T.nc -var '(max_sokaraml|max_somxzint1|max_somxl010)' -title "Max Kara mld WG (m)" -dir ${WRKPATH} -o ${KEY}_WG_max_karamld -obs OBS/WG_karamld_max_obs.txt
 if [[ $? -ne 0 ]]; then exit 42; fi
 
+# ICB
+echo 'plot total icb melt time series'
+python SCRIPT/plot_time_series.py -noshow -runid $RUNIDS -f SH*${FREQ}*icb*.nc -var '(sum_berg_melt_tmask)' -title "ANT (icb) total melt (Gt/y)" -sf 0.000031536 -dir ${WRKPATH} -o ${KEY}_ICB  -obs OBS/ANTicb_obs.txt
+if [[ $? -ne 0 ]]; then exit 42; fi
+
 # crop figure (rm legend)
 convert ${KEY}_WG.png                    -crop 1240x1040+0+0 tmp01.png
 convert ${KEY}_RG.png                    -crop 1240x1040+0+0 tmp02.png
@@ -67,24 +72,25 @@ convert ${KEY}_EWED_mean_bot_thetao.png  -crop 1240x1040+0+0 tmp06.png
 convert ${KEY}_EROSS_mean_bot_thetao.png -crop 1240x1040+0+0 tmp07.png
 convert ${KEY}_AMU_mean_bot_thetao.png   -crop 1240x1040+0+0 tmp08.png
 convert ${KEY}_WG_max_karamld.png        -crop 1240x1040+0+0 tmp09.png
+convert ${KEY}_ICB.png                   -crop 1240x1040+0+0 tmp10.png
 
 # trim figure (remove white area)
-convert FIGURES/box_VALSO.png -trim -bordercolor White -border 40 tmp10.png
-convert legend.png      -trim -bordercolor White -border 20 tmp11.png
-convert runidname.png   -trim -bordercolor White -border 20 tmp12.png
+convert FIGURES/box_VALSO.png -trim -bordercolor White -border 40 tmp11.png
+convert legend.png      -trim -bordercolor White -border 20 tmp12.png
+convert runidname.png   -trim -bordercolor White -border 20 tmp13.png
 
 # compose the image
 convert \( tmp01.png tmp02.png tmp03.png +append \) \
-        \( tmp04.png tmp05.png tmp10.png +append \) \
+        \( tmp04.png tmp05.png tmp11.png +append \) \
         \( tmp06.png tmp07.png tmp08.png +append \) \
-        \( tmp09.png                     +append \) \
-           tmp11.png tmp12.png -append -trim -bordercolor White -border 40 $KEY.png
+        \( tmp09.png tmp10.png                    +append \) \
+           tmp12.png tmp13.png -append -trim -bordercolor White -border 40 $KEY.png
 
 # save figure
 mv ${KEY}_*.png FIGURES/.
 mv ${KEY}_*.txt FIGURES/.
-mv tmp10.png FIGURES/${KEY}_legend.png
-mv tmp11.png FIGURES/${KEY}_runidname.png
+mv tmp11.png FIGURES/${KEY}_legend.png
+mv tmp12.png FIGURES/${KEY}_runidname.png
 
 # clean
 rm tmp??.png
