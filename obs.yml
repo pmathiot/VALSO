@@ -1,0 +1,11 @@
+obs:
+  ACC     : {REF: "Donohue et al., 2016" , MEAN: 136.7 , STD: 7.8  }
+  RG      : {REF: "Dotto et al., 2018"   , MEAN: -35.0 , STD: 5.0  }
+  WG      : {REF: "Dotto et al., 2018"   , MEAN: -20.0 , STD: 4.0  }
+  WROSS   : {REF: "EN4.2.2.g10"          , MEAN: 34.7  , STD: 0.2  }
+  WWED    : {REF: "EN4.2.2.g10"          , MEAN: 34.6  , STD: 0.3  }
+  AMU     : {REF: "EN4.2.2.g10"          , MEAN: -0.5  , STD: 0.1  }
+  EROSS   : {REF: "EN4.2.2.g10"          , MEAN: -0.7  , STD: 0.1  }
+  EWED    : {REF: "EN4.2.2.g10"          , MEAN: -0.8  , STD: 0.1  }
+  WG_MLD  : {REF: "EN4.2.2.g10"          , MEAN: 120.0 , STD: 15.0 }
+  ICB     : {REF: "EN4.2.2.g10"          , MEAN: 1000.0, STD: 200.0}

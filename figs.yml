@@ -1,0 +1,12 @@
+figs:
+  - ACC:   { row: 1, col: 1 }
+  - RG:    { row: 1, col: 2 }
+  - WG:    { row: 1, col: 3 }
+  - WROSS: { row: 2, col: 1 }
+  - WWED:  { row: 2, col: 2 }
+  - AMU:   { row: 2, col: 3 }
+  - EROSS: { row: 3, col: 1 }
+  - EWED:  { row: 3, col: 2 }
+  - WG_MLD:{ row: 3, col: 3 }
+  - ICB:   { row: 4, col: 1 }
+  - MAP:   { row: 4, col: 2 }
