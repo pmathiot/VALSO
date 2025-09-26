@@ -10,6 +10,10 @@ class Run:
     """
     Represents the style and data for a specific run.
     """
+
+    def __str__(self):
+        return f"Run(runid={self.runid}, name={self.name}, line={self.line}, color={self.color})"
+
     def __init__(self, runid, name, line="-", color="black"):
         """
         Initializes a Run object.
@@ -61,11 +65,14 @@ class Run:
             raise ValueError(f"Time series not loaded for run {self.runid}")
         self.ts[var].plot(ax=ax, label=self.name, linestyle=self.line, color=self.color)
 
+    # need a print option
+
 
 class Plot:
     """
     Represents a plot configuration.
     """
+
     def __init__(self, data):
         """
         Initializes a Plot object.
@@ -73,11 +80,10 @@ class Plot:
         Args:
             data (dict): Dictionary containing plot configuration.
         """
-        self.name = data.get("NAME", "UNKNOWN")
         self.var = data.get("VAR", None)
         self.file_pattern = data.get("FILE_PATTERN", None)
         self.sf = data.get("SF", 1.0)
-        self.title = data.get("TITLE", self.name)
+        self.title = data.get("TITLE", "UNKNOWN")
         self.row = data.get("ROW", 1)
         self.col = data.get("COL", 1)
         self.type = data.get("TYPE", "TS").upper()  # TS = time series, FIG = figure
@@ -106,6 +112,8 @@ class Plot:
         # Plot mean and standard deviation as a shaded region
         ax.axhline(mean, color="k", linestyle="--", label=f'OBS: {ref}')
         ax.fill_between(ax.get_xlim(), mean - std, mean + std, color="k", alpha=0.2)
+
+    # need a print option
 
 
 # ===================== LOADERS =====================
@@ -137,9 +145,11 @@ def load_runs(style_file, runids):
     Raises:
         ValueError: If a run ID is not found in the style file.
     """
-    data = load_yaml(style_file)
+    data = load_yaml(style_file).get("runs", {})
+    print(data, runids)
     runs = []
     for rid in runids:
+        print(rid)
         if rid not in data:
             raise ValueError(f"RunID {rid} not found in style file")
         info = data[rid]
@@ -161,19 +171,16 @@ def load_plots(plots_file, figs_file):
     Raises:
         ValueError: If a plot key is not found in plots.yml or figs.yml is invalid.
     """
-    all_plots = load_yaml(plots_file)["plots"]
-    figs = load_yaml(figs_file)["figs"]
-
+    all_plots = load_yaml(plots_file).get("plots", {})
+    figs = load_yaml(figs_file).get("figs", {})
+    figs = dict(sorted(figs.items(), key=lambda item: item[0])) # for easy unit testing
     selected = []
-    for f in figs:
-        # f is a dict with a single key
-        if len(f) != 1:
-            raise ValueError(f"Each item in figs.yml must contain exactly one key, got: {f}")
-        key, layout = next(iter(f.items()))
+
+    for key, layout in figs.items():
         if key not in all_plots:
-            raise ValueError(f"Plot key '{key}' not found in plots.yml")
+            raise ValueError(f"Plot key {key} not found in plots.yml")
         data = dict(all_plots[key])
-        data.update(layout)  # Add row/col from figs.yml
+        data.update(layout)  # add row/col info
         selected.append(Plot(data))
     return selected
 
@@ -213,8 +220,6 @@ def plot_timeseries(ax, plot, runs, obs, base_dir):
 
     # Use the new plot_obs method
     plot.plot_obs(ax)
-
-    ax.legend()
 
 
 def plot_map(ax, plot, base_dir):

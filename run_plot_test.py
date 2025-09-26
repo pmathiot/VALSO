@@ -25,11 +25,18 @@ def fake_yaml(tmp_path):
         }
     }
 
-    figs_data = {"figs": [{"TEST_TS": {"row": 1, "col": 1}}, {"TEST_FIG": {"row": 1, "col": 2}}]}
+    figs_data = {
+        "figs": {
+            "TEST_TS":  {"row": 1, "col": 1},
+            "TEST_FIG": {"row": 1, "col": 2}
+        }
+    }
 
     styles_data = {
-        "run1": {"NAME": "RUN 1", "LINE": "-", "COLOR": "blue"},
-        "run2": {"NAME": "RUN 2", "LINE": "--", "COLOR": "red"}
+        "runs":   {
+            "run1": {"NAME": "RUN 1", "LINE": "-", "COLOR": "blue"},
+            "run2": {"NAME": "RUN 2", "LINE": "--", "COLOR": "red"}
+        }
     }
 
     plots_file.write_text(yaml.safe_dump(plots_data))
@@ -57,8 +64,8 @@ def test_load_plots(fake_yaml):
     plots_file, figs_file, styles_file = fake_yaml
     plots = load_plots(plots_file, figs_file)
     assert len(plots) == 2
-    assert plots[0].title == "Test TS"
-    assert plots[1].type == "FIG"
+    assert plots[1].title == "Test TS"
+    assert plots[0].type == "FIG"
 
 def test_run_load_ts(tmp_path):
     # create fake NetCDF
