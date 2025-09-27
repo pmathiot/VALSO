@@ -1,12 +1,12 @@
 figs:
-  ACC:    { row: 1, col: 1 }
-  RG:     { row: 1, col: 2 }
-  WG:     { row: 1, col: 3 }
-  WROSS:  { row: 2, col: 1 }
-  WWED:   { row: 2, col: 2 }
-  AMU:    { row: 2, col: 3 }
-  EROSS:  { row: 3, col: 1 }
-  EWED:   { row: 3, col: 2 }
-  WG_MLD: { row: 3, col: 3 }
-  ICB:    { row: 4, col: 1 }
-  MAP_VALSO:    { row: 4, col: 2 }
+  ACC:    { ROW: 1, COL: 1 , TIME: False}
+  RG:     { ROW: 1, COL: 2 , TIME: False}
+  WG:     { ROW: 1, COL: 3 , TIME: False}
+  WROSS:  { ROW: 2, COL: 1 , TIME: False}
+  WWED:   { ROW: 2, COL: 2 , TIME: False}
+  AMU:    { ROW: 2, COL: 3 , TIME: False}
+  EROSS:  { ROW: 3, COL: 1 , TIME: False}
+  EWED:   { ROW: 3, COL: 2 , TIME: True}
+  WG_MLD: { ROW: 3, COL: 3 , TIME: True}
+  ICB:    { ROW: 4, COL: 1 , TIME: True}
+  MAP_VALSO:    { ROW: 4, COL: 2 }

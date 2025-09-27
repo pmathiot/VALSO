@@ -1,4 +1,5 @@
 import os
+import numpy as np
 import glob
 import yaml
 import xarray as xr
@@ -6,6 +7,14 @@ import pandas as pd
 import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+import matplotlib.ticker as ticker
+import warnings
+warnings.filterwarnings(
+    "ignore",
+    category=RuntimeWarning,
+    message="Converting a CFTimeIndex.*noleap.*"
+)
 
 # ===================== CLASSES =====================
 class Run:
@@ -52,12 +61,29 @@ class Run:
                 print(plot)
                 if not files:
                     raise FileNotFoundError(f'No files match {file_pattern} in {self.dir}')
-                ds = xr.open_mfdataset(files, combine="nested", concat_dim="time_counter")
-                da = ds[var] * sf
+
+                # opne data
+                try:
+                    ctime = 'time_centered'
+                    ds=xr.open_mfdataset(files, parallel=True, concat_dim='time_counter',combine='nested').sortby(ctime)
+                except:
+                    ctime = 'time_counter'
+                    ds=xr.open_mfdataset(files, parallel=True, concat_dim='time_counter',combine='nested').sortby(ctime)
+
+                # build data array
+                da=xr.DataArray(ds[var].values.squeeze()*sf, [(ctime, ds[ctime].values)], name=self.name)
+
+                # manage time
+                try:
+                    da[ctime] = pd.to_datetime(da.indexes[ctime])
+                except:
+                    da[ctime] = da.indexes[ctime].to_datetimeindex()
+
                 self.ts[var] = da.to_dataframe(name=self.name)
+
         return self.ts
 
-    def plot_ts(self, ax, var):
+    def plot_ts(self, ax, plot):
         """
         Plots the time series data on the given axis.
 
@@ -70,8 +96,17 @@ class Run:
         """
         if self.ts is None:
             raise ValueError(f"Time series not loaded for run {self.runid}")
-        self.ts[var].plot(ax=ax, label=self.name, linestyle=self.line, color=self.color)
+        self.ts[plot.var].plot(ax=ax, legend=False, label=self.name, linestyle=self.line, color=self.color)
 
+        # set x axis
+        ax.tick_params(axis='both', labelsize=18)
+        if (not plot.time):
+            ax.set_xticklabels([])
+        else:
+            ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
+        for lt in ax.get_xticklabels():
+            lt.set_ha('center')
+        ax.set_xlabel('')
 
 
 class Plot:
@@ -80,7 +115,7 @@ class Plot:
     """
 
     def __str__(self):
-        return f'Plot(var={self.var}, file_pattern={self.file_pattern}, sf={self.sf}, title={self.title})'
+        return f'    Plot(var={self.var}, file_pattern={self.file_pattern}, sf={self.sf}, title={self.title}, loc={self.row}|{self.col})'
 
     def __init__(self, data):
         """
@@ -96,34 +131,9 @@ class Plot:
         self.title = data.get("TITLE", "UNKNOWN")
         self.row = data.get("ROW", 1)
         self.col = data.get("COL", 1)
+        self.time = data.get("TIME", False)
         self.type = data.get("TYPE", "TS").upper()  # TS = time series, FIG = figure
         self.fig_file = data.get("FIG_FILE", None)
-        self.obs_file = data.get("OBS", None)
-
- #   def plot_obs(self, ax):
-        """
-        Plots observation data on the given axis.
-
-        Args:
-            ax (matplotlib.axes.Axes): Axis to plot on.
-
-        Raises:
-            FileNotFoundError: If the observation file does not exist.
-            KeyError: If required keys are missing in the observation data.
-        """
-        if not self.obs_file:
-            return  # No observation file to plot
-
-        obs_data = load_obs(self.obs_file)
-        mean = obs_data["MEAN"]
-        std = obs_data["STD"]
-        ref = obs_data.get("REF", "OBS")
-
-        # Plot mean and standard deviation as a shaded region
-        ax.axhline(mean, color="k", linestyle="--", label=f'OBS: {ref}')
-        ax.fill_between(ax.get_xlim(), mean - std, mean + std, color="k", alpha=0.2)
-
-    # need a print option
 
 
 class Obs:
@@ -238,7 +248,7 @@ def load_obss(obss_file, figs_file):
     Raises:
         ValueError: If a plot key is not found in plots.yml or figs.yml is invalid.
     """
-    all_obss = load_yaml(obss_file).get("plots", {})
+    all_obss = load_yaml(obss_file).get("obs", {})
     figs = load_yaml(figs_file).get("figs", {})
     figs = dict(sorted(figs.items(), key=lambda item: item[0]))  # for easy unit testing
     selected = {}
@@ -268,15 +278,18 @@ def plot_timeseries(ax, plot, runs, obs):
         obs (dict): Observation data.
         base_dir (str): Base directory for data files.
     """
+    print(f'Plot {plot.title}')
     for run in runs:
-        run.plot_ts(ax, plot.var)
-    ax.set_title(plot.title)
+        run.plot_ts(ax, plot)
+    hl, lb = ax.get_legend_handles_labels()
+    ax.set_title(plot.title, fontsize=24)
     ax.grid(True)
 
     # Plot observations if available
     if obs is not None:
         obs.plot(ax)
 
+    return hl,lb
 
 def plot_map(ax, plot):
     """
@@ -297,40 +310,18 @@ def plot_map(ax, plot):
     ax.axis("off")
 
 
-def add_legend(fig, ncol=3, lvis=True):
+def add_legend(fig, handles, labels, ncol=3, lvis=True):
     """
     Adds a single legend at the bottom of the figure.
     """
-    handles, labels = [], []
-    for ax in fig.axes:
-        h, l = ax.get_legend_handles_labels()
-        handles += h
-        labels += l
 
     # Axes for legend
-    lax = fig.add_axes([0.0, 0.05, 1, 0.1])  # bottom = 0.05
-    leg = lax.legend(handles, labels, loc='upper left', ncol=ncol, fontsize=12, frameon=False)
+    lax = fig.add_axes([0.04, 0.01, 0.92, 0.06])
+    leg = lax.legend(handles, labels, loc='upper left', ncol=ncol, fontsize=18, frameon=False)
     for item in leg.legendHandles:
         item.set_visible(lvis)
     lax.set_axis_off()
     return lax  # Return the legend axes for reference
-
-
-def add_text(fig, text_lines, ncol=3, lvis=True):
-    """
-    Adds text below the legend in the figure.
-
-    Args:
-        fig (matplotlib.figure.Figure): Figure object.
-        text_lines (list of str): Text lines to display.
-    """
-    # Axes for text
-    tax = fig.add_axes([0.0, 0.0, 1, 0.05])  # very bottom
-    tax.set_axis_off()
-
-    # Join text lines and place in center
-    text_str = "\n".join(text_lines)
-    tax.text(0.5, 0.5, text_str, ha='center', va='center', fontsize=12)
 
 
 # ===================== MAIN FUNCTION =====================
@@ -348,7 +339,7 @@ def main(runids, plots_cfg="plots.yml", figs_cfg="figs.yml", style_cfg="styles.y
     """
     # load data and styles
     plots = load_plots(plots_cfg, figs_cfg)
-    obss = load_obss(obss_cfg)
+    obss = load_obss(obss_cfg, figs_cfg)
     runs = load_runs(style_cfg, runids, cdir)
     for run in runs:
         print(run)
@@ -357,22 +348,24 @@ def main(runids, plots_cfg="plots.yml", figs_cfg="figs.yml", style_cfg="styles.y
     # create subplots
     nrows = max(p.row for p in plots)
     ncols = max(p.col for p in plots)
-    fig, axs = plt.subplots(nrows, ncols, figsize=(5*ncols, 4*nrows), squeeze=False)
+    fig, axs = plt.subplots(nrows, ncols, figsize=np.array([210*ncols, 210*nrows]) / 25.4, squeeze=False)
+    for ax in axs.flat:
+        ax.set_visible(False)
 
     # plot each subplot
     for plot in plots:
         ax = axs[plot.row-1][plot.col-1]
+        ax.set_visible(True)
         obs = obss.get(plot.name, None)
         if plot.type == "TS":
-            plot_timeseries(ax, plot, runs, obs)
-        elif plot.type == "FIG":
-            plot_map(ax, plot)
+            hl,lb = plot_timeseries(ax, plot, runs, obs)
+        #elif plot.type == "FIG":
+            #plot_map(ax, plot)
 
     # finalize and save
-    plt.tight_layout()
+    plt.subplots_adjust(left=0.04, right=0.96, bottom=0.1, top=0.95, wspace=0.1, hspace=0.1)
+    add_legend(fig, hl, lb, ncol=3, lvis=True)
     plt.savefig(out, dpi=150)
-    add_legend(fig, ncol=3, lvis=True)
-    add_text(fig, ["This is additional info", "Second line of text"])
     print(f"✅ Saved {out}")
     plt.show()
 
