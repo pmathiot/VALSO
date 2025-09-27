@@ -1,5 +1,5 @@
 import os
-import numpy as np
+#import numpy as np
 import glob
 import yaml
 import xarray as xr
@@ -8,7 +8,7 @@ import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-import matplotlib.ticker as ticker
+#import matplotlib.ticker as ticker
 import warnings
 warnings.filterwarnings(
     "ignore",
@@ -168,14 +168,14 @@ class Obs:
 
 class Figure:
     """
-    Represents a plot configuration.
+    Represents the configuration for a figure, including layout, legend, and subplots.
     """
     def __init__(self, data):
         """
         Initializes a Figure object.
 
         Args:
-            figs_file (str): Path to the figs.yml file.
+            data (dict): Data loaded from figs.yml containing figure configuration.
         """
         self.figs = data.get("figs", {})
         self.legend = data.get("legend", {"NCOL": 3, "AXES": [0.04, 0.01, 0.92, 0.06]})
@@ -196,9 +196,11 @@ class Figure:
         Args:
             ax (matplotlib.axes.Axes): Axis to plot on.
             plot (Plot): Plot configuration object.
-            runs (list): List of Run objects.
-            obs (dict): Observation data.
-            base_dir (str): Base directory for data files.
+            runs (list): List of Run objects containing time series data.
+            obs (Obs): Observation data for the plot.
+
+        Returns:
+            tuple: Handles and labels for the legend.
         """
         print(f'Plot {plot.title}')
         for run in runs:
@@ -211,7 +213,7 @@ class Figure:
         if obs is not None:
             obs.plot(ax)
 
-        return hl,lb
+        return hl, lb
 
 
     def plot_map(self, axs):
@@ -219,8 +221,7 @@ class Figure:
         Plots a map image for the given plot configuration.
 
         Args:
-            ax (matplotlib.axes.Axes): Axis to plot on.
-            plot (Plot): Plot configuration object.
+            axs (numpy.ndarray): Array of matplotlib axes.
 
         Raises:
             FileNotFoundError: If the figure file does not exist.
@@ -239,16 +240,23 @@ class Figure:
     def add_legend(self, fig, handles, labels, lvis=True):
         """
         Adds a single legend at the bottom of the figure.
+
+        Args:
+            fig (matplotlib.figure.Figure): The figure to add the legend to.
+            handles (list): List of legend handles.
+            labels (list): List of legend labels.
+            lvis (bool): Whether to make legend handles visible.
+
+        Returns:
+            matplotlib.axes.Axes: The legend axes for reference.
         """
-        
-        # Axes for legend
         lax = fig.add_axes(self.legend["AXES"])
         leg = lax.legend(handles, labels, loc='upper left', ncol=self.legend["NCOL"], fontsize=18, frameon=False)
         for item in leg.legendHandles:
             item.set_visible(lvis)
         lax.set_axis_off()
-        return lax  # Return the legend axes for reference
-    
+        return lax
+
 
 # ===================== LOADERS =====================
 def load_yaml(file_path):
@@ -272,6 +280,7 @@ def load_runs(style_file, runids, cdir):
     Args:
         style_file (str): Path to the style configuration file.
         runids (list): List of run IDs to load.
+        cdir (str): Base directory for the runs.
 
     Returns:
         list: List of Run objects.
@@ -295,7 +304,7 @@ def load_plots(plots_file, figure):
 
     Args:
         plots_file (str): Path to the plots.yml file.
-        figs_file (str): Path to the figs.yml file.
+        figure (Figure): Figure object containing layout and configuration.
 
     Returns:
         list: List of Plot objects.
@@ -304,7 +313,7 @@ def load_plots(plots_file, figure):
         ValueError: If a plot key is not found in plots.yml or figs.yml is invalid.
     """
     all_plots = load_yaml(plots_file).get("plots", {})
-    figs = dict(sorted(figure.ts.items(), key=lambda item: item[0])) # for easy unit testing
+    figs = dict(sorted(figure.ts.items(), key=lambda item: item[0]))  # for easy unit testing
     selected = []
 
     for key, layout in figs.items():
@@ -319,17 +328,17 @@ def load_plots(plots_file, figure):
 
 def load_obss(obss_file, figure):
     """
-    Loads selected plots from plots.yml database based on figs.yml selection.
+    Loads observation data from obs.yml based on figs.yml selection.
 
     Args:
         obss_file (str): Path to the obs.yml file.
-        figs_file (str): Path to the figs.yml file.
+        figure (Figure): Figure object containing layout and configuration.
 
     Returns:
-        list: Dictionary Obs objects.
+        dict: Dictionary of Obs objects.
 
     Raises:
-        ValueError: If a plot key is not found in plots.yml or figs.yml is invalid.
+        ValueError: If a plot key is not found in obs.yml or figs.yml is invalid.
     """
     all_obss = load_yaml(obss_file).get("obs", {})
     figs = dict(sorted(figure.ts.items(), key=lambda item: item[0]))  # for easy unit testing
@@ -350,19 +359,15 @@ def load_obss(obss_file, figure):
 
 def load_figure(figs_file):
     """
-    Loads selected plots from plots.yml database based on figs.yml selection.
+    Loads figure configuration from figs.yml.
 
     Args:
-        plots_file (str): Path to the plots.yml file.
         figs_file (str): Path to the figs.yml file.
 
     Returns:
-        list: List of Plot objects.
-
-    Raises:
-        ValueError: If a plot key is not found in plots.yml or figs.yml is invalid.
+        Figure: A Figure object containing the configuration.
     """
-    data=load_yaml(figs_file)
+    data = load_yaml(figs_file)
     figure = Figure(data)
     return figure
 
@@ -377,10 +382,11 @@ def main(runids, plots_cfg="plots.yml", figs_cfg="figs.yml", style_cfg="styles.y
         plots_cfg (str): Path to the plot configuration file.
         figs_cfg (str): Path to the figs.yml file.
         style_cfg (str): Path to the style configuration file.
+        obss_cfg (str): Path to the observation configuration file.
         cdir (str): Base directory for data files.
         out (str): Output file name for the generated plot.
     """
-    # load data and styles
+    # Load data and styles
     figure = load_figure(figs_cfg)
     plots = load_plots(plots_cfg, figure)
     obss = load_obss(obss_cfg, figure)
@@ -390,12 +396,12 @@ def main(runids, plots_cfg="plots.yml", figs_cfg="figs.yml", style_cfg="styles.y
         print(run)
         run.load_ts(plots)
 
-    # create subplots
+    # Create subplots
     fig, axs = plt.subplots(figure.layout["SUBPLOT"][0], figure.layout["SUBPLOT"][1], figsize=figure.layout["SIZE"], squeeze=False)
     for ax in axs.flat:
         ax.set_visible(False)
 
-    # plot each subplot
+    # Plot each subplot
     for plot in plots:
         ax = axs[plot.row-1][plot.col-1]
         ax.set_visible(True)
@@ -403,12 +409,9 @@ def main(runids, plots_cfg="plots.yml", figs_cfg="figs.yml", style_cfg="styles.y
         obs = obss.get(plot.name, None)
 
         if plot.type == "TS":
-            hl,lb = figure.plot_timeseries(ax, plot, runs, obs)
+            hl, lb = figure.plot_timeseries(ax, plot, runs, obs)
 
- #   if figure.map:
- #       figure.plot_map(ax, plot)
-
-    # finalize and save
+    # Finalize and save
     plt.subplots_adjust(left=figure.layout["ADJUST"][0],
                         right=figure.layout["ADJUST"][1],
                         bottom=figure.layout["ADJUST"][2],
@@ -436,4 +439,4 @@ if __name__ == "__main__":
     parser.add_argument("-dir", default=".", help="Base directory for data files.")
     parser.add_argument("-out", default="valso.png", help="Output file name for the generated plot.")
     args = parser.parse_args()
-    main(args.runid, plots_cfg=args.plots, figs_cfg=args.figs, style_cfg=args.style, cdir=args.dir, out=args.out)
+    main(args.runid, plots_cfg=args.plots, figs_cfg=args.figs, style_cfg=args.style, obss_cfg="obs.yml", cdir=args.dir, out=args.out)
