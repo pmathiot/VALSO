@@ -14,7 +14,7 @@ class Run:
     def __str__(self):
         return f"Run(runid={self.runid}, name={self.name}, line={self.line}, color={self.color})"
 
-    def __init__(self, runid, name, line="-", color="black"):
+    def __init__(self, cdir, runid, name, line="-", color="black"):
         """
         Initializes a Run object.
 
@@ -28,21 +28,23 @@ class Run:
         self.name = name
         self.line = line
         self.color = color
+        self.dir = os.path.join(cdir, runid)
         self.ts = None
 
-    def load_ts(self, file_pattern, var, sf=1.0):
+    def load_ts(self, plot):
         """
-        Loads time series data for the run.
+        Loads time series data for the run using a Plot object.
 
         Args:
-            file_pattern (str): File pattern to match data files.
-            var (str): Variable to extract from the dataset.
-            sf (float): Scaling factor for the variable.
+            plot (Plot): Plot configuration object.
 
         Returns:
             pd.DataFrame: Time series data.
         """
-        files = glob.glob(file_pattern)
+        file_pattern = plot.file_pattern
+        var = plot.var
+        sf = plot.sf
+        files = glob.glob(os.path.join(self.dir, file_pattern))
         if not files:
             raise FileNotFoundError(f"No files match {file_pattern}")
         ds = xr.open_mfdataset(files, combine="nested", concat_dim="time_counter")
@@ -104,7 +106,7 @@ class Plot:
         if not self.obs_file:
             return  # No observation file to plot
 
-        obs_data = load_yaml(self.obs_file)
+        obs_data = load_obs(self.obs_file)
         mean = obs_data["MEAN"]
         std = obs_data["STD"]
         ref = obs_data.get("REF", "OBS")
@@ -131,7 +133,7 @@ def load_yaml(file_path):
         return yaml.safe_load(fid)
 
 
-def load_runs(style_file, runids):
+def load_runs(style_file, runids, cdir):
     """
     Loads run styles from a YAML file.
 
@@ -153,7 +155,7 @@ def load_runs(style_file, runids):
         if rid not in data:
             raise ValueError(f"RunID {rid} not found in style file")
         info = data[rid]
-        runs.append(Run(rid, info.get("NAME", rid), info.get("LINE", "-"), info.get("COLOR", "black")))
+        runs.append(Run(rid, cdir, info.get("NAME", rid), info.get("LINE", "-"), info.get("COLOR", "black")))
     return runs
 
 
@@ -200,7 +202,7 @@ def load_obs(obs_file):
 
 
 # ===================== PLOT FUNCTIONS =====================
-def plot_timeseries(ax, plot, runs, obs, base_dir):
+def plot_timeseries(ax, plot, runs):
     """
     Plots time series data for the given plot configuration.
 
@@ -212,8 +214,6 @@ def plot_timeseries(ax, plot, runs, obs, base_dir):
         base_dir (str): Base directory for data files.
     """
     for run in runs:
-        file_pattern = os.path.join(base_dir, run.runid, plot.file_pattern)
-        run.load_ts(file_pattern, plot.var, sf=plot.sf)
         run.plot_ts(ax, plot.var)
     ax.set_title(plot.title)
     ax.grid(True)
@@ -222,25 +222,24 @@ def plot_timeseries(ax, plot, runs, obs, base_dir):
     plot.plot_obs(ax)
 
 
-def plot_map(ax, plot, base_dir):
+def plot_map(ax, plot):
     """
     Plots a map image for the given plot configuration.
 
     Args:
         ax (matplotlib.axes.Axes): Axis to plot on.
         plot (Plot): Plot configuration object.
-        base_dir (str): Base directory for data files.
 
     Raises:
         FileNotFoundError: If the figure file does not exist.
     """
-    img_path = os.path.join(base_dir, plot.fig_file)
+    img_path = os.path.join(plot.fig_file)
     if not os.path.exists(img_path):
         raise FileNotFoundError(f"Figure file {img_path} not found")
     img = plt.imread(img_path)
     ax.imshow(img)
     ax.axis("off")
-    ax.set_title(plot.title)
+
 
 def add_legend(fig, ncol=3, lvis=True):
     """
@@ -279,7 +278,7 @@ def add_text(fig, text_lines, ncol=3, lvis=True):
 
 
 # ===================== MAIN FUNCTION =====================
-def main(runids, plots_cfg="plots.yml", figs_cfg="figs.yml", style_cfg="styles.yml", base_dir=".", out="valso.png"):
+def main(runids, plots_cfg="plots.yml", figs_cfg="figs.yml", style_cfg="styles.yml", cdir=".", out="valso.png"):
     """
     Main function to generate plots based on configurations.
 
@@ -288,30 +287,36 @@ def main(runids, plots_cfg="plots.yml", figs_cfg="figs.yml", style_cfg="styles.y
         plots_cfg (str): Path to the plot configuration file.
         figs_cfg (str): Path to the figs.yml file.
         style_cfg (str): Path to the style configuration file.
-        base_dir (str): Base directory for data files.
+        cdir (str): Base directory for data files.
         out (str): Output file name for the generated plot.
     """
-    runs = load_runs(style_cfg, runids)
+    # load data and styles
     plots = load_plots(plots_cfg, figs_cfg)
+    runs = load_runs(style_cfg, runids, cdir)
+    for plot in plots:
+        for run in runs:
+            run.load_ts(plot)
 
+    # create subplots
     nrows = max(p.row for p in plots)
     ncols = max(p.col for p in plots)
     fig, axs = plt.subplots(nrows, ncols, figsize=(5*ncols, 4*nrows), squeeze=False)
 
+    # plot each subplot
     for plot in plots:
         ax = axs[plot.row-1][plot.col-1]
         if plot.type == "TS":
-            plot_timeseries(ax, plot, runs, None, base_dir)
+            plot_timeseries(ax, plot, runs, None)
         elif plot.type == "FIG":
-            plot_map(ax, plot, base_dir)
+            plot_map(ax, plot)
 
+    # finalize and save
     plt.tight_layout()
     plt.savefig(out, dpi=150)
     add_legend(fig, ncol=3, lvis=True)
     add_text(fig, ["This is additional info", "Second line of text"])
     print(f"✅ Saved {out}")
     plt.show()
-
 
 
 # ===================== ENTRY POINT =====================
@@ -322,7 +327,7 @@ if __name__ == "__main__":
     parser.add_argument("-plots", default="plots.yml", help="Path to the full plots database.")
     parser.add_argument("-figs", default="figs.yml", help="Path to the selection figs.yml.")
     parser.add_argument("-style", default="styles.yml", help="Path to the style configuration file.")
-    parser.add_argument("-base", default=".", help="Base directory for data files.")
+    parser.add_argument("-dir", default=".", help="Base directory for data files.")
     parser.add_argument("-out", default="valso.png", help="Output file name for the generated plot.")
     args = parser.parse_args()
-    main(args.runid, plots_cfg=args.plots, figs_cfg=args.figs, style_cfg=args.style, base_dir=args.base, out=args.out)
+    main(args.runid, plots_cfg=args.plots, figs_cfg=args.figs, style_cfg=args.style, cdir=args.dir, out=args.out)

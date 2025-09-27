@@ -53,9 +53,9 @@ def test_load_yaml(tmp_path):
     assert data["a"] == 1
     assert data["b"] == 2
 
-def test_load_runs(fake_yaml):
+def test_load_runs(tmp_path, fake_yaml):
     plots_file, figs_file, styles_file = fake_yaml
-    runs = load_runs(styles_file, ["run1", "run2"])
+    runs = load_runs(styles_file, ["run1", "run2"], tmp_path)
     assert len(runs) == 2
     assert runs[0].name == "RUN 1"
     assert runs[1].line == "--"
@@ -67,14 +67,17 @@ def test_load_plots(fake_yaml):
     assert plots[1].title == "Test TS"
     assert plots[0].type == "FIG"
 
-def test_run_load_ts(tmp_path):
+def test_run_load_ts(tmp_path, fake_yaml):
     # create fake NetCDF
     file = tmp_path / "dummy.nc"
     ds = xr.Dataset({"v": ("time_counter", np.arange(10))}, coords={"time_counter": np.arange(10)})
     ds.to_netcdf(file)
 
-    run = Run("r1", "RUN 1")
-    ts = run.load_ts(str(file), "v", sf=2)
+    plots_file, figs_file, styles_file = fake_yaml
+    plots = load_plots(plots_file, figs_file)
+
+    run = Run(tmp_path, "r1", "RUN 1")
+    ts = run.load_ts(plots[1])
     assert isinstance(ts, pd.DataFrame)
     assert ts["RUN 1"].tolist() == [0,2,4,6,8,10,12,14,16,18]
 
@@ -87,9 +90,8 @@ def test_plot_map(tmp_path):
     plot = Plot({"TITLE": "Test Map", "FIG_FILE": str(img_file), "TYPE": "FIG"})
     
     fig, ax = plt.subplots()
-    plot_map(ax, plot, tmp_path)
+    plot_map(ax, plot)
     
     images = [im for im in ax.get_images()]
     assert len(images) == 1
-    assert ax.get_title() == "Test Map"
     plt.close(fig)
