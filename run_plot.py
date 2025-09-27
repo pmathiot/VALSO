@@ -12,7 +12,7 @@ class Run:
     """
 
     def __str__(self):
-        return f"Run(runid={self.runid}, name={self.name}, line={self.line}, color={self.color})"
+        return f'Run(runid={self.runid}, name={self.name}, line={self.line}, color={self.color}, dir={self.dir})'
 
     def __init__(self, cdir, runid, name, line="-", color="black"):
         """
@@ -28,7 +28,7 @@ class Run:
         self.name = name
         self.line = line
         self.color = color
-        self.dir = os.path.join(cdir, runid)
+        self.dir = os.path.join(cdir, self.runid)
         self.ts = None
 
     def load_ts(self, plot):
@@ -45,8 +45,10 @@ class Run:
         var = plot.var
         sf = plot.sf
         files = glob.glob(os.path.join(self.dir, file_pattern))
+        print(self)
+        print(var, ' ', file_pattern)
         if not files:
-            raise FileNotFoundError(f"No files match {file_pattern}")
+            raise FileNotFoundError(f'No files match {file_pattern} in {self.dir}')
         ds = xr.open_mfdataset(files, combine="nested", concat_dim="time_counter")
         da = ds[var] * sf
         self.ts = da.to_dataframe(name=self.name)
@@ -155,7 +157,7 @@ def load_runs(style_file, runids, cdir):
         if rid not in data:
             raise ValueError(f"RunID {rid} not found in style file")
         info = data[rid]
-        runs.append(Run(rid, cdir, info.get("NAME", rid), info.get("LINE", "-"), info.get("COLOR", "black")))
+        runs.append(Run(cdir, rid, info.get("NAME", rid), info.get("LINE", "-"), info.get("COLOR", "black")))
     return runs
 
 

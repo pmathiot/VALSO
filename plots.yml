@@ -17,11 +17,11 @@ plots:
   ARC_SIE_M09:   {TITLE: "SIE Arctic m09 [1e6 km2]",      FILE_PATTERN: "GLO*sie*m09*.nc",       VAR: NExnsidc, TYPE: TS, SF: 0.001, OBS: "OBS/ARC_sie09_obs.txt"}
   ANT_SIE_M02:   {TITLE: "SIE Antarctic m02 [1e6 km2]",   FILE_PATTERN: "GLO*sie*m02*.nc",       VAR: SExnsidc, TYPE: TS, SF: 0.001, OBS: "OBS/ANT_sie02_obs.txt"}
   ANT_SIE_M09:   {TITLE: "SIE Antarctic m09 [1e6 km2]",   FILE_PATTERN: "GLO*sie*m09*.nc",       VAR: SExnsidc, TYPE: TS, SF: 0.001, OBS: "OBS/ANT_sie09_obs.txt"}
-  WROSS:         {TITLE: "Mean bot. sal. WROSS (PSU)",    FILE_PATTERN: "*WROSS*so*1y*T.nc",     VAR: mean_sosbs_tmask, TYPE: TS, SF: 1.0, OBS: "OBS/WROSS_botS_mean_obs.txt"}
-  WWED:          {TITLE: "Mean bot. sal. WWED (PSU)",     FILE_PATTERN: "*WWED*so*1y*T.nc",      VAR: mean_sosbs_tmask, TYPE: TS, SF: 1.0, OBS: "OBS/WWED_botS_mean_obs.txt"}
-  AMU:           {TITLE: "Mean bot. temp. AMU (°C)",      FILE_PATTERN: "*AMU*thetao*1y*T.nc",   VAR: mean_sosbt_tmask, TYPE: TS, SF: 1.0, OBS: "OBS/AMU_botT_mean_obs.txt"}
-  EROSS:         {TITLE: "Mean bot. temp. EROSS (°C)",    FILE_PATTERN: "*EROSS*thetao*1y*T.nc", VAR: mean_sosbt_tmask, TYPE: TS, SF: 1.0, OBS: "OBS/EROSS_botT_mean_obs.txt"}
-  EWED:          {TITLE: "Mean bot. temp. EWED (°C)",     FILE_PATTERN: "*EWED*thetao*1y*T.nc",  VAR: mean_sosbt_tmask, TYPE: TS, SF: 1.0, OBS: "OBS/EWED_botT_mean_obs.txt"}
+  WROSS:         {TITLE: "Mean bot. sal. WROSS (PSU)",    FILE_PATTERN: "*WROSS*so*1y*T.nc",     VAR: mean_sosbs, TYPE: TS, SF: 1.0, OBS: "OBS/WROSS_botS_mean_obs.txt"}
+  WWED:          {TITLE: "Mean bot. sal. WWED (PSU)",     FILE_PATTERN: "*WWED*so*1y*T.nc",      VAR: mean_sosbs, TYPE: TS, SF: 1.0, OBS: "OBS/WWED_botS_mean_obs.txt"}
+  AMU:           {TITLE: "Mean bot. temp. AMU (°C)",      FILE_PATTERN: "*AMU_*thetao*1y*T.nc",  VAR: mean_sosbt, TYPE: TS, SF: 1.0, OBS: "OBS/AMU_botT_mean_obs.txt"}
+  EROSS:         {TITLE: "Mean bot. temp. EROSS (°C)",    FILE_PATTERN: "*EROSS*thetao*1y*T.nc", VAR: mean_sosbt, TYPE: TS, SF: 1.0, OBS: "OBS/EROSS_botT_mean_obs.txt"}
+  EWED:          {TITLE: "Mean bot. temp. EWED (°C)",     FILE_PATTERN: "*EWED*thetao*1y*T.nc",  VAR: mean_sosbt, TYPE: TS, SF: 1.0, OBS: "OBS/EWED_botT_mean_obs.txt"}
   WG_MLD:        {TITLE: "Max Kara MLD in WG (m)",        FILE_PATTERN: "*WMXL*1m*m09_*T.nc",    VAR: max_somxl010, TYPE: TS, SF: 1.0, OBS: "OBS/WG_karamld_max_obs.txt"}
   ICB:           {TITLE: "Total ICB Melt (Gt/y)",         FILE_PATTERN: "SH*1y*icb*.nc",         VAR: sum_berg_melt_tmask, TYPE: TS, SF: 3.1536e-5, OBS: "OBS/ANTicb_obs.txt"}
   RG:            {TITLE: "Ross Gyre Transport",           FILE_PATTERN: "*RG*1y*psi.nc",         VAR: "max_sobarstf",  SF: 1.0, TYPE: "TS" }
