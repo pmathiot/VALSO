@@ -72,7 +72,6 @@ class Run:
             raise ValueError(f"Time series not loaded for run {self.runid}")
         self.ts[var].plot(ax=ax, label=self.name, linestyle=self.line, color=self.color)
 
-    # need a print option
 
 
 class Plot:
@@ -90,6 +89,7 @@ class Plot:
         Args:
             data (dict): Dictionary containing plot configuration.
         """
+        self.name = data.get("NAME", "UNKNOWN")
         self.var = data.get("VAR", None)
         self.file_pattern = data.get("FILE_PATTERN", None)
         self.sf = data.get("SF", 1.0)
@@ -100,7 +100,7 @@ class Plot:
         self.fig_file = data.get("FIG_FILE", None)
         self.obs_file = data.get("OBS", None)
 
-    def plot_obs(self, ax):
+ #   def plot_obs(self, ax):
         """
         Plots observation data on the given axis.
 
@@ -124,6 +124,36 @@ class Plot:
         ax.fill_between(ax.get_xlim(), mean - std, mean + std, color="k", alpha=0.2)
 
     # need a print option
+
+
+class Obs:
+    """
+    Represents observation data for a specific variable.
+
+    Attributes:
+        mean (float): Mean value of the observation.
+        std (float): Standard deviation of the observation.
+        ref (str): Reference name for the observation.
+    """
+
+    def __init__(self, data):
+        """
+        Initializes an Obs object by loading data from a YAML file.
+        """
+        self.name = data["NAME"]
+        self.mean = data["MEAN"]
+        self.std = data["STD"]
+        self.ref = data.get("REF", "OBS")
+
+    def plot(self, ax):
+        """
+        Plots the observation data on the given axis.
+
+        Args:
+            ax (matplotlib.axes.Axes): Axis to plot on.
+        """
+        ax.axhline(self.mean, color="k", linestyle="--", label=f'OBS: {self.ref}')
+        ax.fill_between(ax.get_xlim(), self.mean - self.std, self.mean + self.std, color="k", alpha=0.2)
 
 
 # ===================== LOADERS =====================
@@ -189,26 +219,45 @@ def load_plots(plots_file, figs_file):
             raise ValueError(f"Plot key {key} not found in plots.yml")
         data = dict(all_plots[key])
         data.update(layout)  # add row/col info
+        data["NAME"] = key  # add the plot key as NAME
         selected.append(Plot(data))
     return selected
 
 
-def load_obs(obs_file):
+def load_obss(obss_file, figs_file):
     """
-    Loads observation data from a YAML file.
+    Loads selected plots from plots.yml database based on figs.yml selection.
 
     Args:
-        obs_file (str): Path to the observation configuration file.
+        obss_file (str): Path to the obs.yml file.
+        figs_file (str): Path to the figs.yml file.
 
     Returns:
-        dict: Observation data.
+        list: Dictionary Obs objects.
+
+    Raises:
+        ValueError: If a plot key is not found in plots.yml or figs.yml is invalid.
     """
-    data = load_yaml(obs_file)
-    return data.get("obs", {})
+    all_obss = load_yaml(obss_file).get("plots", {})
+    figs = load_yaml(figs_file).get("figs", {})
+    figs = dict(sorted(figs.items(), key=lambda item: item[0]))  # for easy unit testing
+    selected = {}
+
+    for key, _ in figs.items():
+        if key not in all_obss:
+            print(f"⚠️ Warning: Obs key {key} not found in obs.yml")
+            continue
+        try:
+            data = dict(all_obss[key])
+            data["NAME"] = key  # add the plot key as NAME
+            selected[key] = Obs(data)
+        except (FileNotFoundError, KeyError) as e:
+            print(f"⚠️ Warning: Failed to load observation for {key}: {e}")
+    return selected
 
 
 # ===================== PLOT FUNCTIONS =====================
-def plot_timeseries(ax, plot, runs):
+def plot_timeseries(ax, plot, runs, obs):
     """
     Plots time series data for the given plot configuration.
 
@@ -224,8 +273,9 @@ def plot_timeseries(ax, plot, runs):
     ax.set_title(plot.title)
     ax.grid(True)
 
-    # Use the new plot_obs method
-    plot.plot_obs(ax)
+    # Plot observations if available
+    if obs is not None:
+        obs.plot(ax)
 
 
 def plot_map(ax, plot):
@@ -284,7 +334,7 @@ def add_text(fig, text_lines, ncol=3, lvis=True):
 
 
 # ===================== MAIN FUNCTION =====================
-def main(runids, plots_cfg="plots.yml", figs_cfg="figs.yml", style_cfg="styles.yml", cdir=".", out="valso.png"):
+def main(runids, plots_cfg="plots.yml", figs_cfg="figs.yml", style_cfg="styles.yml", obss_cfg="obs.yml", cdir=".", out="valso.png"):
     """
     Main function to generate plots based on configurations.
 
@@ -298,6 +348,7 @@ def main(runids, plots_cfg="plots.yml", figs_cfg="figs.yml", style_cfg="styles.y
     """
     # load data and styles
     plots = load_plots(plots_cfg, figs_cfg)
+    obss = load_obss(obss_cfg)
     runs = load_runs(style_cfg, runids, cdir)
     for run in runs:
         print(run)
@@ -311,8 +362,9 @@ def main(runids, plots_cfg="plots.yml", figs_cfg="figs.yml", style_cfg="styles.y
     # plot each subplot
     for plot in plots:
         ax = axs[plot.row-1][plot.col-1]
+        obs = obss.get(plot.name, None)
         if plot.type == "TS":
-            plot_timeseries(ax, plot, runs)
+            plot_timeseries(ax, plot, runs, obs)
         elif plot.type == "FIG":
             plot_map(ax, plot)
 
