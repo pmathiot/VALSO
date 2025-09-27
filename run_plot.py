@@ -3,6 +3,8 @@ import glob
 import yaml
 import xarray as xr
 import pandas as pd
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
 # ===================== CLASSES =====================
@@ -29,9 +31,9 @@ class Run:
         self.line = line
         self.color = color
         self.dir = os.path.join(cdir, self.runid)
-        self.ts = None
+        self.ts = {}
 
-    def load_ts(self, plot):
+    def load_ts(self, plots):
         """
         Loads time series data for the run using a Plot object.
 
@@ -41,17 +43,18 @@ class Run:
         Returns:
             pd.DataFrame: Time series data.
         """
-        file_pattern = plot.file_pattern
-        var = plot.var
-        sf = plot.sf
-        files = glob.glob(os.path.join(self.dir, file_pattern))
-        print(self)
-        print(var, ' ', file_pattern)
-        if not files:
-            raise FileNotFoundError(f'No files match {file_pattern} in {self.dir}')
-        ds = xr.open_mfdataset(files, combine="nested", concat_dim="time_counter")
-        da = ds[var] * sf
-        self.ts = da.to_dataframe(name=self.name)
+        for plot in plots:
+            if plot.type == "TS":
+                file_pattern = plot.file_pattern
+                var = plot.var
+                sf = plot.sf
+                files = glob.glob(os.path.join(self.dir, file_pattern))
+                print(plot)
+                if not files:
+                    raise FileNotFoundError(f'No files match {file_pattern} in {self.dir}')
+                ds = xr.open_mfdataset(files, combine="nested", concat_dim="time_counter")
+                da = ds[var] * sf
+                self.ts[var] = da.to_dataframe(name=self.name)
         return self.ts
 
     def plot_ts(self, ax, var):
@@ -76,6 +79,9 @@ class Plot:
     """
     Represents a plot configuration.
     """
+
+    def __str__(self):
+        return f'Plot(var={self.var}, file_pattern={self.file_pattern}, sf={self.sf}, title={self.title})'
 
     def __init__(self, data):
         """
@@ -150,10 +156,8 @@ def load_runs(style_file, runids, cdir):
         ValueError: If a run ID is not found in the style file.
     """
     data = load_yaml(style_file).get("runs", {})
-    print(data, runids)
     runs = []
     for rid in runids:
-        print(rid)
         if rid not in data:
             raise ValueError(f"RunID {rid} not found in style file")
         info = data[rid]
@@ -295,9 +299,9 @@ def main(runids, plots_cfg="plots.yml", figs_cfg="figs.yml", style_cfg="styles.y
     # load data and styles
     plots = load_plots(plots_cfg, figs_cfg)
     runs = load_runs(style_cfg, runids, cdir)
-    for plot in plots:
-        for run in runs:
-            run.load_ts(plot)
+    for run in runs:
+        print(run)
+        run.load_ts(plots)
 
     # create subplots
     nrows = max(p.row for p in plots)
@@ -308,7 +312,7 @@ def main(runids, plots_cfg="plots.yml", figs_cfg="figs.yml", style_cfg="styles.y
     for plot in plots:
         ax = axs[plot.row-1][plot.col-1]
         if plot.type == "TS":
-            plot_timeseries(ax, plot, runs, None)
+            plot_timeseries(ax, plot, runs)
         elif plot.type == "FIG":
             plot_map(ax, plot)
 
