@@ -1,4 +1,4 @@
-figs:
+ts:
   ACC:    { ROW: 1, COL: 1 , TIME: False}
   RG:     { ROW: 1, COL: 2 , TIME: False}
   WG:     { ROW: 1, COL: 3 , TIME: False}
@@ -9,4 +9,17 @@ figs:
   EWED:   { ROW: 3, COL: 2 , TIME: True}
   WG_MLD: { ROW: 3, COL: 3 , TIME: True}
   ICB:    { ROW: 4, COL: 1 , TIME: True}
-  MAP_VALSO:    { ROW: 4, COL: 2 }
+
+map:
+  FILE: "FIGURES/VALSO_map.png"
+  POS: [4, 2] # ROW: 4, COL: 2 
+
+layout:
+  SIZE: np.array([210*4, 210*3]) / 25.4 # width, height in inches
+  SUBPLOTS: [4, 3]
+  ADJUST:  [0.04, 0.96, 0.1, 0.95, 0.1, 0.1] # left, right, bottom, top, hspace, wspace
+  DPI: 150
+
+legend:
+  NCOL: 3
+  AXES: [0.04, 0.01, 0.92, 0.06] # left, bottom, width, height

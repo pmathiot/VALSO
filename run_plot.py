@@ -166,6 +166,90 @@ class Obs:
         ax.fill_between(ax.get_xlim(), self.mean - self.std, self.mean + self.std, color="k", alpha=0.2)
 
 
+class Figure:
+    """
+    Represents a plot configuration.
+    """
+    def __init__(self, data):
+        """
+        Initializes a Figure object.
+
+        Args:
+            figs_file (str): Path to the figs.yml file.
+        """
+        self.figs = data.get("figs", {})
+        self.legend = data.get("legend", {"NCOL": 3, "AXES": [0.04, 0.01, 0.92, 0.06]})
+        self.ts = data.get("ts", {})
+        self.map = data.get("map", {})
+        self.layout = data.get("layout", {
+            "SUBPLOT": [1, 1],
+            "SIZE": [10, 8],
+            "ADJUST": [0.1, 0.9, 0.1, 0.9, 0.4, 0.4],
+            "DPI": 150
+        })
+
+
+    def plot_timeseries(self, ax, plot, runs, obs):
+        """
+        Plots time series data for the given plot configuration.
+
+        Args:
+            ax (matplotlib.axes.Axes): Axis to plot on.
+            plot (Plot): Plot configuration object.
+            runs (list): List of Run objects.
+            obs (dict): Observation data.
+            base_dir (str): Base directory for data files.
+        """
+        print(f'Plot {plot.title}')
+        for run in runs:
+            run.plot_ts(ax, plot)
+        hl, lb = ax.get_legend_handles_labels()
+        ax.set_title(plot.title, fontsize=24)
+        ax.grid(True)
+
+        # Plot observations if available
+        if obs is not None:
+            obs.plot(ax)
+
+        return hl,lb
+
+
+    def plot_map(self, axs):
+        """
+        Plots a map image for the given plot configuration.
+
+        Args:
+            ax (matplotlib.axes.Axes): Axis to plot on.
+            plot (Plot): Plot configuration object.
+
+        Raises:
+            FileNotFoundError: If the figure file does not exist.
+        """
+        img_path = self.map["FILE"]
+        if not os.path.exists(img_path):
+            raise FileNotFoundError(f"Figure file {img_path} not found")
+        img = plt.imread(img_path)
+
+        ax = axs[self.map["POS"][0]-1][self.map["POS"][1]-1]
+        ax.set_visible(True)
+        ax.imshow(img)
+        ax.axis("off")
+
+
+    def add_legend(self, fig, handles, labels, lvis=True):
+        """
+        Adds a single legend at the bottom of the figure.
+        """
+        
+        # Axes for legend
+        lax = fig.add_axes(self.legend["AXES"])
+        leg = lax.legend(handles, labels, loc='upper left', ncol=self.legend["NCOL"], fontsize=18, frameon=False)
+        for item in leg.legendHandles:
+            item.set_visible(lvis)
+        lax.set_axis_off()
+        return lax  # Return the legend axes for reference
+    
+
 # ===================== LOADERS =====================
 def load_yaml(file_path):
     """
@@ -205,7 +289,7 @@ def load_runs(style_file, runids, cdir):
     return runs
 
 
-def load_plots(plots_file, figs_file):
+def load_plots(plots_file, figure):
     """
     Loads selected plots from plots.yml database based on figs.yml selection.
 
@@ -220,8 +304,7 @@ def load_plots(plots_file, figs_file):
         ValueError: If a plot key is not found in plots.yml or figs.yml is invalid.
     """
     all_plots = load_yaml(plots_file).get("plots", {})
-    figs = load_yaml(figs_file).get("figs", {})
-    figs = dict(sorted(figs.items(), key=lambda item: item[0])) # for easy unit testing
+    figs = dict(sorted(figure.ts.items(), key=lambda item: item[0])) # for easy unit testing
     selected = []
 
     for key, layout in figs.items():
@@ -234,7 +317,7 @@ def load_plots(plots_file, figs_file):
     return selected
 
 
-def load_obss(obss_file, figs_file):
+def load_obss(obss_file, figure):
     """
     Loads selected plots from plots.yml database based on figs.yml selection.
 
@@ -249,8 +332,7 @@ def load_obss(obss_file, figs_file):
         ValueError: If a plot key is not found in plots.yml or figs.yml is invalid.
     """
     all_obss = load_yaml(obss_file).get("obs", {})
-    figs = load_yaml(figs_file).get("figs", {})
-    figs = dict(sorted(figs.items(), key=lambda item: item[0]))  # for easy unit testing
+    figs = dict(sorted(figure.ts.items(), key=lambda item: item[0]))  # for easy unit testing
     selected = {}
 
     for key, _ in figs.items():
@@ -266,62 +348,23 @@ def load_obss(obss_file, figs_file):
     return selected
 
 
-# ===================== PLOT FUNCTIONS =====================
-def plot_timeseries(ax, plot, runs, obs):
+def load_figure(figs_file):
     """
-    Plots time series data for the given plot configuration.
+    Loads selected plots from plots.yml database based on figs.yml selection.
 
     Args:
-        ax (matplotlib.axes.Axes): Axis to plot on.
-        plot (Plot): Plot configuration object.
-        runs (list): List of Run objects.
-        obs (dict): Observation data.
-        base_dir (str): Base directory for data files.
-    """
-    print(f'Plot {plot.title}')
-    for run in runs:
-        run.plot_ts(ax, plot)
-    hl, lb = ax.get_legend_handles_labels()
-    ax.set_title(plot.title, fontsize=24)
-    ax.grid(True)
+        plots_file (str): Path to the plots.yml file.
+        figs_file (str): Path to the figs.yml file.
 
-    # Plot observations if available
-    if obs is not None:
-        obs.plot(ax)
-
-    return hl,lb
-
-def plot_map(ax, plot):
-    """
-    Plots a map image for the given plot configuration.
-
-    Args:
-        ax (matplotlib.axes.Axes): Axis to plot on.
-        plot (Plot): Plot configuration object.
+    Returns:
+        list: List of Plot objects.
 
     Raises:
-        FileNotFoundError: If the figure file does not exist.
+        ValueError: If a plot key is not found in plots.yml or figs.yml is invalid.
     """
-    img_path = os.path.join(plot.fig_file)
-    if not os.path.exists(img_path):
-        raise FileNotFoundError(f"Figure file {img_path} not found")
-    img = plt.imread(img_path)
-    ax.imshow(img)
-    ax.axis("off")
-
-
-def add_legend(fig, handles, labels, ncol=3, lvis=True):
-    """
-    Adds a single legend at the bottom of the figure.
-    """
-
-    # Axes for legend
-    lax = fig.add_axes([0.04, 0.01, 0.92, 0.06])
-    leg = lax.legend(handles, labels, loc='upper left', ncol=ncol, fontsize=18, frameon=False)
-    for item in leg.legendHandles:
-        item.set_visible(lvis)
-    lax.set_axis_off()
-    return lax  # Return the legend axes for reference
+    data=load_yaml(figs_file)
+    figure = Figure(data)
+    return figure
 
 
 # ===================== MAIN FUNCTION =====================
@@ -338,17 +381,17 @@ def main(runids, plots_cfg="plots.yml", figs_cfg="figs.yml", style_cfg="styles.y
         out (str): Output file name for the generated plot.
     """
     # load data and styles
-    plots = load_plots(plots_cfg, figs_cfg)
-    obss = load_obss(obss_cfg, figs_cfg)
+    figure = load_figure(figs_cfg)
+    plots = load_plots(plots_cfg, figure)
+    obss = load_obss(obss_cfg, figure)
     runs = load_runs(style_cfg, runids, cdir)
+
     for run in runs:
         print(run)
         run.load_ts(plots)
 
     # create subplots
-    nrows = max(p.row for p in plots)
-    ncols = max(p.col for p in plots)
-    fig, axs = plt.subplots(nrows, ncols, figsize=np.array([210*ncols, 210*nrows]) / 25.4, squeeze=False)
+    fig, axs = plt.subplots(figure.layout["SUBPLOT"][0], figure.layout["SUBPLOT"][1], figsize=figure.layout["SIZE"], squeeze=False)
     for ax in axs.flat:
         ax.set_visible(False)
 
@@ -356,17 +399,29 @@ def main(runids, plots_cfg="plots.yml", figs_cfg="figs.yml", style_cfg="styles.y
     for plot in plots:
         ax = axs[plot.row-1][plot.col-1]
         ax.set_visible(True)
+
         obs = obss.get(plot.name, None)
+
         if plot.type == "TS":
-            hl,lb = plot_timeseries(ax, plot, runs, obs)
-        #elif plot.type == "FIG":
-            #plot_map(ax, plot)
+            hl,lb = figure.plot_timeseries(ax, plot, runs, obs)
+
+ #   if figure.map:
+ #       figure.plot_map(ax, plot)
 
     # finalize and save
-    plt.subplots_adjust(left=0.04, right=0.96, bottom=0.1, top=0.95, wspace=0.1, hspace=0.1)
-    add_legend(fig, hl, lb, ncol=3, lvis=True)
-    plt.savefig(out, dpi=150)
+    plt.subplots_adjust(left=figure.layout["ADJUST"][0],
+                        right=figure.layout["ADJUST"][1],
+                        bottom=figure.layout["ADJUST"][2],
+                        top=figure.layout["ADJUST"][3],
+                        wspace=figure.layout["ADJUST"][4],
+                        hspace=figure.layout["ADJUST"][5])
+
+    figure.add_legend(fig, hl, lb, lvis=True)
+
+    plt.savefig(out, dpi=figure.layout["DPI"], bbox_inches='tight')
+
     print(f"✅ Saved {out}")
+
     plt.show()
 
 
