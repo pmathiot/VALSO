@@ -401,6 +401,7 @@ def main(runids, plots_cfg="plots.yml", figs_cfg="figs.yml", style_cfg="styles.y
     ncols = figure.layout["SUBPLOT"][1]
     figsize=np.array([figure.layout["SIZE"][0]*ncols,figure.layout["SIZE"][1]*nrows])/25.4  # width, height
     fig, axs = plt.subplots(nrows, ncols, figsize=figsize, squeeze=False)
+
     for ax in axs.flat:
         ax.set_visible(False)
 
