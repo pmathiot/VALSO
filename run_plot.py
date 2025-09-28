@@ -1,5 +1,5 @@
 import os
-#import numpy as np
+import numpy as np
 import glob
 import yaml
 import xarray as xr
@@ -397,7 +397,10 @@ def main(runids, plots_cfg="plots.yml", figs_cfg="figs.yml", style_cfg="styles.y
         run.load_ts(plots)
 
     # Create subplots
-    fig, axs = plt.subplots(figure.layout["SUBPLOT"][0], figure.layout["SUBPLOT"][1], figsize=figure.layout["SIZE"], squeeze=False)
+    nrows = figure.layout["SUBPLOT"][0]
+    ncols = figure.layout["SUBPLOT"][1]
+    figsize=np.array([figure.layout["SIZE"][0]*ncols,figure.layout["SIZE"][1]*nrows])/25.4  # width, height
+    fig, axs = plt.subplots(nrows, ncols, figsize=figsize, squeeze=False)
     for ax in axs.flat:
         ax.set_visible(False)
 
@@ -408,10 +411,11 @@ def main(runids, plots_cfg="plots.yml", figs_cfg="figs.yml", style_cfg="styles.y
 
         obs = obss.get(plot.name, None)
 
-        if plot.type == "TS":
-            hl, lb = figure.plot_timeseries(ax, plot, runs, obs)
+        hl, lb = figure.plot_timeseries(ax, plot, runs, obs)
 
     # Finalize and save
+    figure.plot_map(axs)
+
     plt.subplots_adjust(left=figure.layout["ADJUST"][0],
                         right=figure.layout["ADJUST"][1],
                         bottom=figure.layout["ADJUST"][2],

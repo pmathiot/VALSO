@@ -11,13 +11,13 @@ ts:
   ICB:    { ROW: 4, COL: 1 , TIME: True}
 
 map:
-  FILE: "FIGURES/VALSO_map.png"
+  FILE: "FIGURES/box_VALSO.png"
   POS: [4, 2] # ROW: 4, COL: 2 
 
 layout:
-  SIZE: np.array([210*4, 210*3]) / 25.4 # width, height in inches
-  SUBPLOTS: [4, 3]
-  ADJUST:  [0.04, 0.96, 0.1, 0.95, 0.1, 0.1] # left, right, bottom, top, hspace, wspace
+  SIZE: [210, 210] # size of one subplot (width, height) 
+  SUBPLOT: [4, 3] # nrows, ncols
+  ADJUST:  [0.04, 0.96, 0.1, 0.95, 0.15, 0.15] # left, right, bottom, top, hspace, wspace
   DPI: 150
 
 legend:
