@@ -17,7 +17,7 @@ map:
 layout:
   SIZE: [210, 210] # size of one subplot (width, height) 
   SUBPLOT: [4, 3] # nrows, ncols
-  ADJUST:  [0.04, 0.96, 0.1, 0.95, 0.15, 0.15] # left, right, bottom, top, hspace, wspace
+  ADJUST:  [0.04, 0.96, 0.1, 0.95, 0.2, 0.2] # left, right, bottom, top, hspace, wspace
   DPI: 150
 
 legend:

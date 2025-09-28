@@ -149,6 +149,9 @@ class Obs:
     def __init__(self, data):
         """
         Initializes an Obs object by loading data from a YAML file.
+
+        Args:
+            data (dict): Dictionary containing observation data.
         """
         self.name = data["NAME"]
         self.mean = data["MEAN"]
@@ -163,7 +166,10 @@ class Obs:
             ax (matplotlib.axes.Axes): Axis to plot on.
         """
         ax.axhline(self.mean, color="k", linestyle="--", label=f'OBS: {self.ref}')
-        ax.fill_between(ax.get_xlim(), self.mean - self.std, self.mean + self.std, color="k", alpha=0.2)
+        ax.fill_betweenx([self.mean - self.std, self.mean + self.std], 0, 1, color="k", alpha=0.2)
+        ax.set_xlim(0, 1)
+        ax.set_xticks([])
+        ax.set_yticks([])
 
 
 class Figure:
@@ -375,7 +381,7 @@ def load_figure(figs_file):
 # ===================== MAIN FUNCTION =====================
 def main(runids, plots_cfg="plots.yml", figs_cfg="figs.yml", style_cfg="styles.yml", obss_cfg="obs.yml", cdir=".", out="valso.png"):
     """
-    Main function to generate plots based on configurations.
+    Main function to generate plots with additional axes for observations.
 
     Args:
         runids (list): List of run IDs to process.
@@ -399,7 +405,7 @@ def main(runids, plots_cfg="plots.yml", figs_cfg="figs.yml", style_cfg="styles.y
     # Create subplots
     nrows = figure.layout["SUBPLOT"][0]
     ncols = figure.layout["SUBPLOT"][1]
-    figsize=np.array([figure.layout["SIZE"][0]*ncols,figure.layout["SIZE"][1]*nrows])/25.4  # width, height
+    figsize = np.array([figure.layout["SIZE"][0] * ncols, figure.layout["SIZE"][1] * nrows]) / 25.4  # width, height
     fig, axs = plt.subplots(nrows, ncols, figsize=figsize, squeeze=False)
 
     for ax in axs.flat:
@@ -407,12 +413,22 @@ def main(runids, plots_cfg="plots.yml", figs_cfg="figs.yml", style_cfg="styles.y
 
     # Plot each subplot
     for plot in plots:
-        ax = axs[plot.row-1][plot.col-1]
+        ax = axs[plot.row - 1][plot.col - 1]
         ax.set_visible(True)
 
         obs = obss.get(plot.name, None)
 
+        # Plot time series in the main axis
         hl, lb = figure.plot_timeseries(ax, plot, runs, obs)
+
+        # Add an additional axis for observations to the right
+        x0, y0, width, height = ax.get_position().bounds
+        obs_ax = fig.add_axes([x0 + width + 0.02, y0, 0.05, height])  # Adjust the position and width
+        obs_ax.set_visible(True)
+
+        # Use the Obs class's plot method
+        if obs is not None:
+            obs.plot(obs_ax)
 
     # Finalize and save
     figure.plot_map(axs)
