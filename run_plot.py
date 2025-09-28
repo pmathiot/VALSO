@@ -98,6 +98,9 @@ class Run:
             raise ValueError(f"Time series not loaded for run {self.runid}")
         self.ts[plot.var].plot(ax=ax, legend=False, label=self.name, linestyle=self.line, color=self.color)
 
+        rmin  = self.ts[plot.var].values.min()
+        rmax  = self.ts[plot.var].values.max()
+
         # set x axis
         ax.tick_params(axis='both', labelsize=18)
         if (not plot.time):
@@ -107,6 +110,8 @@ class Run:
         for lt in ax.get_xticklabels():
             lt.set_ha('center')
         ax.set_xlabel('')
+
+        return rmin, rmax
 
 
 class Plot:
@@ -134,6 +139,8 @@ class Plot:
         self.time = data.get("TIME", False)
         self.type = data.get("TYPE", "TS").upper()  # TS = time series, FIG = figure
         self.fig_file = data.get("FIG_FILE", None)
+        self.ymin = 99999.0
+        self.ymax = -99999.0
 
 
 class Obs:
@@ -158,18 +165,19 @@ class Obs:
         self.std = data["STD"]
         self.ref = data.get("REF", "OBS")
 
-    def plot(self, ax):
+    def plot(self, ax, plot):
         """
         Plots the observation data on the given axis.
 
         Args:
             ax (matplotlib.axes.Axes): Axis to plot on.
         """
-        ax.axhline(self.mean, color="k", linestyle="--", label=f'OBS: {self.ref}')
-        ax.fill_betweenx([self.mean - self.std, self.mean + self.std], 0, 1, color="k", alpha=0.2)
-        ax.set_xlim(0, 1)
+        plt.errorbar(0, self.mean, yerr=self.std, fmt='*', markeredgecolor='k', markersize=8, color='k', linewidth=2)
+        ax.set_xlim([-1, 1])
+        ax.set_ylim([plot.ymin, plot.ymax])
         ax.set_xticks([])
-        ax.set_yticks([])
+        ax.set_yticklabels([])
+        ax.grid()
 
 
 class Figure:
@@ -195,7 +203,7 @@ class Figure:
         })
 
 
-    def plot_timeseries(self, ax, plot, runs, obs):
+    def plot_timeseries(self, ax, plot, runs):
         """
         Plots time series data for the given plot configuration.
 
@@ -203,23 +211,26 @@ class Figure:
             ax (matplotlib.axes.Axes): Axis to plot on.
             plot (Plot): Plot configuration object.
             runs (list): List of Run objects containing time series data.
-            obs (Obs): Observation data for the plot.
 
         Returns:
             tuple: Handles and labels for the legend.
         """
         print(f'Plot {plot.title}')
+        rmin =  99999.0
+        rmax = -99999.0
         for run in runs:
-            run.plot_ts(ax, plot)
+            zmin, zmax = run.plot_ts(ax, plot)
+            rmin = min(rmin,zmin)
+            rmax = max(rmax,zmax)
+        rrange = rmax-rmin
+        rmin = rmin - 0.05*rrange
+        rmax = rmax + 0.05*rrange
+
+        ax.set_ylim([rmin, rmax])
         hl, lb = ax.get_legend_handles_labels()
         ax.set_title(plot.title, fontsize=24)
         ax.grid(True)
-
-        # Plot observations if available
-        if obs is not None:
-            obs.plot(ax)
-
-        return hl, lb
+        return hl, lb, rmin, rmax
 
 
     def plot_map(self, axs):
@@ -419,18 +430,8 @@ def main(runids, plots_cfg="plots.yml", figs_cfg="figs.yml", style_cfg="styles.y
         obs = obss.get(plot.name, None)
 
         # Plot time series in the main axis
-        hl, lb = figure.plot_timeseries(ax, plot, runs, obs)
+        hl, lb, plot.ymin, plot.ymax = figure.plot_timeseries(ax, plot, runs)
 
-        # Add an additional axis for observations to the right
-        x0, y0, width, height = ax.get_position().bounds
-        obs_ax = fig.add_axes([x0 + width + 0.02, y0, 0.05, height])  # Adjust the position and width
-        obs_ax.set_visible(True)
-
-        # Use the Obs class's plot method
-        if obs is not None:
-            obs.plot(obs_ax)
-
-    # Finalize and save
     figure.plot_map(axs)
 
     plt.subplots_adjust(left=figure.layout["ADJUST"][0],
@@ -439,14 +440,32 @@ def main(runids, plots_cfg="plots.yml", figs_cfg="figs.yml", style_cfg="styles.y
                         top=figure.layout["ADJUST"][3],
                         wspace=figure.layout["ADJUST"][4],
                         hspace=figure.layout["ADJUST"][5])
+    
+    for plot in plots:
+        ax = axs[plot.row - 1][plot.col - 1]
+        ax.set_visible(True)
+
+        obs = obss.get(plot.name, None)
+
+        # Add an additional axis for observations to the right
+        x0 = ax.get_position().x1
+        x1 = x0 + 0.02
+        y0 = ax.get_position().y0
+        y1 = ax.get_position().y1
+        obs_ax = plt.axes([x0+0.005, y0, x1-x0, y1-y0])
+        obs_ax.set_visible(True)
+
+        # Use the Obs class's plot method
+        if obs is not None:
+            obs.plot(obs_ax, plot)
+
+    # Finalize and save
 
     figure.add_legend(fig, hl, lb, lvis=True)
 
     plt.savefig(out, dpi=figure.layout["DPI"], bbox_inches='tight')
 
     print(f"✅ Saved {out}")
-
-    plt.show()
 
 
 # ===================== ENTRY POINT =====================

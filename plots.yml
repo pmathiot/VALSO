@@ -24,8 +24,8 @@ plots:
   EWED:          {TITLE: "Mean bot. temp. EWED (°C)",     FILE_PATTERN: "*EWED*thetao*1y*T.nc",  VAR: mean_sosbt, TYPE: TS, SF: 1.0, OBS: "OBS/EWED_botT_mean_obs.txt"}
   WG_MLD:        {TITLE: "Max Kara MLD in WG (m)",        FILE_PATTERN: "*WMXL*1m*m09_*T.nc",    VAR: max_somxl010, TYPE: TS, SF: 1.0, OBS: "OBS/WG_karamld_max_obs.txt"}
   ICB:           {TITLE: "Total ICB Melt (Gt/y)",         FILE_PATTERN: "SH*1y*icb*.nc",         VAR: sum_berg_melt_tmask, TYPE: TS, SF: 3.1536e-5, OBS: "OBS/ANTicb_obs.txt"}
-  RG:            {TITLE: "Ross Gyre Transport",           FILE_PATTERN: "*RG*1y*psi.nc",         VAR: "max_sobarstf",  SF: 1.0, TYPE: "TS" }
-  WG:            {TITLE: "Weddell Gyre Transport",        FILE_PATTERN: "*WG*1y*psi.nc",       VAR: "max_sobarstf", SF: 1.0, TYPE: "TS" } 
+  RG:            {TITLE: "Ross Gyre Transport",           FILE_PATTERN: "*RG*1y*psi.nc",         VAR: "max_sobarstf",  SF: 0.000001, TYPE: "TS" }
+  WG:            {TITLE: "Weddell Gyre Transport",        FILE_PATTERN: "*WG*1y*psi.nc",       VAR: "max_sobarstf", SF: 0.000001, TYPE: "TS" } 
   MAP_VALSO:     {TITLE: "Reference Map VALSO",           FILE_PATTERN: "FIGURES/box_VALSO.png",  TYPE: FIG}
   MAP_VALAMU:    {TITLE: "Reference Map VALAMU",          FILE_PATTERN: "FIGURES/box_VALAMU.png", TYPE: FIG}
   MAP_VALGLO:    {TITLE: "Reference Map VALGLO",          FILE_PATTERN: "FIGURES/box_VALGLO.png", TYPE: FIG}
