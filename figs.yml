@@ -1,3 +1,6 @@
+description:
+  NAME: VALSO
+
 ts:
   ACC:    { ROW: 1, COL: 1 , TIME: False}
   RG:     { ROW: 1, COL: 2 , TIME: False}

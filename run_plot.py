@@ -23,7 +23,7 @@ class Run:
     """
 
     def __str__(self):
-        return f'Run(runid={self.runid}, name={self.name}, line={self.line}, color={self.color}, dir={self.dir})'
+        return f'    Run(runid={self.runid}, name={self.name}, line={self.line}, color={self.color}, dir={self.dir})'
 
     def __init__(self, cdir, runid, name, line="-", color="black"):
         """
@@ -120,7 +120,7 @@ class Plot:
     """
 
     def __str__(self):
-        return f'    Plot(var={self.var}, file_pattern={self.file_pattern}, sf={self.sf}, title={self.title}, loc={self.row}|{self.col})'
+        return f'        Plot(var={self.var}, file_pattern={self.file_pattern}, sf={self.sf}, title={self.title}, loc={self.row}|{self.col})'
 
     def __init__(self, data):
         """
@@ -153,7 +153,7 @@ class Plot:
         Returns:
             tuple: Handles and labels for the legend.
         """
-        print(f'Plot {self.title}')
+        print(f'    Plot {self.title}')
         rmin = 99999.0
         rmax = -99999.0
         for run in runs:
@@ -209,6 +209,15 @@ class Obs:
         self.std = data["STD"]
         self.ref = data.get("REF", "OBS")
 
+    def __str__(self):
+        """
+        Returns a string representation of the Obs object.
+
+        Returns:
+            str: String representation of the observation data.
+        """
+        return f"    Obs(name={self.name}, mean={self.mean}, std={self.std}, ref={self.ref})"
+
 
 class Figure:
     """
@@ -221,7 +230,7 @@ class Figure:
         Args:
             data (dict): Data loaded from figs.yml containing figure configuration.
         """
-        self.figs = data.get("figs", {})
+        self.description = data.get("description", {"NAME": "VALSO"})
         self.legend = data.get("legend", {"NCOL": 3, "AXES": [0.04, 0.01, 0.92, 0.06]})
         self.ts = data.get("ts", {})
         self.map = data.get("map", {})
@@ -232,6 +241,20 @@ class Figure:
             "DPI": 150
         })
 
+    def __str__(self):
+        """
+        Returns a string representation of the Figure object.
+
+        Returns:
+            str: String representation of the figure configuration.
+        """
+        return (
+            f"Figure(description={self.description}, "
+            f"legend={self.legend}, "
+            f"layout={self.layout}, "
+            f"ts_keys={list(self.ts.keys())}, "
+            f"map={self.map})"
+        )
 
     def plot_map(self, axs):
         """
