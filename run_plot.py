@@ -153,7 +153,6 @@ class Plot:
         Returns:
             tuple: Handles and labels for the legend.
         """
-        print(f'    Plot {self.title}')
         rmin = 99999.0
         rmax = -99999.0
         for run in runs:
@@ -250,8 +249,6 @@ class Figure:
         """
         return (
             f"Figure(description={self.description}, "
-            f"legend={self.legend}, "
-            f"layout={self.layout}, "
             f"ts_keys={list(self.ts.keys())}, "
             f"map={self.map})"
         )
@@ -310,6 +307,8 @@ class Figure:
             out (str): Output file name for the generated plot.
         """
         print(f"🔄 Generating figure: {out}")
+        print(self)
+        print('')
         plots = load_plots(plots_cfg, self)
         obss = load_obss(obss_cfg, self)
         runs = load_runs(style_cfg, runids, cdir)
@@ -338,18 +337,7 @@ class Figure:
 
             # Plot time series in the main axis
             hl, lb = plot.plot_timeseries(ax, runs)
-            all_handles.extend(hl)
-            all_labels.extend(lb)
 
-            # Add an additional axis for observations to the right
-            x0, y0, width, height = ax.get_position().bounds
-            obs_ax = fig.add_axes([x0 + width + 0.02, y0, 0.05, height])  # Adjust the position and width
-            obs_ax.set_visible(True)
-
-            # Plot observations in the additional axis
-            plot.plot_observation(obs_ax, obs)
-
-        # Finalize and save
         self.plot_map(axs)
 
         plt.subplots_adjust(left=self.layout["ADJUST"][0],
@@ -359,10 +347,30 @@ class Figure:
                             wspace=self.layout["ADJUST"][4],
                             hspace=self.layout["ADJUST"][5])
 
-        self.add_legend(fig, all_handles, all_labels, lvis=True)
+        for plot in plots:
+            ax = axs[plot.row - 1][plot.col - 1]
+            ax.set_visible(True)
+    
+            obs = obss.get(plot.name, None)
+    
+            # Add an additional axis for observations to the right
+            x0 = ax.get_position().x1
+            x1 = x0 + 0.02
+            y0 = ax.get_position().y0
+            y1 = ax.get_position().y1
+            obs_ax = plt.axes([x0+0.005, y0, x1-x0, y1-y0])
+            obs_ax.set_visible(True)
+    
+            # Use the Obs class's plot method
+            if obs is not None:
+                plot.plot_observation(obs_ax, obs)
+
+        # Finalize and save
+        self.add_legend(fig, hl, lb, lvis=True)
 
         plt.savefig(out, dpi=self.layout["DPI"], bbox_inches='tight')
         print(f"✅ Saved {out}")
+        print('')
 
         plt.close(fig)
 
