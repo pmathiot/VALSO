@@ -142,6 +142,50 @@ class Plot:
         self.ymin = 99999.0
         self.ymax = -99999.0
 
+    def plot_timeseries(self, ax, runs):
+        """
+        Plots time series data for the given plot configuration.
+
+        Args:
+            ax (matplotlib.axes.Axes): Axis to plot on.
+            runs (list): List of Run objects containing time series data.
+
+        Returns:
+            tuple: Handles and labels for the legend.
+        """
+        print(f'Plot {self.title}')
+        rmin = 99999.0
+        rmax = -99999.0
+        for run in runs:
+            zmin, zmax = run.plot_ts(ax, self)
+            rmin = min(rmin, zmin)
+            rmax = max(rmax, zmax)
+        rrange = rmax - rmin
+        self.ymin = rmin - 0.05 * rrange
+        self.ymax = rmax + 0.05 * rrange
+
+        ax.set_ylim([self.ymin, self.ymax])
+        hl, lb = ax.get_legend_handles_labels()
+        ax.set_title(self.title, fontsize=24)
+        ax.grid(True)
+        return hl, lb
+
+    def plot_observation(self, ax, obs):
+        """
+        Plots observation data for the given plot configuration.
+
+        Args:
+            ax (matplotlib.axes.Axes): Axis to plot on.
+            obs (Obs): Observation data for the plot.
+        """
+        if obs is not None:
+            plt.errorbar(0, obs.mean, yerr=obs.std, fmt='*', markeredgecolor='k', markersize=8, color='k', linewidth=2)
+            ax.set_xlim([-1, 1])
+            ax.set_ylim([self.ymin, self.ymax])
+            ax.set_xticks([])
+            ax.set_yticklabels([])
+            ax.grid()
+
 
 class Obs:
     """
@@ -165,20 +209,6 @@ class Obs:
         self.std = data["STD"]
         self.ref = data.get("REF", "OBS")
 
-    def plot(self, ax, plot):
-        """
-        Plots the observation data on the given axis.
-
-        Args:
-            ax (matplotlib.axes.Axes): Axis to plot on.
-        """
-        plt.errorbar(0, self.mean, yerr=self.std, fmt='*', markeredgecolor='k', markersize=8, color='k', linewidth=2)
-        ax.set_xlim([-1, 1])
-        ax.set_ylim([plot.ymin, plot.ymax])
-        ax.set_xticks([])
-        ax.set_yticklabels([])
-        ax.grid()
-
 
 class Figure:
     """
@@ -201,36 +231,6 @@ class Figure:
             "ADJUST": [0.1, 0.9, 0.1, 0.9, 0.4, 0.4],
             "DPI": 150
         })
-
-
-    def plot_timeseries(self, ax, plot, runs):
-        """
-        Plots time series data for the given plot configuration.
-
-        Args:
-            ax (matplotlib.axes.Axes): Axis to plot on.
-            plot (Plot): Plot configuration object.
-            runs (list): List of Run objects containing time series data.
-
-        Returns:
-            tuple: Handles and labels for the legend.
-        """
-        print(f'Plot {plot.title}')
-        rmin =  99999.0
-        rmax = -99999.0
-        for run in runs:
-            zmin, zmax = run.plot_ts(ax, plot)
-            rmin = min(rmin,zmin)
-            rmax = max(rmax,zmax)
-        rrange = rmax-rmin
-        rmin = rmin - 0.05*rrange
-        rmax = rmax + 0.05*rrange
-
-        ax.set_ylim([rmin, rmax])
-        hl, lb = ax.get_legend_handles_labels()
-        ax.set_title(plot.title, fontsize=24)
-        ax.grid(True)
-        return hl, lb, rmin, rmax
 
 
     def plot_map(self, axs):
@@ -273,6 +273,75 @@ class Figure:
             item.set_visible(lvis)
         lax.set_axis_off()
         return lax
+
+    def generate(self, runids, plots_cfg, style_cfg, obss_cfg, cdir=".", out="output.png"):
+        """
+        Generates a single figure based on the current configuration.
+
+        Args:
+            runids (list): List of run IDs to process.
+            plots_cfg (str): Path to the plot configuration file.
+            style_cfg (str): Path to the style configuration file.
+            obss_cfg (str): Path to the observation configuration file.
+            cdir (str): Base directory for data files.
+            out (str): Output file name for the generated plot.
+        """
+        print(f"🔄 Generating figure: {out}")
+        plots = load_plots(plots_cfg, self)
+        obss = load_obss(obss_cfg, self)
+        runs = load_runs(style_cfg, runids, cdir)
+
+        for run in runs:
+            print(run)
+            run.load_ts(plots)
+
+        # Create subplots
+        nrows = self.layout["SUBPLOT"][0]
+        ncols = self.layout["SUBPLOT"][1]
+        figsize = np.array([self.layout["SIZE"][0] * ncols, self.layout["SIZE"][1] * nrows]) / 25.4  # width, height
+        fig, axs = plt.subplots(nrows, ncols, figsize=figsize, squeeze=False)
+
+        for ax in axs.flat:
+            ax.set_visible(False)
+
+        # Plot each subplot
+        all_handles = []
+        all_labels = []
+        for plot in plots:
+            ax = axs[plot.row - 1][plot.col - 1]
+            ax.set_visible(True)
+
+            obs = obss.get(plot.name, None)
+
+            # Plot time series in the main axis
+            hl, lb = plot.plot_timeseries(ax, runs)
+            all_handles.extend(hl)
+            all_labels.extend(lb)
+
+            # Add an additional axis for observations to the right
+            x0, y0, width, height = ax.get_position().bounds
+            obs_ax = fig.add_axes([x0 + width + 0.02, y0, 0.05, height])  # Adjust the position and width
+            obs_ax.set_visible(True)
+
+            # Plot observations in the additional axis
+            plot.plot_observation(obs_ax, obs)
+
+        # Finalize and save
+        self.plot_map(axs)
+
+        plt.subplots_adjust(left=self.layout["ADJUST"][0],
+                            right=self.layout["ADJUST"][1],
+                            bottom=self.layout["ADJUST"][2],
+                            top=self.layout["ADJUST"][3],
+                            wspace=self.layout["ADJUST"][4],
+                            hspace=self.layout["ADJUST"][5])
+
+        self.add_legend(fig, all_handles, all_labels, lvis=True)
+
+        plt.savefig(out, dpi=self.layout["DPI"], bbox_inches='tight')
+        print(f"✅ Saved {out}")
+
+        plt.close(fig)
 
 
 # ===================== LOADERS =====================
@@ -390,82 +459,23 @@ def load_figure(figs_file):
 
 
 # ===================== MAIN FUNCTION =====================
-def main(runids, plots_cfg="plots.yml", figs_cfg="figs.yml", style_cfg="styles.yml", obss_cfg="obs.yml", cdir=".", out="valso.png"):
+def main(runids, plots_cfg="plots.yml", figs_cfgs=["figs.yml"], style_cfg="styles.yml", obss_cfg="obs.yml", cdir=".", outs=["valso.png"]):
     """
     Main function to generate plots with additional axes for observations.
 
     Args:
         runids (list): List of run IDs to process.
         plots_cfg (str): Path to the plot configuration file.
-        figs_cfg (str): Path to the figs.yml file.
+        figs_cfgs (list): List of paths to figs.yml files.
         style_cfg (str): Path to the style configuration file.
         obss_cfg (str): Path to the observation configuration file.
         cdir (str): Base directory for data files.
-        out (str): Output file name for the generated plot.
+        outs (list): List of output file names for the generated plots.
     """
-    # Load data and styles
-    figure = load_figure(figs_cfg)
-    plots = load_plots(plots_cfg, figure)
-    obss = load_obss(obss_cfg, figure)
-    runs = load_runs(style_cfg, runids, cdir)
-
-    for run in runs:
-        print(run)
-        run.load_ts(plots)
-
-    # Create subplots
-    nrows = figure.layout["SUBPLOT"][0]
-    ncols = figure.layout["SUBPLOT"][1]
-    figsize = np.array([figure.layout["SIZE"][0] * ncols, figure.layout["SIZE"][1] * nrows]) / 25.4  # width, height
-    fig, axs = plt.subplots(nrows, ncols, figsize=figsize, squeeze=False)
-
-    for ax in axs.flat:
-        ax.set_visible(False)
-
-    # Plot each subplot
-    for plot in plots:
-        ax = axs[plot.row - 1][plot.col - 1]
-        ax.set_visible(True)
-
-        obs = obss.get(plot.name, None)
-
-        # Plot time series in the main axis
-        hl, lb, plot.ymin, plot.ymax = figure.plot_timeseries(ax, plot, runs)
-
-    figure.plot_map(axs)
-
-    plt.subplots_adjust(left=figure.layout["ADJUST"][0],
-                        right=figure.layout["ADJUST"][1],
-                        bottom=figure.layout["ADJUST"][2],
-                        top=figure.layout["ADJUST"][3],
-                        wspace=figure.layout["ADJUST"][4],
-                        hspace=figure.layout["ADJUST"][5])
-    
-    for plot in plots:
-        ax = axs[plot.row - 1][plot.col - 1]
-        ax.set_visible(True)
-
-        obs = obss.get(plot.name, None)
-
-        # Add an additional axis for observations to the right
-        x0 = ax.get_position().x1
-        x1 = x0 + 0.02
-        y0 = ax.get_position().y0
-        y1 = ax.get_position().y1
-        obs_ax = plt.axes([x0+0.005, y0, x1-x0, y1-y0])
-        obs_ax.set_visible(True)
-
-        # Use the Obs class's plot method
-        if obs is not None:
-            obs.plot(obs_ax, plot)
-
-    # Finalize and save
-
-    figure.add_legend(fig, hl, lb, lvis=True)
-
-    plt.savefig(out, dpi=figure.layout["DPI"], bbox_inches='tight')
-
-    print(f"✅ Saved {out}")
+    for figs_cfg, out in zip(figs_cfgs, outs):
+        # Load data and styles
+        figure = load_figure(figs_cfg)
+        figure.generate(runids, plots_cfg, style_cfg, obss_cfg, cdir, out)
 
 
 # ===================== ENTRY POINT =====================
@@ -474,9 +484,19 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate plots for validation and observation data.")
     parser.add_argument("-runid", nargs="+", required=True, help="List of run IDs to process.")
     parser.add_argument("-plots", default="plots.yml", help="Path to the full plots database.")
-    parser.add_argument("-figs", default="figs.yml", help="Path to the selection figs.yml.")
+    parser.add_argument("-figs", nargs="+", required=True, help="List of paths to figs.yml files.")
     parser.add_argument("-style", default="styles.yml", help="Path to the style configuration file.")
+    parser.add_argument("-obs", default="obs.yml", help="Path to the observation configuration file.")
     parser.add_argument("-dir", default=".", help="Base directory for data files.")
-    parser.add_argument("-out", default="valso.png", help="Output file name for the generated plot.")
+    parser.add_argument("-outs", nargs="+", required=True, help="List of output file names for the generated plots.")
     args = parser.parse_args()
-    main(args.runid, plots_cfg=args.plots, figs_cfg=args.figs, style_cfg=args.style, obss_cfg="obs.yml", cdir=args.dir, out=args.out)
+
+    main(
+        runids=args.runid,
+        plots_cfg=args.plots,
+        figs_cfgs=args.figs,
+        style_cfg=args.style,
+        obss_cfg=args.obs,
+        cdir=args.dir,
+        outs=args.outs
+    )
