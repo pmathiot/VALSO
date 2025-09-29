@@ -53,33 +53,32 @@ class Run:
             pd.DataFrame: Time series data.
         """
         for plot in plots:
-            if plot.type == "TS":
-                file_pattern = plot.file_pattern
-                var = plot.var
-                sf = plot.sf
-                files = glob.glob(os.path.join(self.dir, file_pattern))
-                print(plot)
-                if not files:
-                    raise FileNotFoundError(f'No files match {file_pattern} in {self.dir}')
+            file_pattern = plot.file_pattern
+            var = plot.var
+            sf = plot.sf
+            files = glob.glob(os.path.join(self.dir, file_pattern))
+            print(plot)
+            if not files:
+                raise FileNotFoundError(f'No files match {file_pattern} in {self.dir}')
 
-                # opne data
-                try:
-                    ctime = 'time_centered'
-                    ds=xr.open_mfdataset(files, parallel=True, concat_dim='time_counter',combine='nested').sortby(ctime)
-                except:
-                    ctime = 'time_counter'
-                    ds=xr.open_mfdataset(files, parallel=True, concat_dim='time_counter',combine='nested').sortby(ctime)
+            # opne data
+            try:
+                ctime = 'time_centered'
+                ds=xr.open_mfdataset(files, parallel=True, concat_dim='time_counter',combine='nested').sortby(ctime)
+            except:
+                ctime = 'time_counter'
+                ds=xr.open_mfdataset(files, parallel=True, concat_dim='time_counter',combine='nested').sortby(ctime)
 
-                # build data array
-                da=xr.DataArray(ds[var].values.squeeze()*sf, [(ctime, ds[ctime].values)], name=self.name)
+            # build data array
+            da=xr.DataArray(ds[var].values.squeeze()*sf, [(ctime, ds[ctime].values)], name=self.name)
 
-                # manage time
-                try:
-                    da[ctime] = pd.to_datetime(da.indexes[ctime])
-                except:
-                    da[ctime] = da.indexes[ctime].to_datetimeindex()
+            # manage time
+            try:
+                da[ctime] = pd.to_datetime(da.indexes[ctime])
+            except:
+                da[ctime] = da.indexes[ctime].to_datetimeindex()
 
-                self.ts[var] = da.to_dataframe(name=self.name)
+            self.ts[var] = da.to_dataframe(name=self.name)
 
         return self.ts
 
@@ -137,7 +136,6 @@ class Plot:
         self.row = data.get("ROW", 1)
         self.col = data.get("COL", 1)
         self.time = data.get("TIME", False)
-        self.type = data.get("TYPE", "TS").upper()  # TS = time series, FIG = figure
         self.fig_file = data.get("FIG_FILE", None)
         self.ymin = 99999.0
         self.ymax = -99999.0
@@ -177,7 +175,20 @@ class Plot:
             ax (matplotlib.axes.Axes): Axis to plot on.
             obs (Obs): Observation data for the plot.
         """
+
+    
         if obs is not None:
+            # Add an additional axis for observations to the right
+            x0 = ax.get_position().x1
+            x1 = x0 + 0.02
+            y0 = ax.get_position().y0
+            y1 = ax.get_position().y1
+
+            # define axes for observation
+            obs_ax = plt.axes([x0+0.005, y0, x1-x0, y1-y0])
+            obs_ax.set_visible(True)
+
+            # plot observation
             plt.errorbar(0, obs.mean, yerr=obs.std, fmt='*', markeredgecolor='k', markersize=8, color='k', linewidth=2)
             ax.set_xlim([-1, 1])
             ax.set_ylim([self.ymin, self.ymax])
@@ -353,17 +364,7 @@ class Figure:
     
             obs = obss.get(plot.name, None)
     
-            # Add an additional axis for observations to the right
-            x0 = ax.get_position().x1
-            x1 = x0 + 0.02
-            y0 = ax.get_position().y0
-            y1 = ax.get_position().y1
-            obs_ax = plt.axes([x0+0.005, y0, x1-x0, y1-y0])
-            obs_ax.set_visible(True)
-    
-            # Use the Obs class's plot method
-            if obs is not None:
-                plot.plot_observation(obs_ax, obs)
+            plot.plot_observation(ax, obs)
 
         # Finalize and save
         self.add_legend(fig, hl, lb, lvis=True)

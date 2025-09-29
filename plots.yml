@@ -1,32 +1,31 @@
 plots:
-  GETZ_ISF:      {TITLE: "GETZ total melt (Gt/y)",        FILE_PATTERN: "ISF_ALL*1y*.nc", VAR: isfmelt_GETZ, TYPE: TS, SF: -1.0, OBS: "OBS/GETZ_obs.txt"}
-  TWAI_ISF:      {TITLE: "TWAI total melt (Gt/y)",        FILE_PATTERN: "ISF_ALL*1y*.nc", VAR: isfmelt_TWAI, TYPE: TS, SF: -1.0, OBS: "OBS/TWAI_obs.txt"}
-  PINE_ISF:      {TITLE: "PIG total melt (Gt/y)",         FILE_PATTERN: "ISF_ALL*1y*.nc", VAR: isfmelt_PINE, TYPE: TS, SF: -1.0, OBS: "OBS/PINE_obs.txt"}
-  FRIS_ISF:      {TITLE: "FRIS total melt (Gt/y)",        FILE_PATTERN: "ISF_ALL*1y*.nc", VAR: isfmelt_FRIS, TYPE: TS, SF: -1.0, OBS: "OBS/FRIS_obs.txt"}
-  ROSS_ISF:      {TITLE: "ROSS total melt (Gt/y)",        FILE_PATTERN: "ISF_ALL*1y*.nc", VAR: isfmelt_ROSS, TYPE: TS, SF: -1.0, OBS: "OBS/ROSS_obs.txt"}
-  TOTA_ISF:      {TITLE: "ANT total melt (Gt/y)",         FILE_PATTERN: "ISF_ALL*1y*.nc", VAR: isfmelt_TOTA, TYPE: TS, SF: -1.0, OBS: "OBS/ANT_obs.txt"}
-  ACC:           {TITLE: "ACC transport (Sv)",            FILE_PATTERN: "*ACC*1y*.nc",     VAR: vtrp, TYPE: TS, SF: -1.0, OBS: "OBS/ACC_obs.txt"}
-  AMOC:          {TITLE: "Max AMOC 26.5N (Sv)",           FILE_PATTERN: "rapid_*1y*moc.nc", VAR: Total_max_amoc_rapid, TYPE: TS, SF: 1.0, OBS: "OBS/AMOC_obs.txt"}
-  AMHT:          {TITLE: "AMHT 26.5N (PW)",               FILE_PATTERN: "*1y*mht_265.nc", VAR: zomht_atl, TYPE: TS, SF: 1.0, OBS: "OBS/AMHT_obs.txt"}
-  QNET:          {TITLE: "Net downward heat flux (W/m2)", FILE_PATTERN: "GLO_hfds*1y*.nc", VAR: mean_hfds, TYPE: TS, SF: 1.0, OBS: "OBS/QNET_obs.txt"}
-  SO_SST:        {TITLE: "SO sst [K]",                    FILE_PATTERN: "SO_sst*1y*.nc", VAR: mean_thetao, TYPE: TS, SF: 1.0, OBS: "OBS/SO_sst_mean_obs.txt"}
-  NWC_SST:       {TITLE: "NWC sst [K]",                   FILE_PATTERN: "NWC_sst*1y*.nc", VAR: mean_thetao, TYPE: TS, SF: 1.0, OBS: "OBS/NWC_sst_mean_obs.txt"}
-  AMUXL_SIE_M02: {TITLE: "SIE AMUXL m02 [1e6 km2]",       FILE_PATTERN: "AMUXL*sie*m02*.nc", VAR: SExnsidc, TYPE: TS, SF: 0.001, OBS: "OBS/AMUXL_sie02_obs.txt"}
-  AMUXL_SIE_M09: {TITLE: "SIE AMUXL m09 [1e6 km2]",       FILE_PATTERN: "AMUXL*sie*m09*.nc",     VAR: SExnsidc, TYPE: TS, SF: 0.001, OBS: "OBS/AMUXL_sie09_obs.txt"}
-  ARC_SIE_M03:   {TITLE: "SIE Arctic m03 [1e6 km2]",      FILE_PATTERN: "GLO*sie*m03*.nc",       VAR: NExnsidc, TYPE: TS, SF: 0.001, OBS: "OBS/ARC_sie03_obs.txt"}
-  ARC_SIE_M09:   {TITLE: "SIE Arctic m09 [1e6 km2]",      FILE_PATTERN: "GLO*sie*m09*.nc",       VAR: NExnsidc, TYPE: TS, SF: 0.001, OBS: "OBS/ARC_sie09_obs.txt"}
-  ANT_SIE_M02:   {TITLE: "SIE Antarctic m02 [1e6 km2]",   FILE_PATTERN: "GLO*sie*m02*.nc",       VAR: SExnsidc, TYPE: TS, SF: 0.001, OBS: "OBS/ANT_sie02_obs.txt"}
-  ANT_SIE_M09:   {TITLE: "SIE Antarctic m09 [1e6 km2]",   FILE_PATTERN: "GLO*sie*m09*.nc",       VAR: SExnsidc, TYPE: TS, SF: 0.001, OBS: "OBS/ANT_sie09_obs.txt"}
-  WROSS:         {TITLE: "Mean bot. sal. WROSS (PSU)",    FILE_PATTERN: "*WROSS*so*1y*T.nc",     VAR: mean_sosbs, TYPE: TS, SF: 1.0, OBS: "OBS/WROSS_botS_mean_obs.txt"}
-  WWED:          {TITLE: "Mean bot. sal. WWED (PSU)",     FILE_PATTERN: "*WWED*so*1y*T.nc",      VAR: mean_sosbs, TYPE: TS, SF: 1.0, OBS: "OBS/WWED_botS_mean_obs.txt"}
-  AMU:           {TITLE: "Mean bot. temp. AMU (°C)",      FILE_PATTERN: "*AMU_*thetao*1y*T.nc",  VAR: mean_sosbt, TYPE: TS, SF: 1.0, OBS: "OBS/AMU_botT_mean_obs.txt"}
-  EROSS:         {TITLE: "Mean bot. temp. EROSS (°C)",    FILE_PATTERN: "*EROSS*thetao*1y*T.nc", VAR: mean_sosbt, TYPE: TS, SF: 1.0, OBS: "OBS/EROSS_botT_mean_obs.txt"}
-  EWED:          {TITLE: "Mean bot. temp. EWED (°C)",     FILE_PATTERN: "*EWED*thetao*1y*T.nc",  VAR: mean_sosbt, TYPE: TS, SF: 1.0, OBS: "OBS/EWED_botT_mean_obs.txt"}
-  WG_MLD:        {TITLE: "Max Kara MLD in WG (m)",        FILE_PATTERN: "*WMXL*1m*m09_*T.nc",    VAR: max_somxl010, TYPE: TS, SF: 1.0, OBS: "OBS/WG_karamld_max_obs.txt"}
-  ICB:           {TITLE: "Total ICB Melt (Gt/y)",         FILE_PATTERN: "SH*1y*icb*.nc",         VAR: sum_berg_melt_tmask, TYPE: TS, SF: 3.1536e-5, OBS: "OBS/ANTicb_obs.txt"}
-  RG:            {TITLE: "Ross Gyre Transport",           FILE_PATTERN: "*RG*1y*psi.nc",         VAR: "max_sobarstf",  SF: 0.000001, TYPE: "TS" }
-  WG:            {TITLE: "Weddell Gyre Transport",        FILE_PATTERN: "*WG*1y*psi.nc",       VAR: "max_sobarstf", SF: 0.000001, TYPE: "TS" } 
-  MAP_VALSO:     {TITLE: "Reference Map VALSO",           FILE_PATTERN: "FIGURES/box_VALSO.png",  TYPE: FIG}
-  MAP_VALAMU:    {TITLE: "Reference Map VALAMU",          FILE_PATTERN: "FIGURES/box_VALAMU.png", TYPE: FIG}
-  MAP_VALGLO:    {TITLE: "Reference Map VALGLO",          FILE_PATTERN: "FIGURES/box_VALGLO.png", TYPE: FIG}
-  MAP_VALSI:     {TITLE: "Reference Map VALSI",           FILE_PATTERN: "FIGURES/box_VALSI.png",  TYPE: FIG}
+  GETZ_ISF:      {TITLE: "GETZ total melt (Gt/y)",         FILE_PATTERN: "ISF_ALL*1y*.nc",          VAR: isfmelt_GETZ,            SF: -1.0}
+  TWAI_ISF:      {TITLE: "TWAI total melt (Gt/y)",         FILE_PATTERN: "ISF_ALL*1y*.nc",          VAR: isfmelt_TWAI,            SF: -1.0}
+  PINE_ISF:      {TITLE: "PIG total melt (Gt/y)",          FILE_PATTERN: "ISF_ALL*1y*.nc",          VAR: isfmelt_PINE,            SF: -1.0}
+  FRIS_ISF:      {TITLE: "FRIS total melt (Gt/y)",         FILE_PATTERN: "ISF_ALL*1y*.nc",          VAR: isfmelt_FRIS,            SF: -1.0}
+  ROSS_ISF:      {TITLE: "ROSS total melt (Gt/y)",         FILE_PATTERN: "ISF_ALL*1y*.nc",          VAR: isfmelt_ROSS,            SF: -1.0}
+  TOTA_ISF:      {TITLE: "ANT total melt (Gt/y)",          FILE_PATTERN: "ISF_ALL*1y*.nc",          VAR: isfmelt_TOTA,            SF: -1.0}
+  ACC:           {TITLE: "ACC transport (Sv)",             FILE_PATTERN: "*ACC*1y*.nc",             VAR: vtrp,                    SF: -1.0}
+  AMOC:          {TITLE: "Max AMOC 26.5N (Sv)",            FILE_PATTERN: "rapid_*1y*moc.nc",        VAR: Total_max_amoc_rapid,    SF:  1.0}
+  AMHT:          {TITLE: "AMHT 26.5N (PW)",                FILE_PATTERN: "*1y*mht_265.nc",          VAR: zomht_atl,               SF:  1.0}
+  QNET:          {TITLE: "Net downward heat flux (W/m2)",  FILE_PATTERN: "GLO_hfds*1y*.nc",         VAR: mean_hfds,               SF:  1.0}
+  SO_SST:        {TITLE: "SO sst [K]",                     FILE_PATTERN: "SO_sst*1y*.nc",           VAR: mean_thetao,             SF:  1.0}
+  NWC_SST:       {TITLE: "NWC sst [K]",                    FILE_PATTERN: "NWC_sst*1y*.nc",          VAR: mean_thetao,             SF:  1.0}
+  AMUXL_SIE_M02: {TITLE: "SIE AMUXL m02 [1e6 km2]",        FILE_PATTERN: "AMUXL*sie*m02*.nc",       VAR: SExnsidc,                SF: 0.001}
+  AMUXL_SIE_M09: {TITLE: "SIE AMUXL m09 [1e6 km2]",        FILE_PATTERN: "AMUXL*sie*m09*.nc",       VAR: SExnsidc,                SF: 0.001}
+  ARC_SIE_M03:   {TITLE: "SIE Arctic m03 [1e6 km2]",       FILE_PATTERN: "GLO*sie*m03*.nc",         VAR: NExnsidc,                SF: 0.001}
+  ARC_SIE_M09:   {TITLE: "SIE Arctic m09 [1e6 km2]",       FILE_PATTERN: "GLO*sie*m09*.nc",         VAR: NExnsidc,                SF: 0.001}
+  ANT_SIE_M02:   {TITLE: "SIE Antarctic m02 [1e6 km2]",    FILE_PATTERN: "GLO*sie*m02*.nc",         VAR: SExnsidc,                SF: 0.001}
+  ANT_SIE_M09:   {TITLE: "SIE Antarctic m09 [1e6 km2]",    FILE_PATTERN: "GLO*sie*m09*.nc",         VAR: SExnsidc,                SF: 0.001}
+  WROSS:         {TITLE: "Mean bot. sal. WROSS (PSU)",     FILE_PATTERN: "*WROSS*so*1y*T.nc",       VAR: mean_sosbs,              SF:  1.0}
+  WWED:          {TITLE: "Mean bot. sal. WWED (PSU)",      FILE_PATTERN: "*WWED*so*1y*T.nc",        VAR: mean_sosbs,              SF:  1.0}
+  AMU:           {TITLE: "Mean bot. temp. AMU (°C)",       FILE_PATTERN: "*AMU_*thetao*1y*T.nc",    VAR: mean_sosbt,              SF:  1.0}
+  EROSS:         {TITLE: "Mean bot. temp. EROSS (°C)",     FILE_PATTERN: "*EROSS*thetao*1y*T.nc",   VAR: mean_sosbt,              SF:  1.0}
+  EWED:          {TITLE: "Mean bot. temp. EWED (°C)",      FILE_PATTERN: "*EWED*thetao*1y*T.nc",    VAR: mean_sosbt,              SF:  1.0}
+  WG_MLD:        {TITLE: "Max Kara MLD in WG (m)",         FILE_PATTERN: "*WMXL*1m*m09_*T.nc",      VAR: max_somxl010,            SF:  1.0}
+  ICB:           {TITLE: "Total ICB Melt (Gt/y)",          FILE_PATTERN: "SH*1y*icb*.nc",          VAR: sum_berg_melt_tmask,      SF: 3.1536e-5}
+  RG:            {TITLE: "Ross Gyre Transport",            FILE_PATTERN: "*RG*1y*psi.nc",          VAR: "max_sobarstf",           SF: 0.000001}
+  WG:            {TITLE: "Weddell Gyre Transport",         FILE_PATTERN: "*WG*1y*psi.nc",          VAR: "max_sobarstf",           SF: 0.000001}
+  BOTT_FRIS:     {TITLE: "Mean bot. temp. FRIS (C)",       FILE_PATTERN: "*FRIS*thetao*1y*T.nc",   VAR: "mean_sosbt_tmask",       SF:  1.0}
+  BOTT_ROSS:     {TITLE: "Mean bot. temp. ROSS (C)",       FILE_PATTERN: "*ROSS*thetao*1y*T.nc",   VAR: "mean_sosbt_tmask",       SF:  1.0}
+  BOTT_AMUS:     {TITLE: "Mean bot. temp. AMU (C)",        FILE_PATTERN: "*AMU*thetao*1y*T.nc",    VAR: "mean_sosbt_tmask",       SF:  1.0}
