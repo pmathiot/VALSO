@@ -8,6 +8,7 @@ import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+from matplotlib.gridspec import GridSpec
 #import matplotlib.ticker as ticker
 import warnings
 warnings.filterwarnings(
@@ -140,7 +141,7 @@ class Plot:
         self.ymin = 99999.0
         self.ymax = -99999.0
 
-    def plot_timeseries(self, ax, runs):
+    def plot_timeseries(self, runs):
         """
         Plots time series data for the given plot configuration.
 
@@ -154,20 +155,20 @@ class Plot:
         rmin = 99999.0
         rmax = -99999.0
         for run in runs:
-            zmin, zmax = run.plot_ts(ax, self)
+            zmin, zmax = run.plot_ts(self.ax, self)
             rmin = min(rmin, zmin)
             rmax = max(rmax, zmax)
         rrange = rmax - rmin
         self.ymin = rmin - 0.05 * rrange
         self.ymax = rmax + 0.05 * rrange
 
-        ax.set_ylim([self.ymin, self.ymax])
-        hl, lb = ax.get_legend_handles_labels()
-        ax.set_title(self.title, fontsize=24)
-        ax.grid(True)
+        self.ax.set_ylim([self.ymin, self.ymax])
+        hl, lb = self.ax.get_legend_handles_labels()
+        self.ax.set_title(self.title, fontsize=24)
+        self.ax.grid(True)
         return hl, lb
 
-    def plot_observation(self, ax, obs):
+    def plot_observation(self, obs):
         """
         Plots observation data for the given plot configuration.
 
@@ -179,10 +180,10 @@ class Plot:
     
         if obs is not None:
             # Add an additional axis for observations to the right
-            x0 = ax.get_position().x1
+            x0 = self.ax.get_position().x1
             x1 = x0 + 0.02
-            y0 = ax.get_position().y0
-            y1 = ax.get_position().y1
+            y0 = self.ax.get_position().y0
+            y1 = self.ax.get_position().y1
 
             # define axes for observation
             obs_ax = plt.axes([x0+0.005, y0, x1-x0, y1-y0])
@@ -190,11 +191,27 @@ class Plot:
 
             # plot observation
             plt.errorbar(0, obs.mean, yerr=obs.std, fmt='*', markeredgecolor='k', markersize=8, color='k', linewidth=2)
-            ax.set_xlim([-1, 1])
-            ax.set_ylim([self.ymin, self.ymax])
-            ax.set_xticks([])
-            ax.set_yticklabels([])
-            ax.grid()
+            self.ax.set_xlim([-1, 1])
+            self.ax.set_ylim([self.ymin, self.ymax])
+            self.ax.set_xticks([])
+            self.ax.set_yticklabels([])
+            self.ax.grid()
+
+    def set_ax(self, fig, gs):
+        """
+        Sets the axis for the plot using GridSpec.
+
+        Args:
+            fig (matplotlib.figure.Figure): The figure to add the subplot to.
+            gs (matplotlib.gridspec.GridSpec): The GridSpec object defining the grid layout.
+        """
+        row = self.row - 1
+        col = self.col - 1
+        rowspan = self.ts.get("ROWSPAN", 1)  # Utilisation de .get pour ROWSPAN
+        colspan = self.ts.get("COLSPAN", 1)  # Utilisation de .get pour COLSPAN
+
+        self.ax = fig.add_subplot(gs[row:row + rowspan, col:col + colspan])
+        self.ax.set_visible(True)
 
 
 class Obs:
@@ -264,7 +281,7 @@ class Figure:
             f"map={self.map})"
         )
 
-    def plot_map(self, axs):
+    def plot_map(self, fig, gs):
         """
         Plots a map image for the given plot configuration.
 
@@ -278,8 +295,7 @@ class Figure:
         if not os.path.exists(img_path):
             raise FileNotFoundError(f"Figure file {img_path} not found")
         img = plt.imread(img_path)
-
-        ax = axs[self.map["POS"][0]-1][self.map["POS"][1]-1]
+        ax = fig.add_subplot(gs[row:row + rowspan, col:col + colspan])
         ax.set_visible(True)
         ax.imshow(img)
         ax.axis("off")
@@ -332,43 +348,33 @@ class Figure:
         nrows = self.layout["SUBPLOT"][0]
         ncols = self.layout["SUBPLOT"][1]
         figsize = np.array([self.layout["SIZE"][0] * ncols, self.layout["SIZE"][1] * nrows]) / 25.4  # width, height
-        fig, axs = plt.subplots(nrows, ncols, figsize=figsize, squeeze=False)
-
-        for ax in axs.flat:
-            ax.set_visible(False)
-
-        # Plot each subplot
-        all_handles = []
-        all_labels = []
+        fig = plt.figure(figsize=figsize)
+        gs = GridSpec(nrows, ncols, figure=fig)
+        
+        # Set axes for each plot
         for plot in plots:
-            ax = axs[plot.row - 1][plot.col - 1]
-            ax.set_visible(True)
+            plot.set_ax(fig, gs)
 
-            obs = obss.get(plot.name, None)
-
-            # Plot time series in the main axis
-            hl, lb = plot.plot_timeseries(ax, runs)
-
-        self.plot_map(axs)
-
-        plt.subplots_adjust(left=self.layout["ADJUST"][0],
-                            right=self.layout["ADJUST"][1],
-                            bottom=self.layout["ADJUST"][2],
-                            top=self.layout["ADJUST"][3],
-                            wspace=self.layout["ADJUST"][4],
-                            hspace=self.layout["ADJUST"][5])
-
+        # Plot time series
         for plot in plots:
-            ax = axs[plot.row - 1][plot.col - 1]
-            ax.set_visible(True)
-    
-            obs = obss.get(plot.name, None)
-    
-            plot.plot_observation(ax, obs)
+            hl, lb = plot.plot_timeseries(runs)
 
-        # Finalize and save
+        # Plot map if specified
+        if self.map:
+            self.plot_map(fig, gs)
+
+        # Adjust layout
+        plt.subplots_adjust(*self.layout["ADJUST"])
+        
+        # Plot observations
+        for plot in plots:
+            obs = obss.get(plot.name, None)
+            plot.plot_observation(obs)
+
+        # Add legend
         self.add_legend(fig, hl, lb, lvis=True)
 
+        # Finalize and save figure
         plt.savefig(out, dpi=self.layout["DPI"], bbox_inches='tight')
         print(f"✅ Saved {out}")
         print('')
