@@ -552,10 +552,10 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="Generate plots for validation and observation data.")
     parser.add_argument("-runid", nargs="+", required=True, help="List of run IDs to process.")
-    parser.add_argument("-plots", default="plots.yml", help="Path to the full plots database.")
     parser.add_argument("-figs", nargs="+", required=True, help="List of paths to figs.yml files.")
-    parser.add_argument("-style", default="styles.yml", help="Path to the style configuration file.")
-    parser.add_argument("-obs", default="obs.yml", help="Path to the observation configuration file.")
+    parser.add_argument("-plots", default="YML/plots.yml", help="Path to the full plots database.")
+    parser.add_argument("-style", default="YML/styles.yml", help="Path to the style configuration file.")
+    parser.add_argument("-obs", default="YML/obs.yml", help="Path to the observation configuration file.")
     parser.add_argument("-dir", default=".", help="Base directory for data files.")
     parser.add_argument("-outs", nargs="+", required=True, help="List of output file names for the generated plots.")
     args = parser.parse_args()
