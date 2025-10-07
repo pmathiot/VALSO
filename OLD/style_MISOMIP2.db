@@ -1,0 +1,10 @@
+ runid                   |     name      |   line   |   color        |
+ eORCA025.L121-OPM000    | spin-up       |   -      | lightgrey      |
+ eORCA025.L121-OPM026    | OCEAN-warm    |   -      | black          |
+ eORCA025.L121-OPM0261   | OCEAN-ctrl    |   -      | orange         |
+ eORCA025.L121-OPM0262   | OCEAN-Pgeom   |   -      | purple         |
+ eORCA025.L121-OPM0263   | OCEAN-Fgeom   |   -      | violet         |
+ eORCA025.L121-OPM031    | OCEAN-warm    |   -      | royalblue      |
+ eORCA025.L121-MISO026   | ICEOCEAN-hind |   -      | gray           |
+ eORCA025.L121-MISO0261  | ICEOCEAN-ctrl |   -      | gold           |
+ eORCA025.L121-MISO031   | ICEOCEAN-warm |   -      | lightskyblue   |

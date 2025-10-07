@@ -1,0 +1,5 @@
+ runid                   |     name      |   line   |   color        |
+ eORCA025.L121-OPM000    | spin-up       |   -      | grey           |
+ eORCA025.L121-OPM026    | REF           |   -      | royalblue      |
+ eORCA025.L121-OPM031    | PERT          |   -      | sienna         |
+ eORCA025.L121-OPM034    | REV           |   -      | crimson        |

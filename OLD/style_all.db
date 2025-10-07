@@ -1,0 +1,13 @@
+ runid                   |     name      |   line   |   color        |
+ eORCA025.L121-OPM026    | Occigen       |   --     | sienna         |
+ eORCA025.L121-TPM026    | TGCC          |   -      | royalblue      |
+ eORCA025.L121-TPM026420 | TGCC_4.2      |   -      | sienna         |
+ eORCA025.L121-EPM026    | REF_CPL       |   -      | sienna         |
+ eORCA025.L121-EPM031    | PERT_CPL      |   -      | royalblue      |
+ eORCA025.L121-EPM034    | REV_CPL       |   -      | crimson        |
+ eORCA025.L121-OPM026    | REF       |   -      | sienna         |
+ eORCA025.L121-OPM031    | PERT      |   -      | royalblue      |
+ eORCA025.L121-OPM034    | REV       |   -      | crimson        |
+ eORCA1.L121-OPM002      | RUN2      |   -      | royalblue      |
+ eORCA1.L121-OPM003      | RUN3      |   -      | sienna         |
+ eORCA1.L121-EPM003      | eO1_PERT  |   -      | crimson        |
