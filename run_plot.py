@@ -1,4 +1,5 @@
 import os
+import re
 import numpy as np
 import glob
 import yaml
@@ -24,9 +25,9 @@ class Run:
     """
 
     def __str__(self):
-        return f'    Run(runid={self.runid}, name={self.name}, line={self.line}, color={self.color}, dir={self.dir})'
+        return f'    Run(runid={self.runid}, name={self.name}, line={self.line}, color={self.color}, marker={self.marker}, dir={self.dir})'
 
-    def __init__(self, cdir, runid, name, line="-", color="black"):
+    def __init__(self, cdir, runid, name, line="-", color="black", marker="o"):
         """
         Initializes a Run object.
 
@@ -39,6 +40,7 @@ class Run:
         self.runid = runid
         self.name = name
         self.line = line
+        self.marker = marker
         self.color = color
         self.dir = os.path.join(cdir, self.runid)
         self.ts = {}
@@ -46,41 +48,49 @@ class Run:
     def load_ts(self, plots):
         """
         Loads time series data for the run using a Plot object.
-
+    
         Args:
-            plot (Plot): Plot configuration object.
-
+            plots (list): List of Plot configuration objects.
+    
         Returns:
             pd.DataFrame: Time series data.
         """
         for plot in plots:
             file_pattern = plot.file_pattern
-            var = plot.var
+            var_pattern = plot.var  # ex: 'toto|titi'
             sf = plot.sf
             files = glob.glob(os.path.join(self.dir, file_pattern))
             print(plot)
             if not files:
                 raise FileNotFoundError(f'No files match {file_pattern} in {self.dir}')
-
-            # opne data
+    
+            # open data
             try:
                 ctime = 'time_centered'
-                ds=xr.open_mfdataset(files, parallel=True, concat_dim='time_counter',combine='nested').sortby(ctime)
+                ds = xr.open_mfdataset(files, parallel=True, concat_dim='time_counter', combine='nested').sortby(ctime)
             except:
                 ctime = 'time_counter'
-                ds=xr.open_mfdataset(files, parallel=True, concat_dim='time_counter',combine='nested').sortby(ctime)
-
-            # build data array
-            da=xr.DataArray(ds[var].values.squeeze()*sf, [(ctime, ds[ctime].values)], name=self.name)
-
+                ds = xr.open_mfdataset(files, parallel=True, concat_dim='time_counter', combine='nested').sortby(ctime)
+    
+            # gestion des variables avec regex
+            matched_vars = [v for v in ds.data_vars if re.fullmatch(var_pattern, v)]
+            if not matched_vars:
+                raise KeyError(f"No variable in dataset matches pattern '{var_pattern}'")
+            if len(matched_vars) > 1:
+                raise ValueError(f"Multiple variables match pattern '{var_pattern}': {matched_vars}")
+    
+            var = matched_vars[0]  # on prend la seule variable valide
+    
+            da = xr.DataArray(ds[var].values.squeeze() * sf, [(ctime, ds[ctime].values)], name=self.name)
+    
             # manage time
             try:
                 da[ctime] = pd.to_datetime(da.indexes[ctime])
             except:
                 da[ctime] = da.indexes[ctime].to_datetimeindex()
-
+    
             self.ts[var] = da.to_dataframe(name=self.name)
-
+    
         return self.ts
 
     def plot_ts(self, ax, plot):
@@ -96,10 +106,22 @@ class Run:
         """
         if self.ts is None:
             raise ValueError(f"Time series not loaded for run {self.runid}")
-        self.ts[plot.var].plot(ax=ax, legend=False, label=self.name, linestyle=self.line, color=self.color)
 
-        rmin  = self.ts[plot.var].values.min()
-        rmax  = self.ts[plot.var].values.max()
+        # plot.var = "sum_iceberg_tmask|sum_berg_melt_tmask"
+        pattern = plot.var
+        
+        # trouver toutes les colonnes de self.ts qui matchent le pattern
+        matched_keys = [k for k in self.ts.keys() if re.fullmatch(pattern, k)]
+        if not matched_keys:
+            raise KeyError(f"No variable matches pattern '{pattern}' in self.ts")
+        elif len(matched_keys) > 1:
+            print(f"Warning: multiple matches found: {matched_keys}, using all")
+        var = matched_keys[0]
+
+        self.ts[var].plot(ax=ax, legend=False, label=self.name, linestyle=self.line, marker=self.marker, color=self.color)
+
+        rmin  = self.ts[var].values.min()
+        rmax  = self.ts[var].values.max()
 
         # set x axis
         ax.tick_params(axis='both', labelsize=18)
@@ -122,7 +144,7 @@ class Plot:
     def __str__(self):
         return f'        Plot(var={self.var}, file_pattern={self.file_pattern}, sf={self.sf}, title={self.title}, loc={self.row}|{self.col})'
 
-    def __init__(self, data):
+    def __init__(self, data, obs):
         """
         Initializes a Plot object.
 
@@ -136,10 +158,12 @@ class Plot:
         self.title = data.get("TITLE", "UNKNOWN")
         self.row = data.get("ROW", 1)
         self.col = data.get("COL", 1)
+        self.rowspan = data.get("ROWSPAN", 1)
+        self.colspan = data.get("COLSPAN", 1)
         self.time = data.get("TIME", False)
         self.fig_file = data.get("FIG_FILE", None)
-        self.ymin = 99999.0
-        self.ymax = -99999.0
+        self.ymin = obs.obs_min
+        self.ymax = obs.obs_max
 
     def plot_timeseries(self, runs):
         """
@@ -152,15 +176,15 @@ class Plot:
         Returns:
             tuple: Handles and labels for the legend.
         """
-        rmin = 99999.0
-        rmax = -99999.0
+        rmin = self.ymin
+        rmax = self.ymax
         for run in runs:
             zmin, zmax = run.plot_ts(self.ax, self)
             rmin = min(rmin, zmin)
             rmax = max(rmax, zmax)
         rrange = rmax - rmin
-        self.ymin = rmin - 0.05 * rrange
-        self.ymax = rmax + 0.05 * rrange
+        self.ymin = rmin - 0.02 * rrange
+        self.ymax = rmax + 0.02 * rrange
 
         self.ax.set_ylim([self.ymin, self.ymax])
         hl, lb = self.ax.get_legend_handles_labels()
@@ -191,11 +215,11 @@ class Plot:
 
             # plot observation
             plt.errorbar(0, obs.mean, yerr=obs.std, fmt='*', markeredgecolor='k', markersize=8, color='k', linewidth=2)
-            self.ax.set_xlim([-1, 1])
-            self.ax.set_ylim([self.ymin, self.ymax])
-            self.ax.set_xticks([])
-            self.ax.set_yticklabels([])
-            self.ax.grid()
+            obs_ax.set_xlim([-1, 1])
+            obs_ax.set_ylim([self.ymin, self.ymax])
+            obs_ax.set_xticks([])
+            obs_ax.set_yticklabels([])
+            obs_ax.grid()
 
     def set_ax(self, fig, gs):
         """
@@ -207,10 +231,7 @@ class Plot:
         """
         row = self.row - 1
         col = self.col - 1
-        rowspan = self.ts.get("ROWSPAN", 1)  # Utilisation de .get pour ROWSPAN
-        colspan = self.ts.get("COLSPAN", 1)  # Utilisation de .get pour COLSPAN
-
-        self.ax = fig.add_subplot(gs[row:row + rowspan, col:col + colspan])
+        self.ax = fig.add_subplot(gs[row:row + self.rowspan, col:col + self.colspan])
         self.ax.set_visible(True)
 
 
@@ -235,6 +256,8 @@ class Obs:
         self.mean = data["MEAN"]
         self.std = data["STD"]
         self.ref = data.get("REF", "OBS")
+        self.obs_max=self.mean+self.std
+        self.obs_min=self.mean-self.std
 
     def __str__(self):
         """
@@ -295,6 +318,10 @@ class Figure:
         if not os.path.exists(img_path):
             raise FileNotFoundError(f"Figure file {img_path} not found")
         img = plt.imread(img_path)
+        row=self.map["ROW"]-1
+        col=self.map["COL"]-1
+        rowspan=self.map["ROWSPAN"]
+        colspan=self.map["COLSPAN"]
         ax = fig.add_subplot(gs[row:row + rowspan, col:col + colspan])
         ax.set_visible(True)
         ax.imshow(img)
@@ -336,8 +363,8 @@ class Figure:
         print(f"🔄 Generating figure: {out}")
         print(self)
         print('')
-        plots = load_plots(plots_cfg, self)
         obss = load_obss(obss_cfg, self)
+        plots = load_plots(plots_cfg, self, obss)
         runs = load_runs(style_cfg, runids, cdir)
 
         for run in runs:
@@ -422,7 +449,7 @@ def load_runs(style_file, runids, cdir):
     return runs
 
 
-def load_plots(plots_file, figure):
+def load_plots(plots_file, figure, obss):
     """
     Loads selected plots from plots.yml database based on figs.yml selection.
 
@@ -446,7 +473,7 @@ def load_plots(plots_file, figure):
         data = dict(all_plots[key])
         data.update(layout)  # add row/col info
         data["NAME"] = key  # add the plot key as NAME
-        selected.append(Plot(data))
+        selected.append(Plot(data, obss[key]))
     return selected
 
 

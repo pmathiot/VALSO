@@ -2,25 +2,28 @@ description:
   NAME: VALSO
 
 ts:
-  ACC:    { ROW: 1, COL: 1 , TIME: False}
-  RG:     { ROW: 1, COL: 2 , TIME: False}
-  WG:     { ROW: 1, COL: 3 , TIME: False}
+  RG:     { ROW: 1, COL: 1 , TIME: False}
+  WG:     { ROW: 1, COL: 2 , TIME: False}
+  ACC:    { ROW: 1, COL: 3 , TIME: False}
   WROSS:  { ROW: 2, COL: 1 , TIME: False}
   WWED:   { ROW: 2, COL: 2 , TIME: False}
-  AMU:    { ROW: 2, COL: 3 , TIME: False}
-  EROSS:  { ROW: 3, COL: 1 , TIME: False}
-  EWED:   { ROW: 3, COL: 2 , TIME: True}
-  WG_MLD: { ROW: 3, COL: 3 , TIME: True}
-  ICB:    { ROW: 4, COL: 1 , TIME: True}
+  EROSS:  { ROW: 3, COL: 1 , TIME: True }
+  EWED:   { ROW: 3, COL: 2 , TIME: True }
+  AMU:    { ROW: 3, COL: 3 , TIME: True }
+  #  WG_MLD: { ROW: 4, COL: 1 , TIME: True}
+  #ICB:    { ROW: 3, COL: 3 , TIME: True }
 
 map:
   FILE: "FIGURES/box_VALSO.png"
-  POS: [4, 2] # ROW: 4, COL: 2 
+  ROW: 2
+  COL: 3
+  ROWSPAN: 1
+  COLSPAN: 1
 
 layout:
   SIZE: [210, 210] # size of one subplot (width, height) 
-  SUBPLOT: [4, 3] # nrows, ncols
-  ADJUST:  [0.04, 0.96, 0.1, 0.95, 0.25, 0.15] # left, right, bottom, top, hspace, wspace
+  SUBPLOT: [3, 3]  # nrows, ncols
+  ADJUST: [0.04, 0.1, 0.96, 0.95, 0.23, 0.23]  # left, bottom, right, top, hspace, wspace
   DPI: 150
 
 legend:

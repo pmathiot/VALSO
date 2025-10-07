@@ -29,3 +29,4 @@ runs:
   AMUXL025-ICB05:        {NAME: ICB BCK,             LINE: "-",  COLOR: darkgreen}
   AMUXL025-ICB06:        {NAME: ICB DDM,             LINE: "-",  COLOR: chocolate}
   AMUXL12-GNJ004_BM02:   {NAME: NJ_TEST,             LINE: "-",  COLOR: sienna}
+  IPSLCM-ECM71-ico-LR-pi-01: {NAME: EIPSLCM,         LINE: "-", MARKER: "o", COLOR: red}

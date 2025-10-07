@@ -12,7 +12,7 @@ RUNID=<RUNID>
 TAG=<TAG>
 FREQ=<FREQ>
 
-VAR='|fwfisf|sowflisf_cav|'
+VAR='|fwfisf|sowflisf_cav|iceshelf|'
 
 # load path and mask
 . param.bash
