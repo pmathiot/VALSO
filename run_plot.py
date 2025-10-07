@@ -144,7 +144,7 @@ class Plot:
     def __str__(self):
         return f'        Plot(var={self.var}, file_pattern={self.file_pattern}, sf={self.sf}, title={self.title}, loc={self.row}|{self.col})'
 
-    def __init__(self, data, obs):
+    def __init__(self, data, obs=None):
         """
         Initializes a Plot object.
 
@@ -162,8 +162,12 @@ class Plot:
         self.colspan = data.get("COLSPAN", 1)
         self.time = data.get("TIME", False)
         self.fig_file = data.get("FIG_FILE", None)
-        self.ymin = obs.obs_min
-        self.ymax = obs.obs_max
+        if obs:
+            self.ymin = obs.obs_min
+            self.ymax = obs.obs_max
+        else:
+            self.ymin =  9999.
+            self.ymax = -9999.
 
     def plot_timeseries(self, runs):
         """
@@ -473,7 +477,7 @@ def load_plots(plots_file, figure, obss):
         data = dict(all_plots[key])
         data.update(layout)  # add row/col info
         data["NAME"] = key  # add the plot key as NAME
-        selected.append(Plot(data, obss[key]))
+        selected.append(Plot(data, obss.get(key, None)))
     return selected
 
 
