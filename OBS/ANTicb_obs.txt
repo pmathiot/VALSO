@@ -1,3 +1,0 @@
-ref = Rignot et al., 2013
-mean = 1265.0
-std = 141.0

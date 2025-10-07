@@ -1,3 +1,0 @@
-ref = P. Mathiot
-mean = 7.4403515925274846
-std = 1.

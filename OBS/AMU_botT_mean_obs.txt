@@ -1,3 +1,0 @@
-ref = WOA2018
-mean = 0.74
-std = 0.0

@@ -10,7 +10,7 @@ ts:
   EROSS:  { ROW: 3, COL: 1 , TIME: True }
   EWED:   { ROW: 3, COL: 2 , TIME: True }
   AMU:    { ROW: 3, COL: 3 , TIME: True }
-  #  WG_MLD: { ROW: 4, COL: 1 , TIME: True}
+  WG_MLD: { ROW: 4, COL: 1 , TIME: True}
   #ICB:    { ROW: 3, COL: 3 , TIME: True }
 
 map:
@@ -22,7 +22,7 @@ map:
 
 layout:
   SIZE: [210, 210] # size of one subplot (width, height) 
-  SUBPLOT: [3, 3]  # nrows, ncols
+  SUBPLOT: [4, 3]  # nrows, ncols
   ADJUST: [0.04, 0.1, 0.96, 0.95, 0.23, 0.23]  # left, bottom, right, top, hspace, wspace
   DPI: 150
 

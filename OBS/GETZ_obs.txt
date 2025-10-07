@@ -1,3 +1,0 @@
-ref = P. Mathiot
-mean = 150.0
-std = 40.0

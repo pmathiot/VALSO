@@ -1,3 +1,0 @@
-ref = SOSE (Mazaloff et al., 2010)
-mean = 20
-std = 5
