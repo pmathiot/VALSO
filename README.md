@@ -18,11 +18,6 @@
 
 ![Alt text](FIGURES/example.png?raw=true "Example of the VALSO output")
 
-## Limitation
-* only work on Occigen and irene computer
-* plot should not be used for publication as it is (std and mean value of observation should be corrected if you want to do so)
-* need to find a better method for plotting management (maybe an xml file with all available output) => in dev.
-
 ## Installation
 Simplest instalation (maybe not the most optimal)
 * install the CDFTOOLS at v3.0.2-355-g66ce3da :
@@ -32,10 +27,6 @@ Simplest instalation (maybe not the most optimal)
 * ckeckout the VALSO directory
 ```
    git clone https://github.com/pmathiot/VALSO.git
-```
-* install python valso environment
-```
-  conda env create -f valso.yml 
 ```
 * edit PARAM/param_yourcomputer.bash to fit your setup/need
    * path of the toolbox (`$EXEPATH`)
@@ -51,7 +42,7 @@ Simplest instalation (maybe not the most optimal)
 
 * the module required are the one used to compiled the CDFTOOLS and nco 
 
-## Usage
+### Compute the time series
 * define your style for each simulation (file style.db)
 * `./run_all.bash [CONFIG] [YEARB] [YEARE] [FREQ (1y or 1m)] [RUNID list]` as example : 
 ```
@@ -63,29 +54,6 @@ Once this is done and if no error or minor errors
 (ie for example we ask from 2000 to 2020 
 but some simulation only span between 2010 and 2020. In this case no data will be built for the period 2000 2009 but error will show up)
 
-you can now build the plot for the Southern Ocean:
-* activate your valso python environment:
-```
-   conda activate valso
-```
-* make sure the runid you want to monitor is in styles.yml
-* `python run_plot.py -runid [RUNID list] -figs [list of YML figs file name] -dir [DATA PATH DIR] -outs [list of outputs figure names]` as example : 
-```
-python run_plot.py -runid runid1 runid2 -figs YML/figs_VALSO.yml -dir path_to_run_all_output -outs figure_output
-```
-The script will look for file with a generic pattern and plot all the available data.
-* You can also run with a similar command VALGLO, VALSI and VALAMU or even build your owns figs.yml file.
+### Build the plots
 
-## Output
-* figure figure_output.png
-
-## To add a new diag
-* build a new script in SCRIPT or modify one (for exemple if you want another area for the bottomT time series, update `mk_bot.bash` to add it)
-If a new script is added you need also to:
-  * add a logical flag in param
-  * update `run_all.sh`
-Then:
-* update plots.yml to add your new diagnostics
-* build a new figs.yml file based on the existing one
-
-
+See `README_run_plot.md`
