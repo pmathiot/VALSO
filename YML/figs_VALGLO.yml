@@ -1,0 +1,26 @@
+description:
+  NAME: VALGLO
+
+ts:
+  ACC:        { ROW: 1, COL: 1 , TIME: False}
+  AMOC:       { ROW: 1, COL: 2 , TIME: False}
+  MHT:        { ROW: 1, COL: 3 , TIME: False}
+  QNET:       { ROW: 2, COL: 1 , TIME: False}
+  SO_SST:     { ROW: 2, COL: 2 , TIME: False}
+  NWC_SST:    { ROW: 2, COL: 3 , TIME: True}
+  ARC_SIE_02: { ROW: 3, COL: 1 , TIME: True}
+  ANT_SIE_09: { ROW: 3, COL: 2 , TIME: True}
+
+map:
+  FILE: "FIGURES/box_VALGLO.png"
+  POS: [2, 3] # ROW: 4, COL: 2 
+
+layout:
+  SIZE: [210, 210] # size of one subplot (width, height) 
+  SUBPLOT: [4, 3] # nrows, ncols
+  ADJUST:  [0.04, 0.96, 0.1, 0.95, 0.25, 0.15] # left, right, bottom, top, hspace, wspace
+  DPI: 150
+
+legend:
+  NCOL: 3
+  AXES: [0.04, 0.01, 0.92, 0.06] # left, bottom, width, height

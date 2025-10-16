@@ -7,7 +7,7 @@ RUNVALSO=0
 RUNVALGLO=0
 RUNVALSI=0
 RUNVALAMU=0
-RUNALL=1
+RUNALL=0
 
 # custom
 runACC=0
@@ -19,7 +19,7 @@ runMHT=0
 runSIE=0
 runSST=0
 runQHF=0
-runISF=0
+runISF=1
 runICB=0
 runMEAN=0
 runEKE=0
@@ -39,7 +39,7 @@ if [[ $RUNALL == 1 || $RUNTEST == 1 ]]; then
    runISF=1
    runICB=1
    runMEAN=1
-   runEKE=1
+   runEKE=0
 fi
 if [[ $RUNVALSO == 1 ]]; then
    runACC=1 #acc  ts

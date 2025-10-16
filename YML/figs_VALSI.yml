@@ -1,0 +1,26 @@
+description:
+  NAME: VALSO
+
+ts:
+  FRIS_ISF:    { ROW: 1, COL: 1 , TIME: False}
+  ROSS_ISF:    { ROW: 1, COL: 2 , TIME: False}
+  PINE_ISF:    { ROW: 1, COL: 3 , TIME: False}
+  BOTT_FRIS:   { ROW: 2, COL: 1 , TIME: False}
+  BOTT_ROSS:   { ROW: 2, COL: 2 , TIME: False}
+  BOTT_AMUS:   { ROW: 2, COL: 3 , TIME: True }
+  TOTA_ISF:    { ROW: 3, COL: 1 , TIME: True }
+  ICB:         { ROW: 3, COL: 2 , TIME: True }
+
+map:
+  FILE: "FIGURES/box_VALSI.png"
+  POS: [3, 3] # ROW: 3, COL: 3 
+
+layout:
+  SIZE: [210, 210] # size of one subplot (width, height) 
+  SUBPLOT: [3, 3] # nrows, ncols
+  ADJUST:  [0.04, 0.96, 0.1, 0.95, 0.25, 0.15] # left, right, bottom, top, hspace, wspace
+  DPI: 150
+
+legend:
+  NCOL: 3
+  AXES: [0.04, 0.01, 0.92, 0.06] # left, bottom, width, height

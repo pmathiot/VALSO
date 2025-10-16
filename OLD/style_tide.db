@@ -1,0 +1,6 @@
+ runid                   |     name      |   line   |   color        |
+ eORCA025.L121-OPM000    | spin-up       |   -      | grey           |
+ eORCA025.L121-OPM026    | REF-TIDE      |   -      | royalblue      |
+ eORCA025.L121-OPM032    | REF-NOTIDE    |   --     | cornflowerblue |
+ eORCA025.L121-OPM031    | PERT-TIDE     |   -      | sienna         |
+ eORCA025.L121-OPM035    | PERT-NOTIDE   |   --     | salmon         |

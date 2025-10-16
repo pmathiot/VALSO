@@ -68,18 +68,16 @@ you can now build the plot for the Southern Ocean:
 ```
    conda activate valso
 ```
-* `./run_plot_VALSO.bash [KEY] [FREQ] [RUNID list]` as example : 
+* make sure the runid you want to monitor is in styles.yml
+* `python run_plot.py -runid [RUNID list] -figs [list of YML figs file name] -dir [DATA PATH DIR] -outs [list of outputs figure names]` as example : 
 ```
-./run_plot_VALSO.bash output_name 1y eORCA025.L121-OPM006 eORCA025.L121-OPM007
+python run_plot.py -runid runid1 runid2 -figs YML/figs_VALSO.yml -dir path_to_run_all_output -outs figure_output
 ```
 The script will look for file with a generic pattern and plot all the available data.
-* You can also run with a similar command VALGLO, VALSI and VALAMU.
+* You can also run with a similar command VALGLO, VALSI and VALAMU or even build your owns figs.yml file.
 
 ## Output
-* figure [KEY].png
-
-Other output : 
-* all individual time series are saved in FIGURES along with the txt file describing the exact command line done to build it
+* figure figure_output.png
 
 ## To add a new diag
 * build a new script in SCRIPT or modify one (for exemple if you want another area for the bottomT time series, update `mk_bot.bash` to add it)
@@ -87,6 +85,7 @@ If a new script is added you need also to:
   * add a logical flag in param
   * update `run_all.sh`
 Then:
-* build a new run_plot script based on the existing one
+* update plots.yml to add your new diagnostics
+* build a new figs.yml file based on the existing one
 
 

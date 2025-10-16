@@ -6,7 +6,7 @@ RUNID=<RUNID>
 TAG=<TAG>
 FREQ=<FREQ>
 
-MXLvar='|somxzint1|sokaraml|somxl010|'
+MXLvar='|somxzint1|sokaraml|somxl010|mldr0_1|'
 
 # load path and mask
 . param.bash

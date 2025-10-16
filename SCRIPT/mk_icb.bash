@@ -6,7 +6,7 @@ RUNID=<RUNID>
 TAG=<TAG>
 FREQ=<FREQ>
 
-VAR='|berg_melt|'
+VAR='|berg_melt|iceberg|'
 
 # load path and mask
 . param.bash
