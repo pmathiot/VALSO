@@ -2,16 +2,17 @@ description:
   NAME: VALSO
 
 ts:
-  RG:     { ROW: 1, COL: 1 , TIME: False}
-  WG:     { ROW: 1, COL: 2 , TIME: False}
-  ACC:    { ROW: 1, COL: 3 , TIME: False}
-  WROSS:  { ROW: 2, COL: 1 , TIME: False}
-  WWED:   { ROW: 2, COL: 2 , TIME: False}
-  EROSS:  { ROW: 3, COL: 1 , TIME: True }
-  EWED:   { ROW: 3, COL: 2 , TIME: True }
-  AMU:    { ROW: 3, COL: 3 , TIME: True }
-  WG_MLD: { ROW: 4, COL: 1 , TIME: True}
-  #ICB:    { ROW: 3, COL: 3 , TIME: True }
+  RG:       { ROW: 1, COL: 1 , TIME: False}
+  WG:       { ROW: 1, COL: 2 , TIME: False}
+  ACC:      { ROW: 1, COL: 3 , TIME: true }
+  WROSS:    { ROW: 2, COL: 1 , TIME: False}
+  WWED:     { ROW: 2, COL: 2 , TIME: False}
+  EROSS:    { ROW: 3, COL: 1 , TIME: False}
+  EWED:     { ROW: 3, COL: 2 , TIME: False}
+  AMU:      { ROW: 3, COL: 3 , TIME: False}
+  WG_MLD:   { ROW: 4, COL: 1 , TIME: True }
+  ICB:      { ROW: 4, COL: 2 , TIME: True }
+  TOTA_ISF: { ROW: 4, COL: 3 , TIME: True }
 
 map:
   FILE: "FIGURES/box_VALSO.png"

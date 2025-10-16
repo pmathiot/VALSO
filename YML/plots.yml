@@ -1,10 +1,10 @@
 plots:
-  GETZ_ISF:      {TITLE: "GETZ total melt (Gt/y)",         FILE_PATTERN: "ISF_ALL*1y*.nc",          VAR: isfmelt_GETZ,            SF: -1.0}
-  TWAI_ISF:      {TITLE: "TWAI total melt (Gt/y)",         FILE_PATTERN: "ISF_ALL*1y*.nc",          VAR: isfmelt_TWAI,            SF: -1.0}
-  PINE_ISF:      {TITLE: "PIG total melt (Gt/y)",          FILE_PATTERN: "ISF_ALL*1y*.nc",          VAR: isfmelt_PINE,            SF: -1.0}
-  FRIS_ISF:      {TITLE: "FRIS total melt (Gt/y)",         FILE_PATTERN: "ISF_ALL*1y*.nc",          VAR: isfmelt_FRIS,            SF: -1.0}
-  ROSS_ISF:      {TITLE: "ROSS total melt (Gt/y)",         FILE_PATTERN: "ISF_ALL*1y*.nc",          VAR: isfmelt_ROSS,            SF: -1.0}
-  TOTA_ISF:      {TITLE: "ANT total melt (Gt/y)",          FILE_PATTERN: "ISF_ALL*1y*.nc",          VAR: isfmelt_TOTA,            SF: -1.0}
+  GETZ_ISF:      {TITLE: "GETZ total melt (Gt/y)",         FILE_PATTERN: "ISF_ALL*1y*.nc",          VAR: isfmelt_GETZ,            SF: 1.0}
+  TWAI_ISF:      {TITLE: "TWAI total melt (Gt/y)",         FILE_PATTERN: "ISF_ALL*1y*.nc",          VAR: isfmelt_TWAI,            SF: 1.0}
+  PINE_ISF:      {TITLE: "PIG total melt (Gt/y)",          FILE_PATTERN: "ISF_ALL*1y*.nc",          VAR: isfmelt_PINE,            SF: 1.0}
+  FRIS_ISF:      {TITLE: "FRIS total melt (Gt/y)",         FILE_PATTERN: "ISF_ALL*1y*.nc",          VAR: isfmelt_FRIS,            SF: 1.0}
+  ROSS_ISF:      {TITLE: "ROSS total melt (Gt/y)",         FILE_PATTERN: "ISF_ALL*1y*.nc",          VAR: isfmelt_ROSS,            SF: 1.0}
+  TOTA_ISF:      {TITLE: "ANT total melt (Gt/y)",          FILE_PATTERN: "ISF_ALL*1y*.nc",          VAR: isfmelt_TOTA,            SF: 1.0}
   ACC:           {TITLE: "ACC transport (Sv)",             FILE_PATTERN: "*ACC*1y*.nc",             VAR: vtrp,                    SF: -1.0}
   AMOC:          {TITLE: "Max AMOC 26.5N (Sv)",            FILE_PATTERN: "rapid_*1y*moc.nc",        VAR: Total_max_amoc_rapid,    SF:  1.0}
   AMHT:          {TITLE: "AMHT 26.5N (PW)",                FILE_PATTERN: "*1y*mht_265.nc",          VAR: zomht_atl,               SF:  1.0}
