@@ -89,7 +89,7 @@ class Run:
             except:
                 da[ctime] = da.indexes[ctime].to_datetimeindex()
     
-            self.ts[var] = da.to_dataframe(name=self.name)
+            self.ts[plot.name] = da.to_dataframe(name=self.name)
     
         return self.ts
 
@@ -107,21 +107,10 @@ class Run:
         if self.ts is None:
             raise ValueError(f"Time series not loaded for run {self.runid}")
 
-        # plot.var = "sum_iceberg_tmask|sum_berg_melt_tmask"
-        pattern = plot.var
-        
-        # trouver toutes les colonnes de self.ts qui matchent le pattern
-        matched_keys = [k for k in self.ts.keys() if re.fullmatch(pattern, k)]
-        if not matched_keys:
-            raise KeyError(f"No variable matches pattern '{pattern}' in self.ts")
-        elif len(matched_keys) > 1:
-            print(f"Warning: multiple matches found: {matched_keys}, using all")
-        var = matched_keys[0]
+        self.ts[plot.name].plot(ax=ax, legend=False, label=self.name, linestyle=self.line, marker=self.marker, color=self.color)
 
-        self.ts[var].plot(ax=ax, legend=False, label=self.name, linestyle=self.line, marker=self.marker, color=self.color)
-
-        rmin  = self.ts[var].values.min()
-        rmax  = self.ts[var].values.max()
+        rmin  = self.ts[plot.name].values.min()
+        rmax  = self.ts[plot.name].values.max()
 
         # set x axis
         ax.tick_params(axis='both', labelsize=18)
@@ -182,6 +171,7 @@ class Plot:
         """
         rmin = self.ymin
         rmax = self.ymax
+        print(self)
         for run in runs:
             zmin, zmax = run.plot_ts(self.ax, self)
             rmin = min(rmin, zmin)
