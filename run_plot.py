@@ -1,5 +1,6 @@
 import os
 import re
+import cftime
 import numpy as np
 import glob
 import yaml
@@ -71,7 +72,16 @@ class Run:
             except:
                 ctime = 'time_counter'
                 ds = xr.open_mfdataset(files, parallel=True, concat_dim='time_counter', combine='nested').sortby(ctime)
-    
+   
+            # Exemple : si runid doit être décalé
+            if self.runid in ["IPSLCM-ECM71-ico-LR-pi-01"]:
+                attrs = ds[ctime].attrs.copy()
+                ds[ctime] = xr.DataArray(
+                    [cftime.DatetimeNoLeap(t.year - 20, t.month, t.day) for t in ds[ctime].values],
+                    dims=ds[ctime].dims,
+                    coords=ds[ctime].coords,
+                    attrs=attrs
+                )
             # gestion des variables avec regex
             matched_vars = [v for v in ds.data_vars if re.fullmatch(var_pattern, v)]
             if not matched_vars:
@@ -88,7 +98,6 @@ class Run:
                 da[ctime] = pd.to_datetime(da.indexes[ctime])
             except:
                 da[ctime] = da.indexes[ctime].to_datetimeindex()
-    
             self.ts[plot.name] = da.to_dataframe(name=self.name)
     
         return self.ts
@@ -171,7 +180,6 @@ class Plot:
         """
         rmin = self.ymin
         rmax = self.ymax
-        print(self)
         for run in runs:
             zmin, zmax = run.plot_ts(self.ax, self)
             rmin = min(rmin, zmin)
@@ -354,6 +362,7 @@ class Figure:
             cdir (str): Base directory for data files.
             out (str): Output file name for the generated plot.
         """
+        print('')
         print(f"🔄 Generating figure: {out}")
         print(self)
         print('')
@@ -362,8 +371,12 @@ class Figure:
         runs = load_runs(style_cfg, runids, cdir)
 
         for run in runs:
+            print('')
             print(run)
+            print('')
             run.load_ts(plots)
+
+        print('')
 
         # Create subplots
         nrows = self.layout["SUBPLOT"][0]
@@ -504,15 +517,39 @@ def load_obss(obss_file, figure):
 
 def load_figure(figs_file):
     """
-    Loads figure configuration from figs.yml.
+    Loads figure configuration from a figs.yml-like file.
+
+    Logic:
+      1. Try figs_file directly.
+      2. If missing, try "figs/figs_{figs_file}.yml".
+      3. If still missing, raise FileNotFoundError.
 
     Args:
-        figs_file (str): Path to the figs.yml file.
+        figs_file (str): Path or base name of the figs YAML file.
 
     Returns:
         Figure: A Figure object containing the configuration.
     """
-    data = load_yaml(figs_file)
+
+    # 1. First attempt: direct path
+    if os.path.isfile(figs_file):
+        path = figs_file
+
+    else:
+        # 2. Second attempt: figs/figs_<name>.yml
+        alt = os.path.join("YML", f"figs_{figs_file}.yml")
+
+        if os.path.isfile(alt):
+            path = alt
+        else:
+            # 3. Nothing found
+            raise FileNotFoundError(
+                f"Could not find YAML figure file.\n"
+                f"Tried:\n"
+                f"  - {figs_file}\n"
+                f"  - {alt}"
+            )
+    data = load_yaml(path)
     figure = Figure(data)
     return figure
 
