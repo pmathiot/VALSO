@@ -1,5 +1,5 @@
 description:
-  NAME: VALSO
+  NAME: VALSI
 
 ts:
   FRIS_ISF:    { ROW: 1, COL: 1 , TIME: False}
@@ -11,14 +11,14 @@ ts:
   TOTA_ISF:    { ROW: 3, COL: 1 , TIME: True }
   ICB:         { ROW: 3, COL: 2 , TIME: True }
 
-map:
-  FILE: "FIGURES/box_VALSI.png"
-  POS: [3, 3] # ROW: 3, COL: 3 
+#map:
+  #FILE: "FIGURES/box_VALSI.png"
+  #POS: [3, 3] # ROW: 3, COL: 3 
 
 layout:
   SIZE: [210, 210] # size of one subplot (width, height) 
   SUBPLOT: [3, 3] # nrows, ncols
-  ADJUST:  [0.04, 0.96, 0.1, 0.95, 0.25, 0.15] # left, right, bottom, top, hspace, wspace
+  ADJUST: [0.04, 0.1, 0.96, 0.95, 0.23, 0.23]  # left, bottom, right, top, hspace, wspace
   DPI: 150
 
 legend:
