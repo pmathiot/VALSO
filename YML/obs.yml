@@ -10,3 +10,6 @@ obs:
   #  WG_MLD  : {REF: "EN4.2.2.g10"          , MEAN: 120.0 , STD: 15.0 }
   ICB     : {REF: "Rignot et al., 2013"  , MEAN: 1265.0, STD: 141.0}
   TOTA_ISF: {REF: "Rignot et al., 2013"  , MEAN: 1500.0, STD: 237.0}
+  FRIS_ISF: {REF: "Rignot et al., 2013"  , MEAN:  155.4, STD:  45.0}
+  ROSS_ISF: {REF: "Rignot et al., 2013"  , MEAN:   47.7, STD:  34.0}
+  PINE_ISF: {REF: "Rignot et al., 2013"  , MEAN:  102.0, STD:   8.0}
