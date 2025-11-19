@@ -25,7 +25,7 @@ LON_REGEX = re.compile(r"^(lon|longitude|nav_lon|xt).*", re.IGNORECASE)
 # Dimensions like i, j, x, y, xpos, ypos, ni, nj...
 IDIM_REGEX = re.compile(r"^(i|x|ni|xi).*", re.IGNORECASE)
 JDIM_REGEX = re.compile(r"^(j|y|nj|yj).*", re.IGNORECASE)
-
+TDIM_REGEX = re.compile(r"^(time|t|time_counter|time_centered)$", re.IGNORECASE)
 
 # =============================================================================
 # CLI parsing
@@ -44,7 +44,7 @@ def parse_args():
     parser.add_argument("-v", "--var",
                         help="Variable to process. If omitted, all numeric variables are used.")
     parser.add_argument("-m", "--method", required=True,
-                        choices=["mean", "sum", "min", "max", "wmean"],
+                        choices=["mean", "sum", "min", "max", "wmean", "wsum"],
                         help="Diagnostic method to compute.")
     parser.add_argument("--llbox",
                         help="Lat-lon box: 'latmin,latmax,lonmin,lonmax'.")
@@ -190,7 +190,7 @@ def apply_mask(da, maskfile, maskvar):
 # Diagnostic methods
 # =============================================================================
 
-def compute_diag(da, method):
+def compute_diag(da, method, dims, weights=None):
     """
     Compute a statistic on a DataArray.
 
@@ -205,25 +205,25 @@ def compute_diag(da, method):
     xr.DataArray
         Result of the diagnostic.
     """
+
     if method == "mean":
-        return da.mean()
+        return da.mean(dim=dims)
 
     elif method == "sum":
-        return da.sum()
+        return da.sum(dim=dims)
 
     elif method == "min":
-        return da.min()
+        return da.min(dim=dims)
 
     elif method == "max":
-        return da.max()
+        return da.max(dim=dims)
 
     elif method == "wmean":
         # Try common CF conventions
-        for cand in ["areacello", "area", "cell_area", "e1t", "e2t"]:
-            if cand in da.coords or cand in da:
-                weights = da[cand]
-                return da.weighted(weights).mean()
-        raise ValueError("Weighted mean requested but no known area weight found.")
+        return da.weighted(weights).mean(dim=dims)
+
+    elif method == "wsum":
+        return da.weighted(weights).sum(dim=dims)
 
     else:
         raise ValueError(f"Unknown method: {method}")
@@ -239,6 +239,14 @@ def main():
 
     print(f"Opening: {args.file}")
     ds = xr.open_dataset(args.file)
+    idim = detect_dim(ds, IDIM_REGEX)
+    jdim = detect_dim(ds, JDIM_REGEX)
+
+    print(ds.data_vars) 
+    weights=None
+    for cand in ["areacello", "area", "cell_area", "e1t", "e2t"]:
+        if cand in ds.coords or cand in ds.data_vars:
+            weights = ds[cand]
 
     # Determine which variables to process
     if args.var:
@@ -272,14 +280,16 @@ def main():
             da = apply_mask(da, maskfile, maskvar)
 
         print(f"Computing {args.method} for {var}")
-        results[var] = compute_diag(da, args.method)
+        results_da = compute_diag(da, args.method, [idim, jdim], weights)
 
         # New name for output variable: <var>_<method>
         outname = f"{var}_{args.method}"
-        result_da.name = outname
+        results_da.name = outname
+        results[outname]=results_da
+        print(results_da)
         
         # Save output
-        outfile = f"{args.output}_{var}_{args.method}"
+        outfile = f"{var}_{args.method}_{args.output}"
         print(f"Writing output: {outfile}")
         xr.Dataset(results).to_netcdf(outfile)
 
