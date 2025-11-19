@@ -274,6 +274,10 @@ def main():
         print(f"Computing {args.method} for {var}")
         results[var] = compute_diag(da, args.method)
 
+    # New name for output variable: <var>_<method>
+    outname = f"{var}_{args.method}"
+    result_da.name = outname
+    
     # Save output
     print(f"Writing output: {args.output}")
     xr.Dataset(results).to_netcdf(args.output)
