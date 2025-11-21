@@ -65,13 +65,29 @@ class Run:
             if not files:
                 raise FileNotFoundError(f'No files match {file_pattern} in {self.dir}')
     
-            # open data
-            try:
-                ctime = 'time_centered'
-                ds = xr.open_mfdataset(files, parallel=True, concat_dim='time_counter', combine='nested').sortby(ctime)
-            except:
-                ctime = 'time_counter'
-                ds = xr.open_mfdataset(files, parallel=True, concat_dim='time_counter', combine='nested').sortby(ctime)
+            # get time dimension and variable
+            TIME_REGEX = re.compile(r'^time(?!.*bounds)(_.*)?$', re.IGNORECASE)
+            ds = xr.open_dataset(files[0])
+            for dim in ds.dims:
+                if TIME_REGEX.match(dim):
+                    ctime_dim = dim
+           
+            ctime = None
+            for coord in ds.coords:
+                if TIME_REGEX.match(coord):
+                    ctime = coord
+
+            if ctime == None:
+                for var in ds.data_vars:
+                    if TIME_REGEX.match(var):
+                        ctime = var
+
+            #try:
+            #    ctime = 'time_centered'
+            ds = xr.open_mfdataset(files, parallel=True, concat_dim=ctime_dim, combine='nested').sortby(ctime)
+            #except:
+                #ctime = 'time_counter'
+                #ds = xr.open_mfdataset(files, parallel=True, concat_dim=ctime_dim, combine='nested').sortby(ctime)
    
             # Exemple : si runid doit être décalé
             if self.runid in ["IPSLCM-ECM71-ico-LR-pi-01"]:
@@ -140,7 +156,7 @@ class Plot:
     """
 
     def __str__(self):
-        return f'        Plot(var={self.var}, file_pattern={self.file_pattern}, sf={self.sf}, title={self.title}, loc={self.row}|{self.col})'
+        return f'        Plot(name={self.name}, var={self.var}, file_pattern={self.file_pattern}, sf={self.sf}, title={self.title}, loc={self.row}|{self.col})'
 
     def __init__(self, data, obs=None):
         """
@@ -150,15 +166,18 @@ class Plot:
             data (dict): Dictionary containing plot configuration.
         """
         self.name = data.get("NAME", "UNKNOWN")
+        self.pref = data.get("PREF", None)
         self.var = data.get("VAR", None)
         self.file_pattern = data.get("FILE_PATTERN", None)
         self.sf = data.get("SF", 1.0)
         self.title = data.get("TITLE", "UNKNOWN")
+        if ( self.pref != None ):
+            self.title = f"{self.pref} {self.title}"
         self.row = data.get("ROW", 1)
         self.col = data.get("COL", 1)
         self.rowspan = data.get("ROWSPAN", 1)
         self.colspan = data.get("COLSPAN", 1)
-        self.time = data.get("TIME", False)
+        self.time = data.get("TIME", True)
         self.fig_file = data.get("FIG_FILE", None)
         if obs:
             self.ymin = obs.obs_min
@@ -282,14 +301,14 @@ class Figure:
         Args:
             data (dict): Data loaded from figs.yml containing figure configuration.
         """
-        self.description = data.get("description", {"NAME": "VALSO"})
-        self.legend = data.get("legend", {"NCOL": 3, "AXES": [0.04, 0.01, 0.92, 0.06]})
+        self.description = data.get("description", {"NAME": "ts plot"})
+        self.legend = data.get("legend", {"NCOL": 3, "AXES": [0.01, 0.01, 0.92, 0.06]})
         self.ts = data.get("ts", {})
         self.map = data.get("map", {})
         self.layout = data.get("layout", {
             "SUBPLOT": [1, 1],
-            "SIZE": [10, 8],
-            "ADJUST": [0.1, 0.9, 0.1, 0.9, 0.4, 0.4],
+            "SIZE": [210, 210],
+            "ADJUST": [0.04, 0.17, 0.96, 0.95, 0.27, 0.15],
             "DPI": 150
         })
 
@@ -366,6 +385,7 @@ class Figure:
         print(f"🔄 Generating figure: {out}")
         print(self)
         print('')
+
         obss = load_obss(obss_cfg, self)
         plots = load_plots(plots_cfg, self, obss)
         runs = load_runs(style_cfg, runids, cdir)
