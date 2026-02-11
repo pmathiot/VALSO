@@ -13,6 +13,8 @@ import matplotlib.dates as mdates
 from matplotlib.gridspec import GridSpec
 #import matplotlib.ticker as ticker
 import warnings
+import time
+import tracemalloc
 warnings.filterwarnings(
     "ignore",
     category=RuntimeWarning,
@@ -20,6 +22,20 @@ warnings.filterwarnings(
 )
 
 # ===================== CLASSES =====================
+def read_scalar_timeseries(files, var, time_name):
+    times = []
+    values = []
+
+    for f in files:
+        ds = xr.open_dataset(f)
+        for t in ds[time_name].values[:]:
+            times.append(t)
+        for v in ds[var].values[:]:
+            values.append(v.squeeze())
+        ds.close()
+    return times, np.array(values)
+
+
 class Run:
     """
     Represents the style and data for a specific run.
@@ -28,7 +44,7 @@ class Run:
     def __str__(self):
         return f'    Run(runid={self.runid}, name={self.name}, line={self.line}, color={self.color}, marker={self.marker}, dir={self.dir})'
 
-    def __init__(self, cdir, runid, name, line="-", color="black", marker="o"):
+    def __init__(self, cdir, runid, name, line="-", color="black", marker=None):
         """
         Initializes a Run object.
 
@@ -82,22 +98,6 @@ class Run:
                     if TIME_REGEX.match(var):
                         ctime = var
 
-            #try:
-            #    ctime = 'time_centered'
-            ds = xr.open_mfdataset(files, parallel=True, concat_dim=ctime_dim, combine='nested').sortby(ctime)
-            #except:
-                #ctime = 'time_counter'
-                #ds = xr.open_mfdataset(files, parallel=True, concat_dim=ctime_dim, combine='nested').sortby(ctime)
-   
-            # Exemple : si runid doit être décalé
-            if self.runid in ["IPSLCM-ECM71-ico-LR-pi-01"]:
-                attrs = ds[ctime].attrs.copy()
-                ds[ctime] = xr.DataArray(
-                    [cftime.DatetimeNoLeap(t.year - 20, t.month, t.day) for t in ds[ctime].values],
-                    dims=ds[ctime].dims,
-                    coords=ds[ctime].coords,
-                    attrs=attrs
-                )
             # gestion des variables avec regex
             matched_vars = [v for v in ds.data_vars if re.fullmatch(var_pattern, v)]
             if not matched_vars:
@@ -106,16 +106,22 @@ class Run:
                 raise ValueError(f"Multiple variables match pattern '{var_pattern}': {matched_vars}")
     
             var = matched_vars[0]  # on prend la seule variable valide
-    
-            da = xr.DataArray(ds[var].values.squeeze() * sf, [(ctime, ds[ctime].values)], name=self.name)
-    
+ 
+            times, data = read_scalar_timeseries(files, var=var, time_name=ctime)
+
+            # Exemple : si runid doit être décalé
+            if self.runid in ["IPSLCM-ECM71-ico-LR-pi-01"]:
+                times = [cftime.DatetimeNoLeap(t.year - 20, t.month, t.day) for t in times]
+
+            da = xr.DataArray(data * sf, [(ctime, times)], name=self.name).sortby(ctime)
+
             # manage time
             try:
                 da[ctime] = pd.to_datetime(da.indexes[ctime])
             except:
                 da[ctime] = da.indexes[ctime].to_datetimeindex()
             self.ts[plot.name] = da.to_dataframe(name=self.name)
-    
+
         return self.ts
 
     def plot_ts(self, ax, plot):
@@ -132,22 +138,25 @@ class Run:
         if self.ts is None:
             raise ValueError(f"Time series not loaded for run {self.runid}")
 
-        self.ts[plot.name].plot(ax=ax, legend=False, label=self.name, linestyle=self.line, marker=self.marker, color=self.color)
+        self.ts[plot.name].plot(ax=ax, legend=False, label=self.name, linestyle=self.line, marker=self.marker, color=self.color, linewidth=2)
 
         rmin  = self.ts[plot.name].values.min()
         rmax  = self.ts[plot.name].values.max()
 
+        tmin = self.ts[plot.name].index.min()
+        tmax = self.ts[plot.name].index.max()
+
         # set x axis
         ax.tick_params(axis='both', labelsize=18)
-        if (not plot.time):
-            ax.set_xticklabels([])
-        else:
-            ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
+#        if (not plot.time):
+#            ax.set_xticklabels([])
+#        else:
+#            ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
         for lt in ax.get_xticklabels():
             lt.set_ha('center')
         ax.set_xlabel('')
 
-        return rmin, rmax
+        return rmin, rmax, tmin, tmax
 
 
 class Plot:
@@ -200,12 +209,17 @@ class Plot:
         rmin = self.ymin
         rmax = self.ymax
         for run in runs:
-            zmin, zmax = run.plot_ts(self.ax, self)
+            zmin, zmax, tmin, tmax = run.plot_ts(self.ax, self)
             rmin = min(rmin, zmin)
             rmax = max(rmax, zmax)
+#            xmin = min(xmin, tmin)
+#            xmax = min(xmax, tmax)
         rrange = rmax - rmin
         self.ymin = rmin - 0.02 * rrange
         self.ymax = rmax + 0.02 * rrange
+
+#        self.xmin = xmin - pd.DateOffset(months=6)
+#        self.xmax = xmax - pd.DateOffset(months=6)
 
         self.ax.set_ylim([self.ymin, self.ymax])
         hl, lb = self.ax.get_legend_handles_labels()
@@ -588,6 +602,7 @@ def main(runids, plots_cfg="plots.yml", figs_cfgs=["figs.yml"], style_cfg="style
         cdir (str): Base directory for data files.
         outs (list): List of output file names for the generated plots.
     """
+    tracemalloc.start()
     for figs_cfg, out in zip(figs_cfgs, outs):
         # Load data and styles
         figure = load_figure(figs_cfg)

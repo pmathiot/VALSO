@@ -1,5 +1,4 @@
 runs:
-  eORCA025.L121-OPM000:  {NAME: NOINI,               LINE: "-",  COLOR: royalblue}
   eORCA025.L121-OPM005:  {NAME: 2000,                LINE: "-",  COLOR: chocolate}
   ORCA025.L75-GNJ002:    {NAME: O025GNJ002,          LINE: "-",  COLOR: chocolate}
   eORCA025.L121-OPM006:  {NAME: REF,                 LINE: "-",  COLOR: crimson}
@@ -19,14 +18,20 @@ runs:
   eORCA025.L121-OPM023:  {NAME: PERT2160,            LINE: "--", COLOR: sienna}
   eORCA025.L121-OPM024:  {NAME: PERT2160+PEN,        LINE: "-",  COLOR: chocolate}
   eORCA025.L121-OPM025:  {NAME: PERT2160+PEN+SHLAT2d,LINE: "-", COLOR: orange}
-  eORCA025.L121-OPM026:  {NAME: REF,                 LINE: "-",  COLOR: sienna}
   eORCA025.L121-OPM027:  {NAME: HADCM3_A1B_2160,     LINE: "-",  COLOR: royalblue}
-  eORCA025.L121-OPM031:  {NAME: IPSLCM6_SSP585_2260, LINE: "-",  COLOR: cornflowerblue}
-  AMUXL025-ICB01:        {NAME: ICB DEP,             LINE: "-",  COLOR: royalblue}
-  AMUXL025-ICB02:        {NAME: ICB SUR,             LINE: "-",  COLOR: crimson}
-  AMUXL025-ICB03:        {NAME: ICB RNF,             LINE: "-",  COLOR: sienna}
-  AMUXL025-ICB04:        {NAME: ICB NML,             LINE: "-",  COLOR: cornflowerblue}
-  AMUXL025-ICB05:        {NAME: ICB BCK,             LINE: "-",  COLOR: darkgreen}
-  AMUXL025-ICB06:        {NAME: ICB DDM,             LINE: "-",  COLOR: chocolate}
-  AMUXL12-GNJ004_BM02:   {NAME: NJ_TEST,             LINE: "-",  COLOR: sienna}
-  IPSLCM-ECM71-ico-LR-pi-01: {NAME: EIPSLCM,         LINE: "-", MARKER: "o", COLOR: red}
+
+  eORCA025.L121-OPM000:   {NAME: Spin-up     , LINE: "-",  COLOR: lightgrey}
+  eORCA025.L121-OPM026:   {NAME: OCEAN-hind  , LINE: "-",  COLOR: black}
+  eORCA025.L121-OPM0261:  {NAME: OCEAN-ctrl  , LINE: "-",  COLOR: orange}
+  eORCA025.L121-OPM0262:  {NAME: OCEAN-Pgeom , LINE: "-",  COLOR: purple}
+  eORCA025.L121-OPM0263:  {NAME: OCEAN-Fgeom , LINE: "-",  COLOR: violet}
+  eORCA025.L121-OPM031:   {NAME: OCEAN-warm  , LINE: "-",  COLOR: royalblue}
+  eORCA025.L121-MISO026:  {NAME: ICEOCEAN-hind  , LINE: "-",  COLOR: gray}
+  eORCA025.L121-MISO0261: {NAME: ICEOCEAN-ctrl  , LINE: "-",  COLOR: gold}
+  eORCA025.L121-MISO031:  {NAME: ICEOCEAN-warm  , LINE: "-",  COLOR: lightskyblue}
+
+  IPSLCM-ECM71-ico-LR-pi-01       : {NAME: IPSL-CM-Elmer (spinup), LINE: "-", MARKER: "o", COLOR: gray}
+  IPSLCM-ECM71-ico-LR-pi-01.pi    : {NAME: IPSL-CM-Elmer (PI)    , LINE: "-", MARKER: "o", COLOR: blue}
+  IPSLCM-ECM71-ico-LR-pi-01.1pcCO2: {NAME: IPSL-CM-Elmer (1%CO2) , LINE: "-", MARKER: "o", COLOR: red }
+  eORCA1.L75-TPM000:     {NAME: eO1_NEMO5,             LINE: "-",  COLOR: sienna}
+  eORCA1.L75-TPM002:     {NAME: eO1_NEMO4setting,             LINE: "-",  COLOR: royalblue}

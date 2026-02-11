@@ -11,14 +11,14 @@ plots:
   QNET:          {TITLE: "Net downward heat flux (W/m2)",  FILE_PATTERN: "GLO_hfds*1y*.nc",        VAR: mean_hfds,               SF:  1.0}
   SO_SST:        {TITLE: "SO sst [K]",                     FILE_PATTERN: "SO_sst*1y*.nc",          VAR: mean_thetao,             SF:  1.0}
   NWC_SST:       {TITLE: "NWC sst [K]",                    FILE_PATTERN: "NWC_sst*1y*.nc",         VAR: mean_thetao,             SF:  1.0}
-  AMUXL_SIE_M02: {TITLE: "SIE AMUXL m02 [1e6 km2]",        FILE_PATTERN: "AMUXL*sie*02*.nc",       VAR: SExnsidc,                SF: 0.001}
-  AMUXL_SIE_M09: {TITLE: "SIE AMUXL m09 [1e6 km2]",        FILE_PATTERN: "AMUXL*sie*09*.nc",       VAR: SExnsidc,                SF: 0.001}
-  ARC_SIE_M03:   {TITLE: "SIE Arctic m03 [1e6 km2]",       FILE_PATTERN: "GLO*sie*03*.nc",         VAR: NExnsidc,                SF: 0.001}
-  ARC_SIE_M09:   {TITLE: "SIE Arctic m09 [1e6 km2]",       FILE_PATTERN: "GLO*sie*09*.nc",         VAR: NExnsidc,                SF: 0.001}
-  ANT_SIE_M02:   {TITLE: "SIE Antarctic m02 [1e6 km2]",    FILE_PATTERN: "GLO*sie*02*.nc",         VAR: SExnsidc,                SF: 0.001}
-  ANT_SIE_M09:   {TITLE: "SIE Antarctic m09 [1e6 km2]",    FILE_PATTERN: "GLO*sie*09*.nc",         VAR: SExnsidc,                SF: 0.001}
-  WROSS:         {TITLE: "Mean bot. sal. WROSS (PSU)",     FILE_PATTERN: "*WROSS*so*1y*T.nc",      VAR: mean_sosbs,              SF:  1.0}
-  WWED:          {TITLE: "Mean bot. sal. WWED (PSU)",      FILE_PATTERN: "*WWED*so*1y*T.nc",       VAR: mean_sosbs,              SF:  1.0}
+  AMUXL_SIE_M02: {TITLE: "SIE AMUXL m02 [1e6 km2]",        FILE_PATTERN: "AMUXL*sie*02.nc",       VAR: SExnsidc,                SF: 0.001}
+  AMUXL_SIE_M09: {TITLE: "SIE AMUXL m09 [1e6 km2]",        FILE_PATTERN: "AMUXL*sie*09.nc",       VAR: SExnsidc,                SF: 0.001}
+  ARC_SIE_M03:   {TITLE: "SIE Arctic m03 [1e6 km2]",       FILE_PATTERN: "GLO*sie*03.nc",         VAR: NExnsidc,                SF: 0.001}
+  ARC_SIE_M09:   {TITLE: "SIE Arctic m09 [1e6 km2]",       FILE_PATTERN: "GLO*sie*09.nc",         VAR: NExnsidc,                SF: 0.001}
+  ANT_SIE_M02:   {TITLE: "SIE Antarctic m02 [1e6 km2]",    FILE_PATTERN: "GLO*sie*02.nc",         VAR: SExnsidc,                SF: 0.001}
+  ANT_SIE_M09:   {TITLE: "SIE Antarctic m09 [1e6 km2]",    FILE_PATTERN: "GLO*sie*09.nc",         VAR: SExnsidc,                SF: 0.001}
+  WROSS:         {TITLE: "Mean bot. sal. WROSS (g/kg)",     FILE_PATTERN: "*WROSS*so*1y*T.nc",      VAR: mean_sosbs,              SF:  1.0}
+  WWED:          {TITLE: "Mean bot. sal. WWED (g/kg)",      FILE_PATTERN: "*WWED*so*1y*T.nc",       VAR: mean_sosbs,              SF:  1.0}
   AMU:           {TITLE: "Mean bot. temp. AMU (°C)",       FILE_PATTERN: "*AMU_*thetao*1y*T.nc",   VAR: mean_sosbt,              SF:  1.0}
   EROSS:         {TITLE: "Mean bot. temp. EROSS (°C)",     FILE_PATTERN: "*EROSS*thetao*1y*T.nc",  VAR: mean_sosbt,              SF:  1.0}
   EWED:          {TITLE: "Mean bot. temp. EWED (°C)",      FILE_PATTERN: "*EWED*thetao*1y*T.nc",   VAR: mean_sosbt,              SF:  1.0}
@@ -29,3 +29,29 @@ plots:
   BOTT_FRIS:     {TITLE: "Mean bot. temp. FRIS (C)",       FILE_PATTERN: "FRIS*thetao*1y*T.nc",    VAR: mean_sosbt_tmask,       SF:  1.0}
   BOTT_ROSS:     {TITLE: "Mean bot. temp. ROSS (C)",       FILE_PATTERN: "ROSS*thetao*1y*T.nc",    VAR: mean_sosbt_tmask,       SF:  1.0}
   BOTT_AMUS:     {TITLE: "Mean bot. temp. AMU (C)",        FILE_PATTERN: "AMUS*thetao*1y*T.nc",    VAR: mean_sosbt_tmask,       SF:  1.0}
+
+  # As run_plot is very versatil and can plot any time series, here is non NEMO time series
+  # Elmer variable to add on monitoring
+  GL_AMU:       {TITLE: "Grounding line flux AMU (Gt/y)", FILE_PATTERN: "ismip6_fluxes_*_monitoring_antarctica.nc", VAR: Ice_flux_at_Grounding_Line_11, SF: -1.0}
+  BMB_AMU:      {TITLE: "Basal Mass Balance AMU (Gt/y)", FILE_PATTERN: "ismip6_fluxes_*_monitoring_antarctica.nc", VAR: BMB_Flux_11, SF: -1.0}
+  SMB_AMU:      {TITLE: "Basal Mass Balance AMU (Gt/y)", FILE_PATTERN: "ismip6_fluxes_*_monitoring_antarctica.nc", VAR: SMB_Flux_11, SF: 1.0}
+  CLV_AMU:      {TITLE: "Iceberg Calving AMU (Gt/y)", FILE_PATTERN: "ismip6_fluxes_*_monitoring_antarctica.nc", VAR: Ice_Discharge_11, SF: -1.0}
+
+  GL_ANT:       {TITLE: "Grounding line flux ANT (Gt/y)", FILE_PATTERN: "ismip6_fluxes_*_monitoring_antarctica.nc", VAR: Ice_flux_at_Grounding_Line_00, SF: -1.0}
+  BMB_ANT:      {TITLE: "Basal Mass Balance ANT (Gt/y)", FILE_PATTERN: "ismip6_fluxes_*_monitoring_antarctica.nc", VAR: BMB_Flux_00, SF: -1.0}
+  SMB_ANT:      {TITLE: "Surface Mass Balance ANT (Gt/y)", FILE_PATTERN: "ismip6_fluxes_*_monitoring_antarctica.nc", VAR: SMB_Flux_00, SF: 1.0}
+  CLV_ANT:      {TITLE: "Iceberg Calving ANT (Gt/y)", FILE_PATTERN: "ismip6_fluxes_*_monitoring_antarctica.nc", VAR: Ice_Discharge_00, SF: -1.0}
+  ISFA_ANT:     {TITLE: "Floating ice area ANT (1e6 km2)", FILE_PATTERN: "ismip6_states_*_monitoring_antarctica.nc", VAR: Floating_ice_area_00, SF: 1.0}
+  VTRD_ANT:     {TITLE: "Mass Balance ANT (Gt/y)", FILE_PATTERN: "ismip6_fluxes_*_monitoring_antarctica.nc", VAR: Volume_rate_of_change_00, SF: 0.917}
+  VOL_ANT:      {TITLE: "Volume_Above_Flotation ANT (1e6 km3)", FILE_PATTERN: "ismip6_states_*_monitoring_antarctica.nc", VAR: Volume_Above_Flotation_00, SF: 1.0}
+
+  GL_GRE:       {TITLE: "Grounding line flux GRE (Gt/y)", FILE_PATTERN: "ismip6_fluxes_*_monitoring_greenland.nc", VAR: Ice_flux_at_Grounding_Line_00, SF: -1.0}
+  BMB_GRE:      {TITLE: "Basal Mass Balance GRE (Gt/y)", FILE_PATTERN: "ismip6_fluxes_*_monitoring_greenland.nc", VAR: BMB_Flux_00, SF: -1.0}
+  SMB_GRE:      {TITLE: "Surface Mass Balance GRE (Gt/y)", FILE_PATTERN: "ismip6_fluxes_*_monitoring_greenland.nc", VAR: SMB_Flux_00, SF: 1.0}
+  CLV_GRE:      {TITLE: "Iceberg Calving GRE (Gt/y)", FILE_PATTERN: "ismip6_fluxes_*_monitoring_greenland.nc", VAR: Ice_Discharge_00, SF: -1.0}
+  ISFA_GRE:     {TITLE: "Floating ice area GRE (1e6 km2)", FILE_PATTERN: "ismip6_states_*_monitoring_greenland.nc", VAR: Floating_ice_area_00, SF: 1.0}
+  VTRD_GRE:     {TITLE: "Volume rate of change GRE (km3/y)", FILE_PATTERN: "ismip6_fluxes_*_monitoring_greenland.nc", VAR: Volume_rate_of_change_00, SF: 1.0}
+  VOL_GRE:      {TITLE: "Volume_Above_Flotation GRE (1e6 km3)", FILE_PATTERN: "ismip6_states_*_monitoring_greenland.nc", VAR: Volume_Above_Flotation_00, SF: 1.0}
+
+  # other
+  SSH_GLO:      {TITLE: "Global mean sea level (m)", FILE_PATTERN: "zos_wmean_*_1y_*_grid_T.nc", VAR: "zos_wmean", SF: 1.0}

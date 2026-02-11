@@ -3,9 +3,9 @@
 . PARAM/param_arch.bash
 
 # diagnostics bundle
-RUNVALSO=0
+RUNVALSO=1
 RUNVALGLO=0
-RUNVALSI=0
+RUNVALSI=1
 RUNVALAMU=0
 RUNALL=0
 
@@ -32,10 +32,10 @@ if [[ $RUNALL == 1 || $RUNTEST == 1 ]]; then
    runBSF=1 #gyre ts
    runBOT=1 #bottom TS ts
    runMOC=1
-   runMHT=1
+   runMHT=0
    runSIE=1
    runSST=1
-   runQHF=1
+   runQHF=0
    runISF=1
    runICB=1
    runMEAN=1
